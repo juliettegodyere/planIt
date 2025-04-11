@@ -76,3 +76,5 @@ Choose the platform you want to configure. An eas.json should be created in your
 ```bash
  eas build --profile development --platform ios
 ```
+
+The subsequent prompts will ask you to allow install of `expo-dev-client`, the `iOS bundle identifier` you want want, enter your `Apple account`, Then you register a device
