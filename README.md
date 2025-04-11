@@ -67,3 +67,12 @@ if you are not logged in
 ```
 
 Follow the prompt to create a project
+
+```bash
+ eas build:configure
+```
+Choose the platform you want to configure. An eas.json should be created in your project
+
+```bash
+ eas build --profile development --platform ios
+```
