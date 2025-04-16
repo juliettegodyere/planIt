@@ -5,12 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "planit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.queencoder.planItfrontend",
+      "bundleIdentifier": "com.queencoder.planIt",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },

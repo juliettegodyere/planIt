@@ -49,6 +49,31 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
+## TODOs
+- Setup a folder to contain the front end and backend
+- Create React native app using Expo
+- Setup development build using EAS
+- Design the app icon and the splash screen
+- Setup Glustack for components
+- Setup expo router
+- Setup expo Stack router in route Layout
+- Setup expo Tab router - Home, History, Setting
+- Handle Guest login
+- Handle OAuth login - Facebook and Google (Frontend)
+- Setup the springboot using initialize
+- Handle OAuth login - Facebook and Google (backend)
+- Setup Global state
+- Create shoppinglist data 
+- Display data on the index page using Flatview
+- Style the list items in the frontend
+- Design the shoppinglist database
+- handle Saving of user input on the frontend
+- handle Saving of user input on the backend
+- Handle the History page
+- Handle the setting page
+- Test application
+- deploy the backend on AWS
+- deploy the fronend on the App store
 
 ## Configure Development Build
 
