@@ -1,15 +1,14 @@
-import { Text, View } from "react-native";
+import { Text, View, FlatList } from "react-native";
+import shoppingListData from "../../data/shoppingListData.json"
+import ShoppingListItem from "../../components/ShoppingListItem"
 
 export default function Index() {
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Home tabs.</Text>
-    </View>
+    <FlatList 
+          data={shoppingListData.categories}
+          renderItem={({ item }) => <ShoppingListItem shoppingList={item} />}
+          keyExtractor={(item) => item.value}
+        />
   );
 }
