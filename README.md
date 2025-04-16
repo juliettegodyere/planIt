@@ -50,14 +50,14 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 ## TODOs
-- Setup a folder to contain the front end and backend
-- Create React native app using Expo
-- Setup development build using EAS
-- Design the app icon and the splash screen
+- Setup a folder to contain the front end and backend ✅
+- Create React native app using Expo ✅
+- Setup development build using EAS ✅
+- Design the app icon and the splash screen ✅
 - Setup Glustack for components
-- Setup expo router
-- Setup expo Stack router in route Layout
-- Setup expo Tab router - Home, History, Setting
+- Setup expo router ✅
+- Setup expo Stack router in route Layout ✅
+- Setup expo Tab router - Home, History, Setting ✅
 - Handle Guest login
 - Handle OAuth login - Facebook and Google (Frontend)
 - Setup the springboot using initialize
