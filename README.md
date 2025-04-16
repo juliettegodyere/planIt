@@ -54,7 +54,7 @@ Join our community of developers creating universal apps.
 - Create React native app using Expo ✅
 - Setup development build using EAS ✅
 - Design the app icon and the splash screen ✅
-- Setup Glustack for components
+- Setup Glustack for components ✅
 - Setup expo router ✅
 - Setup expo Stack router in route Layout ✅
 - Setup expo Tab router - Home, History, Setting ✅
@@ -63,7 +63,7 @@ Join our community of developers creating universal apps.
 - Setup the springboot using initialize
 - Handle OAuth login - Facebook and Google (backend)
 - Setup Global state
-- Create shoppinglist data 
+- Create shoppinglist data ✅
 - Display data on the index page using Flatview
 - Style the list items in the frontend
 - Design the shoppinglist database
