@@ -102,4 +102,12 @@ Choose the platform you want to configure. An eas.json should be created in your
  eas build --profile development --platform ios
 ```
 
-The subsequent prompts will ask you to allow install of `expo-dev-client`, the `iOS bundle identifier` you want want, enter your `Apple account`, Then you register a device
+is used to build your Expo app for iOS using EAS Build (Expo Application Services) with a custom build profile.
+
+The subsequent prompts will ask you to allow install of `expo-dev-client`, the `iOS bundle identifier` you want, enter your `Apple account`, Then you register a device
+
+```bash
+   npx expo start --dev-client
+```
+
+This command starts the Metro bundler (your local development server) specifically for use with a development build of your app — aka the Expo Dev Client.
