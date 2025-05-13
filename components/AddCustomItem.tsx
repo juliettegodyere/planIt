@@ -1,20 +1,26 @@
-import React,{useState} from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, FlatList, StyleSheet, ScrollView } from "react-native";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import { useShoppingListContext } from "../service/stateManager";
 import { Input, InputField } from "@/components/ui/input";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button, ButtonText, ButtonIcon } from "@/components/ui/button";
 import { theme } from "../assets/colors";
+import { saveUserDefinedItem } from "../service/HelperFunction";
 import {
-    saveUserDefinedItem,
-  } from "../service/HelperFunction";
-
-interface ShoppingListItem {
-  label: string;
-  value: string;
-  category: string;
-}
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalCloseButton,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/modal";
+import { ArrowLeftIcon } from "@/components/ui/icon";
+import { Heading } from "@/components/ui/heading";
+import { categoryLists } from "../data/dataStore";
+import { ShoppingItem, ShoppingListItem } from "../service/state";
+import {useShoppingActions} from '../db/context/useShoppingList'
 
 type Props = {
   item: ShoppingListItem;
@@ -22,59 +28,100 @@ type Props = {
   isBought: boolean;
 };
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category: string;
-}
+type AddCustomItemProps = {
+  showModal: boolean;
+  setShowModal: (val: boolean) => void;
+  fetchItems: () => void;
+};
 
-const AddCustomItem = () => {
-  const { state, dispatch } = useShoppingListContext();
+const AddCustomItem: React.FC<AddCustomItemProps> = ({
+  showModal,
+  setShowModal,
+  fetchItems
+}) => {
+  // const { state, dispatch } = useShoppingListContext();
   const [customItem, setCustomItem] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const {addUserDefinedItem } = useShoppingActions();
 
-  const handleAddCustomItem = async (itemLabel: string) => {
-    if (!itemLabel.trim()) return; // Prevent empty inputs
+  const handleAddCustomItem = async (itemLabel: string, category: string) => {
+   
+    if (!itemLabel.trim()) return; 
+    await addUserDefinedItem(itemLabel, category);
+    fetchItems();
 
-    await saveUserDefinedItem(itemLabel);
-    setCustomItem(""); // Clear input field
+    setCustomItem(""); 
   };
-
+  
   return (
-    <HStack
-    space="sm"
-    className="m-2"
-    style={{
-      alignItems: "center",
-    }}
-  >
-    <Input size="xl" variant="underlined" style={{ flex: 1 }}>
-      <InputField
-        placeholder="Enter New Item..."
-        value={customItem}
-        onChangeText={setCustomItem}
-      />
-    </Input>
-    <Button 
-      onPress={() => handleAddCustomItem(customItem)} 
-      style={{
-        borderColor: theme.colors.buttonPrimary,
-        borderWidth: 1, // Ensure border is visible
-        //borderRadius:50
-        //color: theme.colors.buttonSecondary
+    <Modal
+      isOpen={showModal}
+      onClose={() => {
+        setShowModal(false);
       }}
-      variant="outline"
-      >
-        <ButtonText >Save</ButtonText>
-      </Button>
-  </HStack>
+    >
+      <ModalBackdrop />
+      <ModalContent>
+        <ModalHeader className="flex-col items-start gap-0.5">
+          <Heading>Add a New Item</Heading>
+          {/* <Text size="sm">No worries, if the item you want is not in the list. Just add it.</Text> */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <HStack space="sm" className="px-2">
+              {categoryLists.map((cat, idx) => (
+                <Button
+                  key={idx}
+                  size="sm"
+                  onPress={() => setSelectedCategory(cat.label)}
+                  className={`mt-2 ${
+                    selectedCategory === cat.label
+                      ? "bg-blue-500"
+                      : "bg-gray-200"
+                  }`}
+                >
+                  <ButtonText
+                    className={`font-medium ${
+                      selectedCategory === cat.label
+                        ? "text-white"
+                        : "text-black"
+                    }`}
+                  >
+                    {cat.label}
+                  </ButtonText>
+                </Button>
+              ))}
+            </HStack>
+          </ScrollView>
+        </ModalHeader>
+        <ModalBody className="mb-4">
+          <Input>
+            <InputField
+              placeholder="Enter New Item..."
+              value={customItem}
+              onChangeText={setCustomItem}
+            />
+          </Input>
+        </ModalBody>
+        <ModalFooter className="flex-col items-start">
+          <Button
+            onPress={() => handleAddCustomItem(customItem, selectedCategory)}
+            className="w-full"
+          >
+            <ButtonText>Add</ButtonText>
+          </Button>
+          <Button
+            variant="link"
+            size="sm"
+            onPress={() => {
+              setShowModal(false);
+            }}
+            className="gap-1"
+          >
+            <ButtonIcon as={ArrowLeftIcon} />
+            <ButtonText>Exit</ButtonText>
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 export default AddCustomItem;

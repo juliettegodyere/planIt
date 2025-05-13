@@ -1,4 +1,4 @@
-{
+export const shoppingData = {
   "categories": [
     {
       "label": "Grocery",

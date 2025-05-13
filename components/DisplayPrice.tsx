@@ -1,9 +1,13 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
-import { useShoppingListContext } from "../service/stateManager";
-import { updatePrice } from "../service/stateActions";
+import { useShoppingListContext } from "../service/store";
+import { updateItem, updatePrice } from "../service/stateActions";
 import { Input, InputField } from "@/components/ui/input";
+import {ShoppingItem} from "../service/state"
+import { useEffect, useState } from "react";
+import { useShoppingActions } from "@/db/context/useShoppingList";
+
 
 interface ShoppingListItem {
   label: string;
@@ -16,25 +20,27 @@ type Props = {
   selectedItem: ShoppingItem;
 };
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category: string;
-}
-
 const DisplayPrice = ({ item, selectedItem }: Props) => {
+  const [priceInput, setPriceInput] = useState("");
   const { state, dispatch } = useShoppingListContext();
+  const {guest} = state
+  const {updateShoppingItemFields } = useShoppingActions()
 
-  const handleUpdatePrice = (id: string, newPrice: string) => {
-    dispatch(updatePrice(id, newPrice)); // Dispatch action
+  useEffect(() => {
+    const lastPrice = selectedItem?.price?.[selectedItem.price.length - 1];
+    if (lastPrice) {
+      setPriceInput(lastPrice); 
+    }
+  }, [selectedItem]);
+
+  const handleUpdatePrice = async (id: string, newPrice: string) => {
+    //dispatch(updatePrice(id, newPrice)); 
+    await updateShoppingItemFields(selectedItem.id, { price: [newPrice]}, updateItem);
+  };
+  
+  const handleChange = (text: string) => {
+    setPriceInput(text);
+    handleUpdatePrice(item.value, text); 
   };
 
   return (
@@ -44,12 +50,12 @@ const DisplayPrice = ({ item, selectedItem }: Props) => {
         alignItems: "center",
       }}
     >
-      <Text className="text-typography-400 font-bold text-lg">Price: </Text>
+      <Text className="text-typography-400 font-bold text-xl">Price: {guest.currency}</Text>
       <Input size="xl" variant="underlined" style={{ flex: 1 }}>
         <InputField
           placeholder="Enter Price here..."
-          value={selectedItem?.price?.[selectedItem.price.length - 1] || ""}
-          onChangeText={(text) => handleUpdatePrice(item.value, text)}
+          value={priceInput}
+          onChangeText={handleChange}
         />
       </Input>
     </HStack>
@@ -58,3 +64,5 @@ const DisplayPrice = ({ item, selectedItem }: Props) => {
 export default DisplayPrice;
 
 const styles = StyleSheet.create({});
+
+

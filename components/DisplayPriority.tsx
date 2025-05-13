@@ -1,41 +1,26 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
-import { useShoppingListContext } from "../service/stateManager";
-import { updatePriority } from "../service/stateActions";
+import { useShoppingListContext } from "../service/store";
+import { updateItem, updatePriority } from "../service/stateActions";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button"
-
-interface ShoppingListItem {
-  label: string;
-  value: string;
-  category: string;
-}
+import {ShoppingItem, ShoppingListItem} from "../service/state"
+import { useShoppingActions } from "@/db/context/useShoppingList";
 
 type Props = {
   item: ShoppingListItem;
   selectedItem: ShoppingItem;
 };
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category: string;
-}
-
 const DisplayPriority = ({ item, selectedItem }: Props) => {
   const { state, dispatch } = useShoppingListContext();
+  const {updateShoppingItemFields } = useShoppingActions()
 
-  const handlePrioritySelect = (id: string, priority: string) => {
-    dispatch(updatePriority(id, priority));
+  const handlePrioritySelect = async (id: string, priority: string) => {
+    //dispatch(updatePriority(id, priority));
+    await updateShoppingItemFields(selectedItem.id, { priority: [priority]}, updateItem);
+    
   };
 
   return (

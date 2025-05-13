@@ -3,11 +3,17 @@ import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useShoppingListContext } from "../service/stateManager";
-import { updateQuantity, updateUnit } from "../service/stateActions";
+import { useShoppingListContext } from "../service/store";
+import { updateItem, updateQuantity, updateUnit } from "../service/stateActions";
 import { ChevronDownIcon } from "@/components/ui/icon";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
 import { Divider } from '@/components/ui/divider';
+import {ShoppingItem, ShoppingListItem} from "../service/state"
+import { Dispatch, useContext, useEffect, useState } from "react";
+import { ShoppingListAction } from "../service/store"; 
+import { useShoppingActions } from "@/db/context/useShoppingList";
+import {useQuantityDebouncer} from "@/Util/HelperFunction"
+
 
 import {
     Select,
@@ -22,11 +28,6 @@ import {
     SelectItem,
   } from "@/components/ui/select";
 
-interface ShoppingListItem {
-  label: string;
-  value: string;
-  category: string;
-}
 
 type Props = {
   item: ShoppingListItem;
@@ -34,30 +35,37 @@ type Props = {
   selectedItem: ShoppingItem;
 };
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category: string;
-}
-
 const DisplayQuantity = ({ item, isSelected, selectedItem }: Props) => {
   const { state, dispatch } = useShoppingListContext();
+  const [qtyVal, SetQtyVal] = useState([0])
+  const { shoppingItems } = state;
+  const {updateShoppingItemFields } = useShoppingActions()
+  const debounce = useQuantityDebouncer();
 
-  const handleUpdateQuantity = (id: string, change: number) => {
-    dispatch(updateQuantity(id, change)); // Dispatch action
-  };
-  const handleUnitSelect = (id: string, unit: string) => {
-    dispatch(updateUnit(id, unit)); // Dispatch action
-  };
+  useEffect(() => {
+    if (isSelected && selectedItem?.quantity?.length > 0) {
+      SetQtyVal([...selectedItem.quantity]);
+    } else {
+      SetQtyVal([1]);
+    }
+  }, [isSelected]);
+
+  const handleUpdateQuantity = async (key: string, change: number) => {
+    const lastQty = qtyVal[qtyVal.length - 1] ?? 1;
+    const newQty = Math.max(1, lastQty + change);
   
+    const newQuantity = [
+      ...selectedItem.quantity.slice(0, -1),
+      newQty
+    ];
+  
+    SetQtyVal(newQuantity);
+    updateShoppingItemFields(selectedItem.id, { quantity: newQuantity }, updateItem);
+  };
+  const handleUnitSelect = async (id: string, unit: string) => {
+   // dispatch(updateUnit(id, unit)); // Dispatch action
+   await updateShoppingItemFields(selectedItem.id, { qtyUnit: [unit]}, updateItem);
+  };
     
   return (
     <HStack
@@ -83,9 +91,9 @@ const DisplayQuantity = ({ item, isSelected, selectedItem }: Props) => {
         </Button>
 
         <Text className="text-typography-400 font-bold text-lg">
-        {isSelected === false
+          {isSelected === false
             ? 1
-            : selectedItem.quantity[selectedItem.quantity.length - 1]}
+            : qtyVal[qtyVal.length - 1] ?? 1}
         </Text>
 
         <Button
@@ -111,7 +119,7 @@ const DisplayQuantity = ({ item, isSelected, selectedItem }: Props) => {
             placeholder="Unit"
             className="text-typography-400 text-lg"
         />
-        <SelectIcon as={AntDesignIcon} name="down" size="xl"  style={{marginTop:8, marginLeft:5}}/>
+        <SelectIcon as={ChevronDownIcon} size="xl"  style={{marginTop:8, marginLeft:5}}/>
         </SelectTrigger>
 
         <SelectPortal>

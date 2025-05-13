@@ -1,17 +1,14 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
-import { useShoppingListContext } from "../service/stateManager";
-import { updatePurchase } from "../service/stateActions";
+import { useShoppingListContext } from "../service/store";
+import { updateItem, updatePurchase,updateSelected } from "../service/stateActions";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { theme } from "../assets/colors";
+import {ShoppingItem, ShoppingListItem} from "../service/state"
+import { useShoppingActions } from "@/db/context/useShoppingList";
 
-interface ShoppingListItem {
-  label: string;
-  value: string;
-  category: string;
-}
 
 type Props = {
   item: ShoppingListItem;
@@ -19,33 +16,23 @@ type Props = {
   isBought: boolean;
 };
 
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category: string;
-}
 
 const PurchaseButton = ({ item, selectedItem, isBought }: Props) => {
   const { state, dispatch } = useShoppingListContext();
+  const {updateShoppingItemFields } = useShoppingActions()
 
-  const handleMarkAsPurchased = (id: string) => {
-    dispatch(updatePurchase(id));
+  const handleMarkAsPurchased = async (id: string) => {
+    //dispatch(updatePurchase(id));
     //dispatch(updateSelected(id));
+    await updateShoppingItemFields(selectedItem.id, { purchased: [true], selected:[false] }, updateItem);
   };
-
+//   console.log("from purcahse page")
+// console.log(state.shoppingItems)
   return (
     <Button
       //color={isBought ? "red" : "green"} //
       style={{
-        borderColor: isBought ? "#E82B35" : theme.colors.buttonPrimary,
+        borderColor: theme.colors.buttonPrimary,
         borderWidth: 1, // Ensure border is visible
         borderRadius:50
         //color: theme.colors.buttonSecondary
@@ -58,7 +45,8 @@ const PurchaseButton = ({ item, selectedItem, isBought }: Props) => {
         className="text-typography-400 font-medium"
         style={{ color: theme.colors.fontPrimary }}
       >
-        {isBought ? "Undo" : "Bought"}
+        {/* {isBought ? "Undo" : "Bought"} */}
+        Bought
       </ButtonText>
     </Button>
   );

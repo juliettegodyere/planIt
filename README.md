@@ -49,31 +49,53 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
-## TODOs
-- Setup a folder to contain the front end and backend ✅
-- Create React native app using Expo ✅
-- Setup development build using EAS ✅
-- Design the app icon and the splash screen ✅
-- Setup Glustack for components ✅
-- Setup expo router ✅
-- Setup expo Stack router in route Layout ✅
-- Setup expo Tab router - Home, History, Setting ✅
-- Handle Guest login
-- Handle OAuth login - Facebook and Google (Frontend)
-- Setup the springboot using initialize
-- Handle OAuth login - Facebook and Google (backend)
-- Setup Global state
-- Create shoppinglist data ✅
-- Display data on the index page using Flatview
-- Style the list items in the frontend
-- Design the shoppinglist database
-- handle Saving of user input on the frontend
-- handle Saving of user input on the backend
-- Handle the History page
-- Handle the setting page
-- Test application
-- deploy the backend on AWS
-- deploy the fronend on the App store
+## 🛒 Shopping Cart App Roadmap
+
+### 🧱 Phase 1: Setup & Core
+
+#### ✅ Done
+- [x] Setup folder structure for frontend and backend
+- [x] Create React Native app using Expo
+- [x] Setup development build using EAS
+- [x] Design app icon and splash screen
+- [x] Setup Gluestack for components
+- [x] Setup Expo Router (stack + tab)
+- [x] Configure local storage using AsyncStorage
+- [x] Create sample shopping list data
+- [x] Display data on the home page
+
+#### 🚧 To Do
+- [ ] Setup Spring Boot backend using Spring Initializr
+- [ ] Set up Global State (recommend Zustand)
+- [ ] Handle Guest Login (UUID, save to AsyncStorage)
+- [ ] Handle Google Login (Expo AuthSession)
+- [ ] Handle Facebook Login (Expo AuthSession)
+- [ ] Link native modules properly for dev-client (Google, FB)
+- [ ] Implement shopping list DB in backend
+- [ ] Save items to localStorage (for guest users)
+- [ ] Save items to backend (for logged-in users)
+
+### 🛍️ Phase 2: Home Page
+- [ ] Add FAB for input (open ActionSheet)
+- [ ] Style item cards (checkbox, label)
+- [ ] On checkbox click: show Quantity, Price, Priority
+- [ ] Add "Mark as Bought" button
+
+### 📜 Phase 3: History Page
+- [ ] Group purchased items by date
+- [ ] Modal to view item purchase history
+
+### ⚙️ Phase 4: Settings Page
+- [ ] Show user profile (name, email, etc)
+- [ ] Display joined date, country, currency
+- [ ] Notification preferences
+- [ ] App version and build info
+
+### 🧪 Phase 5: Final Touches
+- [ ] Full testing: guest & logged-in flows
+- [ ] Deploy Spring Boot backend to AWS (Elastic Beanstalk or EC2)
+- [ ] Build Android + iOS apps with EAS
+- [ ] Submit to App Store & Play Store
 
 ## Configure Development Build
 

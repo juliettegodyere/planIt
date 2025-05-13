@@ -1,19 +1,7 @@
 import React, { createContext, useContext, useReducer } from "react";
+import { initialState } from "./state";
 
 const ShoppingListContext = createContext();
-
-const initialState = {
-  guest: {},
-  user: {
-    country: "",
-    currency: "",
-  },
-  shoppingItems: [],
-  searchQuery: "",
-  filterVisible: false,
-  isToggled: false,
-  selectedCategory: "",
-};
 
 const shoppingListReducer = (state, action) => {
   switch (action.type) {

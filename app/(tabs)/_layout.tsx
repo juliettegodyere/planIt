@@ -1,7 +1,8 @@
-import {Platform} from 'react-native'
+import {Platform, View} from 'react-native'
 import { Tabs } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
+import SearchItems from '../../components/SearchItem'
 
 export default function TabsLayout() {
   return (
@@ -20,12 +21,15 @@ export default function TabsLayout() {
                 name="index"
                 options={{
                     tabBarIcon: ({ color }) => <AntDesignIcon size={28} name="home" color={color} />,
+                    header: () => <SearchItems />, 
+                    headerTitleAlign: "center", 
                 }}
             />
             <Tabs.Screen
                 name="history"
                 options={{
                     tabBarIcon: ({ color }) => <AntDesignIcon size={28} name="clockcircleo" color={color} />,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
@@ -37,3 +41,4 @@ export default function TabsLayout() {
     </Tabs>
   )
 }
+
