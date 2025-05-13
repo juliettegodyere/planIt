@@ -6,6 +6,11 @@ export const shoppingListReducer = (
   action: ShoppingListAction
 ): ShoppingListState => {
   switch (action.type) {
+    case "SET_INVENTORY_ITEMS":
+      return {
+        ...state,
+        inventoryItems: action.payload,
+      };
     case "ADD_ITEM":
       return {
         ...state,

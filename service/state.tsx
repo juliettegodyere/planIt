@@ -25,6 +25,7 @@ export interface ShoppingListState {
   filterVisible: boolean;
   isToggled: boolean;
   selectedCategory: string;
+  inventoryItems: ShoppingListItem[];
 }
 
 export const initialState: ShoppingListState = {
@@ -35,6 +36,7 @@ export const initialState: ShoppingListState = {
   filterVisible: false,
   isToggled: false,
   selectedCategory: "",
+  inventoryItems: [],
 };
 
 export interface UserInfo {

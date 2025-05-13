@@ -17,7 +17,13 @@ export const currencyOptions = [
     { label: "Grocery", value: "grocery" },
     { label: "African", value: "african" },
     { label: "Chinese", value: "chinese" },
-    { label: "Everyday Essentials", value: "essentials" },
+    { label: "Vegetables", value: "vegetables" },
+    { label: "Fruits", value: "fruits" },
+    { label: "Drinks", value: "drinks" },
+    { label: "Snacks", value: "snacks" },
+    { label: "Dairy", value: "dairy" },
+    { label: "Meat", value: "meat" },
+    { label: "Household", value: "household" },
   ];
 
   export const categoryLists = [

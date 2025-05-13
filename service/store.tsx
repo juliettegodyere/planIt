@@ -6,13 +6,14 @@ import React, {
   Dispatch,
 } from "react";
 import { shoppingListReducer } from "./reducer";
-import { initialState, ShoppingListState, ShoppingItem, UserInfo, GuestUserInfo } from "./state";
+import { initialState, ShoppingListState, ShoppingItem, UserInfo, GuestUserInfo, ShoppingListItem } from "./state";
 
 // Define action type
 export type ShoppingListAction =
   | { type: "ADD_ITEM"; payload: ShoppingItem }
   | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItem }}
   | { type: "ADD_NEW_ENTRY"; payload: { item: ShoppingItem } }
+  | { type: 'SET_INVENTORY_ITEMS'; payload: ShoppingListItem[] }
   | {
       type:
         | "UPDATE_PRIORITY"

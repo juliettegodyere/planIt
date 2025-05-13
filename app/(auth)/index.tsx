@@ -20,14 +20,14 @@ export default function Auth() {
   const { shoppingItems } = state;
   const router = useRouter();
 
-  GoogleSignin.configure({
-    webClientId: '', 
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
-    offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-    forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
-    iosClientId: '', 
-    profileImageSize: 120, // [iOS] The desired height (and width) of the profile image. Defaults to 120px
-  });
+  // GoogleSignin.configure({
+  //   webClientId: '', 
+  //   scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
+  //   offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+  //   forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
+  //   iosClientId: '', 
+  //   profileImageSize: 120, // [iOS] The desired height (and width) of the profile image. Defaults to 120px
+  // });
  
 
   useEffect(() => {
@@ -35,13 +35,13 @@ export default function Auth() {
   }, []);
   
 
-  const onGooglePress = () => {
-    handleAuthLogin("google", dispatch);
-  };
+  // const onGooglePress = () => {
+  //   handleAuthLogin("google", dispatch);
+  // };
 
-  const onFacebookPress = () => {
-   // handleAuthLogin("facebook", dispatch, response);
-  };
+  // const onFacebookPress = () => {
+  //  // handleAuthLogin("facebook", dispatch, response);
+  // };
 
   return (
     <Box
@@ -52,7 +52,7 @@ export default function Auth() {
         backgroundColor: "#E6F0FA",
       }} // light blue background
     >
-      <Button
+      {/* <Button
         onPress={() => onFacebookPress()}
         style={{
           width: 250,
@@ -78,7 +78,7 @@ export default function Auth() {
         <ButtonText style={{ color: "#fff", fontWeight: "600" }}>
           Login with Google
         </ButtonText>
-      </Button>
+      </Button> */}
 
       <Button
         onPress={() => handleGuestLogin(dispatch, () => router.replace('/(tabs)'))}

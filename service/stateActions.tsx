@@ -1,4 +1,4 @@
-import { ShoppingItem, UserInfo, GuestUserInfo } from "./state";
+import { ShoppingItem, UserInfo, GuestUserInfo, ShoppingListItem } from "./state";
 import { ShoppingListAction } from "./store";
 
   export const addItem = (item: ShoppingItem): ShoppingListAction => ({
@@ -96,6 +96,11 @@ import { ShoppingListAction } from "./store";
   export const updateShoppingItems = (items: ShoppingItem[]): ShoppingListAction => ({
     type: "UPDATE_SHOPPING_ITEMS",
     payload: { items },
+  });
+
+  export const setInventoryItems = (items: ShoppingListItem[]): ShoppingListAction => ({
+    type: 'SET_INVENTORY_ITEMS',
+    payload: items,
   });
 
   
