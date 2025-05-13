@@ -63,10 +63,10 @@ import { ShoppingListAction } from "./store";
     payload:  key ,
   });
 
-  export const setSearchQuery = (query: string) : ShoppingListAction => ({
-    type: "SET_SEARCH_QUERY",
-    payload: {query},
-  });
+  // export const setSearchQuery = (query: string) : ShoppingListAction => ({
+  //   type: "SET_SEARCH_QUERY",
+  //   payload: {query},
+  // });
   
   export const toggleFilter = () => ({
     type: "TOGGLE_FILTER",
