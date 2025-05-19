@@ -27,6 +27,18 @@ export const shoppingListReducer = (
         ),
       };
 
+    case "SET_SHOPPING_ITEMS":
+      const mergedItems = [...state.shoppingItems, ...action.payload];
+
+      const uniqueItems = mergedItems.filter(
+        (item, index, self) => index === self.findIndex((t) => t.id === item.id) // or item.key
+      );
+
+      return {
+        ...state,
+        shoppingItems: uniqueItems,
+      };
+
     case "ADD_NEW_ENTRY":
       return {
         ...state,
@@ -217,6 +229,12 @@ export const shoppingListReducer = (
       return {
         ...state,
         shoppingItems: action.payload.items,
+      };
+
+    case "SET_SELECTED_ITEMS_HYDRATED":
+      return {
+        ...state,
+        isSelectedShoppingItemsHydrated: action.payload,
       };
 
     default:

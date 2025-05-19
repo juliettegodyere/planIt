@@ -135,7 +135,7 @@ export const useShoppingActions = () => {
           ? [...existingItem.priority.slice(0, -1), updates.priority.at(-1)!]
           : [...existingItem.priority.slice(0, -1), existingItem.priority.at(-1)!],
 
-      modifiedDate: [...existingItem.priority.slice(0, -1), now],
+      modifiedDate: [...existingItem.modifiedDate.slice(0, -1), now],
     };
     console.log("The update data");
     //This code shows that selected is toggled false

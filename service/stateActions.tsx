@@ -68,13 +68,13 @@ import { ShoppingListAction } from "./store";
   //   payload: {query},
   // });
   
-  export const toggleFilter = () => ({
-    type: "TOGGLE_FILTER",
-  });
+  // export const toggleFilter = () => ({
+  //   type: "TOGGLE_FILTER",
+  // });
   
-  export const toggleSelectionOrder = () => ({
-    type: "TOGGLE_SELECTION_ORDER",
-  });
+  // export const toggleSelectionOrder = () => ({
+  //   type: "TOGGLE_SELECTION_ORDER",
+  // });
   
   export const setSelectedCategory = (category: string) : ShoppingListAction => ({
     type: "SET_SELECTED_CATEGORY",
@@ -102,5 +102,17 @@ import { ShoppingListAction } from "./store";
     type: 'SET_INVENTORY_ITEMS',
     payload: items,
   });
+
+  export const setSelectedShoppingItemsItems = (items: ShoppingItem[]): ShoppingListAction => ({
+    type: 'SET_SHOPPING_ITEMS',
+    payload: items,
+  });
+
+  export const setSelectedShoppingItemsHydrated = (val: boolean): ShoppingListAction => ({
+    type: 'SET_SELECTED_ITEMS_HYDRATED',
+    payload: val,
+  });
+
+  
 
   

@@ -33,8 +33,6 @@ const PurchaseButton = ({ item, selectedItem, isBought }: Props) => {
       //color={isBought ? "red" : "green"} //
       style={{
         borderColor: theme.colors.buttonPrimary,
-        borderWidth: 1, // Ensure border is visible
-        borderRadius:50
         //color: theme.colors.buttonSecondary
       }}
       variant="outline"

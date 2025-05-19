@@ -14,6 +14,7 @@ export type ShoppingListAction =
   | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItem }}
   | { type: "ADD_NEW_ENTRY"; payload: { item: ShoppingItem } }
   | { type: 'SET_INVENTORY_ITEMS'; payload: ShoppingListItem[] }
+  | {type: 'SET_SHOPPING_ITEMS'; payload: ShoppingItem[]}
   | {
       type:
         | "UPDATE_PRIORITY"
@@ -32,6 +33,7 @@ export type ShoppingListAction =
   | { type: "SET_GUEST_USER"; payload: GuestUserInfo } 
   | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
   | { type: "SET_SEARCH_QUERY"; payload: {query:string} }
+  | {type: "SET_SELECTED_ITEMS_HYDRATED"; payload:boolean}
   | { type: "UPDATE_SHOPPING_ITEMS"; payload: { items: ShoppingItem[] } }; 
 
 // Context type

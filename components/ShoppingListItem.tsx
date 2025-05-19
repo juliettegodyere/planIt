@@ -26,6 +26,7 @@ import { Icon, CheckIcon } from "@/components/ui/icon";
 import {useShoppingActions} from "../db/context/useShoppingList"
 import {ShoppingListItem, ShoppingItem} from "../service/state"
 import { useLoadShoppingItems } from "@/Util/HelperFunction";
+import ShoppingItemDetails from "./ShoppingItemDetails";
 
 type Props = {
   shoppingList: ShoppingListItem;
@@ -89,6 +90,8 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
               qtyUnit: ["None"],
               quantity: [1],
               priority: ["Low"],
+              isSelectedShoppingItemsHydrated:true
+              
             };
             console.log("I am not selected but already purcahsed in the past");
             // update DB and state
@@ -120,6 +123,7 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
         qtyUnit: ["None"],
         quantity: [1],
         priority: ["Low"],
+        isSelectedShoppingItemsHydrated:true
       };
       //Creates Item in DB and state
       await addNewItemToDB(newItem);
@@ -155,29 +159,31 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
         >
           <CheckboxIndicator
             style={{
-              backgroundColor: isChecked(shoppingList.value)
-                ? "#ccc" 
-                : 'transparent',
-              borderColor: isChecked(shoppingList.value)
-                ? "#fff"  
-                : '', 
-              borderWidth: 2,
+              backgroundColor: isChecked(shoppingList.value) ? "#1c1616" : "transparent",
+              borderColor: isChecked(shoppingList.value) ? "#000" : "#000",
+              borderWidth: 1,
+              borderRadius: 9999, // makes it fully rounded
+              width: 22,
+              height: 22,
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <CheckboxIcon
-              color={theme.colors.fontSecondary}
+              color="#fff"
               as={CheckIcon}
               size="lg"
               style={{borderWidth: 2}}
             />
           </CheckboxIndicator>
           <CheckboxLabel
-            style={{
-              //textDecorationLine: isBought ? "line-through" : "none",
-              fontFamily: theme.fonts.bold,
-              fontSize: theme.sizes.medium,
-              color: theme.colors.fontPrimary,
-            }}
+            // style={{
+            //   fontFamily: theme.fonts.bold,
+            //   fontSize: theme.sizes.medium,
+            //   color: theme.colors.fontPrimary,
+            //   marginLeft: 10,
+            // }}
+            className="text-2xl ml-2"
           >
             {shoppingList.label}
           </CheckboxLabel>
@@ -192,21 +198,23 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
         )}
       </HStack>
       {selectedItem && (
-        <VStack>
-          <Box className="mt-3">
-            <DisplayQuantity
-              item={shoppingList}
-              isSelected={isSelected}
-              selectedItem={selectedItem}
-            />
-          </Box>
-          <Box>
-            <DisplayPrice item={shoppingList} selectedItem={selectedItem} />
-          </Box>
-          <Box>
-            <DisplayPriority item={shoppingList} selectedItem={selectedItem} />
-          </Box>
-        </VStack>
+      <Box
+         className="border-2 border-gray-200 mt-3 p-4 rounded-xl border-l-4 border-l-fuchsia-500 bg-white"
+         style={{
+           shadowColor: "#000",
+           shadowOffset: { width: 0, height: 2 },
+           shadowOpacity: 0.2,
+           shadowRadius: 4,
+           elevation: 5, // for Android
+         }}
+      >
+       <ShoppingItemDetails
+       item={shoppingList}
+       isSelected={isSelected}
+       selectedItem={selectedItem}
+     />
+      
+      </Box>
       )}
     </Card>
   );

@@ -7,8 +7,7 @@ import { generateSimpleUUID } from '@/Util/HelperFunction';
 
 export const insertShoppingItem = async (db: SQLite.SQLiteDatabase, item: Omit<ShoppingItem, 'id'>) => {
   const id = await generateSimpleUUID(); 
-  console.log("from insert function")
-  console.log(item)
+  
   const newItem: ShoppingItemDB = {
     ...item,
     id,
@@ -137,5 +136,31 @@ export const insertCategoryItem = async (db: SQLite.SQLiteDatabase,label: string
     VALUES (?, ?, ?, ?);
   `, [id, label, value, categoryId]);
 };
+
+export const getSelectedItemsFromSQLite = async (
+  db: SQLite.SQLiteDatabase
+): Promise<ShoppingItem[]> => {
+  const rawItems = await db.getAllAsync<ShoppingItemDB>(
+    `SELECT * FROM shopping_items'`
+  );
+
+  const items: ShoppingItem[] = rawItems.map((item) => ({
+    id: item.id,
+    key: item.key,
+    name: item.name,
+    category: item.category,
+    quantity: JSON.parse(item.quantity),
+    qtyUnit: JSON.parse(item.qtyUnit),
+    price: JSON.parse(item.price),
+    purchased: JSON.parse(item.purchased),
+    selected: JSON.parse(item.selected),
+    createDate: JSON.parse(item.createDate),
+    modifiedDate: JSON.parse(item.modifiedDate),
+    priority: JSON.parse(item.priority),
+  }));
+
+  return items;
+};
+
 
 

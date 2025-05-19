@@ -49,53 +49,94 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
-## 🛒 Shopping Cart App Roadmap
+🛒 Shopping Cart App — Roadmap
+An offline-first shopping list app using React Native + SQLite with support for guest usage and optional cloud sync later.
 
-### 🧱 Phase 1: Setup & Core
+🧱 Phase 1: Core Setup
+✅ ## Completed
+✅ Project structure (frontend & backend)
 
-#### ✅ Done
-- [x] Setup folder structure for frontend and backend
-- [x] Create React Native app using Expo
-- [x] Setup development build using EAS
-- [x] Design app icon and splash screen
-- [x] Setup Gluestack for components
-- [x] Setup Expo Router (stack + tab)
-- [x] Configure local storage using AsyncStorage
-- [x] Create sample shopping list data
-- [x] Display data on the home page
+✅ Created Expo app with EAS build
 
-#### 🚧 To Do
-- [ ] Setup Spring Boot backend using Spring Initializr
-- [ ] Set up Global State (recommend Zustand)
-- [ ] Handle Guest Login (UUID, save to AsyncStorage)
-- [ ] Handle Google Login (Expo AuthSession)
-- [ ] Handle Facebook Login (Expo AuthSession)
-- [ ] Link native modules properly for dev-client (Google, FB)
-- [ ] Implement shopping list DB in backend
-- [ ] Save items to localStorage (for guest users)
-- [ ] Save items to backend (for logged-in users)
+✅ App icon and splash screen
 
-### 🛍️ Phase 2: Home Page
-- [ ] Add FAB for input (open ActionSheet)
-- [ ] Style item cards (checkbox, label)
-- [ ] On checkbox click: show Quantity, Price, Priority
-- [ ] Add "Mark as Bought" button
+✅ Expo Router (stack + tab navigation)
 
-### 📜 Phase 3: History Page
-- [ ] Group purchased items by date
-- [ ] Modal to view item purchase history
+✅ UI with Gluestack components
 
-### ⚙️ Phase 4: Settings Page
-- [ ] Show user profile (name, email, etc)
-- [ ] Display joined date, country, currency
-- [ ] Notification preferences
-- [ ] App version and build info
+✅ React Context for global state
 
-### 🧪 Phase 5: Final Touches
-- [ ] Full testing: guest & logged-in flows
-- [ ] Deploy Spring Boot backend to AWS (Elastic Beanstalk or EC2)
-- [ ] Build Android + iOS apps with EAS
-- [ ] Submit to App Store & Play Store
+✅ Removed AsyncStorage (using SQLite instead)
+
+✅ Sample shopping list data displayed
+
+🚧 ## In Progress
+☐ Setup Spring Boot backend (for optional sync)
+
+☐ Guest login (UUID stored in SQLite)
+
+☐ Google & Facebook login (via Expo AuthSession)
+
+☐ Save items in SQLite for guests
+
+☐ Save items to backend for logged-in users
+
+🛍️ ## Phase 2: Inventory Management (SQLite)
+✅ Add items (FAB + ActionSheet)
+
+✅ Style item cards (checkbox, label)
+
+✅ On check: show Quantity, Price, Priority
+
+✅ "Mark as Bought" functionality
+
+✅ Filter by category
+
+✅ Sort by selection & alphabetically
+
+✅ Search items by query (real-time typing)
+
+✅ Merge user-defined & pre-defined items
+
+✅ Persist all items using SQLite
+
+📜 ## Phase 3: Purchase History
+✅ Group purchased items by date
+
+✅ Modal to view item history
+
+☐ Re-add items from history to list
+
+⚙️ ## Phase 4: Settings Page
+✅ Show user info (name, email, etc.)
+
+✅ Display joined date, country, currency
+
+☐ Notification preferences
+
+☐ App version and build info
+
+🌐 ## Phase 5: Cloud Sync (Optional)
+Enables syncing for logged-in users (Google/Facebook)
+
+☐ Set up Spring Boot backend
+
+☐ API to sync items and user info
+
+☐ Handle login (Google / Facebook)
+
+☐ Push/pull sync from SQLite
+
+☐ Handle offline-to-online sync
+
+🧪 ## Final Phase: Polish & Deploy
+☐ Full testing (guest & logged-in flows)
+
+☐ Deploy backend to AWS (Elastic Beanstalk / EC2)
+
+☐ Build Android & iOS with EAS
+
+☐ Publish to App Store & Google Play
 
 ## Configure Development Build
 
@@ -133,3 +174,14 @@ The subsequent prompts will ask you to allow install of `expo-dev-client`, the `
 ```
 
 This command starts the Metro bundler (your local development server) specifically for use with a development build of your app — aka the Expo Dev Client.
+
+
+TODOs
+1. Complete the guest login
+2. Implement the offline mode
+3. On the right of the item in history, show how many times the item has been purchades
+3. Make the history details editable
+4. Make it possible for users to add notes on the history details page
+5. Add info on the profile page to inform users to sign up with social media login and the importance
+5. Add notification - Whe there is new upgrade
+6. Add app version in the profile page

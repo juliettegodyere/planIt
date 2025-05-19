@@ -32,7 +32,7 @@ export default function HistoryItem({ items }: HistoryItemProps) {
   //console.log(items)
   return (
     <Box className="px-2">
-      <Text className="text-xl, font-bold text-gray-600 mt-2">
+      <Text className="font-semibold mt-2 text-2xl py-3">
         {formatDate(items[0])}
       </Text>
       {items[1].map((entry) => {
@@ -43,7 +43,6 @@ export default function HistoryItem({ items }: HistoryItemProps) {
           entry?.purchased?.[entry.purchased.length - 1] || false;
         const isSelected =
           entry?.selected?.[entry.selected.length - 1] || false;
-
         return (
           <Card key={entry.id} className="my-1">
             <Pressable
@@ -56,12 +55,15 @@ export default function HistoryItem({ items }: HistoryItemProps) {
             >
               <HStack style={{ justifyContent: "space-between" }}>
                 <VStack>
-                  <Text className="text-xl font-extrabold">{entry.name}</Text>
-                  <Text className="text-sm font-medium text-gray-400">
+                  <Text className="text-3xl font-bold font-roboto">{entry.name}</Text>
+                  <Text className="text-xl font-medium font-roboto text-gray-400">
                     {entry.category}
                   </Text>
                 </VStack>
-                {toggleUndoButton(entry) && (
+                <Box>
+                  <Text className="text-3xl font-bold font-roboto">{entry.purchased.length}</Text>
+                </Box>
+                {/* {toggleUndoButton(entry) && (
                   <Box>
                     <Button
                       size="sm"
@@ -78,7 +80,7 @@ export default function HistoryItem({ items }: HistoryItemProps) {
                       <ButtonText className="font-medium text-sm ml-2">Undo</ButtonText>
                     </Button>
                   </Box>
-                )}
+                )} */}
               </HStack>
             </Pressable>
           </Card>

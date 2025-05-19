@@ -24,8 +24,8 @@ const DisplayPriority = ({ item, selectedItem }: Props) => {
   };
 
   return (
-    <HStack space="md" style={{ alignItems: "center", paddingVertical: 10 }}>
-      <Text className="text-typography-400 font-medium">Priority:</Text>
+    <HStack space="md" style={{ alignItems: "center"}} className="mt-4">
+      <Text className="font-medium text-md">Priority:</Text>
       <HStack space="sm">
         {["Low", "Medium", "High"].map((priority, idx) => (
           <Button
@@ -39,11 +39,11 @@ const DisplayPriority = ({ item, selectedItem }: Props) => {
                   : priority === "Medium"
                   ? "bg-yellow-400 text-black"
                   : "bg-green-400 text-black"
-                : "bg-gray-200"
+                : "border-gray-200 bg-white-50 border-2"
             }`}
             onPress={() => handlePrioritySelect(item.value, priority)}
           >
-            <ButtonText className="text-typography-400 font-medium">
+            <ButtonText className="font-medium text-typography-700">
               {priority}
             </ButtonText>
           </Button>

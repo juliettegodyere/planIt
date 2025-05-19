@@ -49,9 +49,10 @@ const DisplayPrice = ({ item, selectedItem }: Props) => {
       style={{
         alignItems: "center",
       }}
+      className="pt-5"
     >
-      <Text className="text-typography-400 font-bold text-xl">Price: {guest.currency}</Text>
-      <Input size="xl" variant="underlined" style={{ flex: 1 }}>
+      <Text className="font-medium text-md">Price: {guest.currency}</Text>
+      <Input size="md" variant="outline" style={{ flex: 1 }} className="border-2 border-gray-200">
         <InputField
           placeholder="Enter Price here..."
           value={priceInput}

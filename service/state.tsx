@@ -14,7 +14,7 @@ export interface ShoppingItem {
   createDate: string[];
   modifiedDate: string[];
   priority: string[];
-  category:string
+  category:string;
 }
 
 export interface ShoppingListState {
@@ -26,6 +26,7 @@ export interface ShoppingListState {
   isToggled: boolean;
   selectedCategory: string;
   inventoryItems: ShoppingListItem[];
+  isSelectedShoppingItemsHydrated:boolean;
 }
 
 export const initialState: ShoppingListState = {
@@ -37,6 +38,7 @@ export const initialState: ShoppingListState = {
   isToggled: false,
   selectedCategory: "",
   inventoryItems: [],
+  isSelectedShoppingItemsHydrated:false
 };
 
 export interface UserInfo {

@@ -82,7 +82,8 @@ export const formatDate = (input: string | Date) => {
 
 export function cleanUpItem(item: ShoppingItem): ShoppingItem {
   let cleanedItem = { ...item };
-
+  console.log("Cleaned Item function")
+  console.log(cleanedItem)
   while (cleanedItem.purchased.length > 0 && cleanedItem.purchased[cleanedItem.purchased.length - 1] === false) {
     cleanedItem = {
       ...cleanedItem,
@@ -96,7 +97,8 @@ export function cleanUpItem(item: ShoppingItem): ShoppingItem {
       qtyUnit: cleanedItem.qtyUnit.slice(0, -1),
     };
   }
-
+  console.log("Cleaned Item function - Before return")
+  console.log(cleanedItem)
   return cleanedItem;
 }
 

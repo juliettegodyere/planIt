@@ -6,10 +6,12 @@ import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqli
 import { StatusBar } from 'expo-status-bar';
 import {ShoppingListProvider, useShoppingListContext} from '../service/store'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setGuestUser, setUser } from '@/service/stateActions';
+import { setGuestUser, setSelectedShoppingItemsHydrated, setSelectedShoppingItemsItems, setUser } from '@/service/stateActions';
 import { useRouter } from 'expo-router';
 import { useLocalStorageSync } from '@/Util/HelperFunction';
 import { createTables } from '@/db/schema';
+import { getSelectedItemsFromSQLite } from '@/db/shoppingItems';
+import { ShoppingItem } from '@/service/state';
 
 export default function RootLayout() {
   const [loading, setLoading] = useState(true);
@@ -34,20 +36,29 @@ type RootLayoutInnerProps = {
 
 function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) {
   const {state, dispatch } = useShoppingListContext();
-  const {shoppingItems} = state
-
+  const {shoppingItems, isSelectedShoppingItemsHydrated} = state
+  const db = useSQLiteContext();
 
   //Rehydate the local storage always
   useLocalStorageSync("@shoppingItems", shoppingItems);
 
+  const fetchItemsIfNeeded = async () => {
+    if (!isSelectedShoppingItemsHydrated) {
+      const items: ShoppingItem[] = await getSelectedItemsFromSQLite(db);
+      dispatch(setSelectedShoppingItemsItems(items));
+      dispatch(setSelectedShoppingItemsHydrated(true));
+    }
+  };
+
   useEffect(() => {
 
     const restoreSession = async () => {
+    
       try {
         //await AsyncStorage.removeItem('@guestUser')
+        
         const guestUserData = await AsyncStorage.getItem('@guestUser');
         const userData = await AsyncStorage.getItem('@guser');
-       
         if (userData) {
           const user = JSON.parse(userData);
           dispatch(setUser(user)); 
@@ -59,12 +70,17 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
         } else {
           router.replace('/(auth)' as any); 
         }
+        if(userData || guestUserData){
+          fetchItemsIfNeeded()
+        }    
       } catch (error) {
         console.error('Failed to restore session:', error);
         router.replace('/(auth)' as any);
       } finally {
         setLoading(false);
       }
+
+
     };
 
     restoreSession();
@@ -79,3 +95,5 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
     </>
   );
 }
+
+
