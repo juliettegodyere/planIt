@@ -15,12 +15,19 @@ export default function TabsLayout() {
             },
             default: {},
             }),
+            tabBarActiveTintColor: '#FF6347',
+            tabBarInactiveTintColor: '#555555',
+            sceneStyle: {backgroundColor:"#FF6347"},
+            tabBarLabelStyle: {
+                fontWeight: '500',
+                fontSize: 11,
+              },
         }}
         >
         <Tabs.Screen
                 name="index"
                 options={{
-                    tabBarIcon: ({ color }) => <AntDesignIcon size={28} name="home" color={color} />,
+                    tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="home" color={color} />,
                     header: () => <SearchItems />, 
                     headerTitleAlign: "center", 
                 }}
@@ -28,17 +35,28 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="history"
                 options={{
-                    tabBarIcon: ({ color }) => <AntDesignIcon size={28} name="clockcircleo" color={color} />,
+                    tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="clockcircleo" color={color} />,
                     headerShown: false,
                 }}
             />
             <Tabs.Screen
                 name="setting"
                 options={{
-                    tabBarIcon: ({ color }) => <AntDesignIcon size={28} name="setting" color={color} />,
+                    tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="setting" color={color} />,
                 }}
             />
     </Tabs>
   )
 }
+
+// Suggested Color Palette
+// Primary Color (Tomato Red): #FF6347
+
+// Secondary Color (Pink): #FFC0CB
+
+// Accent Color (Deep Pink): #FF1493
+
+// Neutral Background: #FFFFFF (White)
+
+// Text Color: #333333 (Dark Gray)
 

@@ -163,7 +163,7 @@ export const useShoppingActions = () => {
 
   const addUserDefinedItem = async (label: string, categoryLabel: string) => {
     const value = `${label.toLowerCase()}_${Date.now()}`;
-    console.log(value);
+    const now = new Date().toISOString();
 
     const allCategories = (await db.getAllAsync(
       "SELECT * FROM categories WHERE label = ?",
@@ -175,6 +175,24 @@ export const useShoppingActions = () => {
 
       await insertCategoryItem(db, label, value, categoryId);
       console.log(`Item added with categoryId: ${categoryId}`);
+      const newItem = {
+        id: "",
+        key: value,
+        name: label,
+        category: "uncategorized",
+        modifiedDate: [now],
+        createDate: [now],
+        price: [""],
+        purchased: [false],
+        selected: [true],
+        qtyUnit: ["None"],
+        quantity: [1],
+        priority: ["Low"],
+        isSelectedShoppingItemsHydrated: true,
+      };
+      //Creates Item in DB and state
+      console.log(`Item added is: ${newItem}`);
+      await addNewItemToDB(newItem);
     } else {
       console.error("Category not found!");
     }

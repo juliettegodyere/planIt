@@ -35,9 +35,6 @@ export default function History() {
   
 
   const groupedItems = groupByDate(shoppingItems); 
-  console.log(groupedItems[1])
-
-  console.log(groupedItems)
   return (
     <Box>
       <FlatList 

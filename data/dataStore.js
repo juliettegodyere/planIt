@@ -24,6 +24,7 @@ export const currencyOptions = [
     { label: "Dairy", value: "dairy" },
     { label: "Meat", value: "meat" },
     { label: "Household", value: "household" },
+    { label: "uncategorized", value: "Uncategorized"},
   ];
 
   export const categoryLists = [

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, FlatList, StyleSheet, ScrollView } from "react-native";
+import { View, FlatList, StyleSheet, ScrollView, Pressable } from "react-native";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import { useShoppingListContext } from "../service/stateManager";
@@ -21,6 +21,7 @@ import { Heading } from "@/components/ui/heading";
 import { categoryLists } from "../data/dataStore";
 import { ShoppingItem, ShoppingListItem } from "../service/state";
 import {useShoppingActions} from '../db/context/useShoppingList'
+import { VStack } from "./ui/vstack";
 
 type Props = {
   item: ShoppingListItem;
@@ -54,74 +55,28 @@ const AddCustomItem: React.FC<AddCustomItemProps> = ({
   };
   
   return (
-    <Modal
-      isOpen={showModal}
-      onClose={() => {
-        setShowModal(false);
-      }}
-    >
-      <ModalBackdrop />
-      <ModalContent>
-        <ModalHeader className="flex-col items-start gap-0.5">
-          <Heading>Add a New Item</Heading>
-          {/* <Text size="sm">No worries, if the item you want is not in the list. Just add it.</Text> */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <HStack space="sm" className="px-2">
-              {categoryLists.map((cat, idx) => (
-                <Button
-                  key={idx}
-                  size="sm"
-                  onPress={() => setSelectedCategory(cat.label)}
-                  className={`mt-2 ${
-                    selectedCategory === cat.label
-                      ? "bg-blue-500"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  <ButtonText
-                    className={`font-medium ${
-                      selectedCategory === cat.label
-                        ? "text-white"
-                        : "text-black"
-                    }`}
-                  >
-                    {cat.label}
-                  </ButtonText>
-                </Button>
-              ))}
-            </HStack>
-          </ScrollView>
-        </ModalHeader>
-        <ModalBody className="mb-4">
-          <Input>
-            <InputField
-              placeholder="Enter New Item..."
-              value={customItem}
-              onChangeText={setCustomItem}
-            />
-          </Input>
-        </ModalBody>
-        <ModalFooter className="flex-col items-start">
-          <Button
-            onPress={() => handleAddCustomItem(customItem, selectedCategory)}
-            className="w-full"
-          >
-            <ButtonText>Add</ButtonText>
-          </Button>
-          <Button
-            variant="link"
-            size="sm"
-            onPress={() => {
-              setShowModal(false);
-            }}
-            className="gap-1"
-          >
-            <ButtonIcon as={ArrowLeftIcon} />
-            <ButtonText>Exit</ButtonText>
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <VStack>
+    <Input size="sm" variant="outline">
+      <InputField
+        placeholder="Enter New Item..."
+        value={customItem}
+        onChangeText={setCustomItem}
+        className="bg-white rounded-md"
+      />
+    </Input>
+    <HStack space="md" className="justify-between items-center pt-2">
+      <Pressable >
+        <Text className=" font-medium" style={{ color: "#FF6347" }}>
+          Cancel
+        </Text>
+      </Pressable>
+      <Pressable onPress={() => handleAddCustomItem(customItem, "uncategorized")}>
+        <Text className="font-extrabold" style={{ color: "#FF6347" }}>
+          Add
+        </Text>
+      </Pressable>
+    </HStack>
+  </VStack>
   );
 };
 export default AddCustomItem;
