@@ -30,6 +30,7 @@ import ShoppingItemDetails from "./ShoppingItemDetails";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
 import { Heading } from "@/components/ui/heading";
+import AntDesignIcon from "@expo/vector-icons/AntDesign";
 import {
   Modal,
   ModalBackdrop,
@@ -155,7 +156,7 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
 
   return (
     <Pressable onPress={() => setShowModal(true)}>
-      <Card size="md" variant="elevated" className="m-2">
+      <Card size="md" variant="elevated" className="m-1">
       <HStack
         space="4xl"
         style={{
@@ -211,6 +212,9 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
             selectedItem={selectedItem}
           />
         )} */}
+        {selectedItem && (
+          <AntDesignIcon size={16} name="arrowsalt" color="#888"/>
+        )}
       </HStack>
     </Card>
     <Modal

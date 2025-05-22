@@ -26,8 +26,9 @@ import { VStack } from "@/components/ui/vstack";
 import { Center } from "@/components/ui/center";
 import { BookImage, PlusIcon } from "lucide-react-native";
 import { Image } from "@/components/ui/image";
-import { Input, InputField } from "@/components/ui/input";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { useShoppingActions } from "@/db/context/useShoppingList";
+import AntDesignIcon from "@expo/vector-icons/AntDesign";
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
@@ -198,17 +199,20 @@ export default function Index() {
                     <Text >Add Item</Text>
                   </Pressable>
                 </HStack>
-                <BookImage size={23} color="#333" />
+                <BookImage size={15} color="#888" />
               </HStack>
             ) : (
               <VStack>
-                <Input size="sm" variant="outline">
+                <Input size="md" variant="outline" className=" bg-white">
                   <InputField
                     placeholder="Enter New Item..."
                     value={customItem}
                     onChangeText={setCustomItem}
                     className="bg-white rounded-md"
                   />
+                  <InputSlot className="pr-3 bg-white" >
+                    <AntDesignIcon size={15} name="arrowsalt" color="#888"/>
+                  </InputSlot>
                 </Input>
                 <HStack space="md" className="justify-between items-center pt-2">
                   <Pressable onPress={onPressCancelFunction}>
