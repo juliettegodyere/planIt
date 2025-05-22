@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
 import { Box } from "@/components/ui/box";
@@ -154,7 +154,8 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
     selectedItem?.selected?.[selectedItem.selected.length - 1] || false;
 
   return (
-    <Card size="md" variant="elevated" className="m-2">
+    <Pressable onPress={() => setShowModal(true)}>
+      <Card size="md" variant="elevated" className="m-2">
       <HStack
         space="4xl"
         style={{
@@ -168,6 +169,7 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
           size="lg"
           isChecked={isChecked(shoppingList.value)}
           onChange={() => handleCheckboxChange(shoppingList)}
+        
         >
           <CheckboxIndicator
             style={{
@@ -202,30 +204,36 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
             {shoppingList.label}
           </CheckboxLabel>
         </Checkbox>
-        {selectedItem && (
+        {/* {selectedItem && (
           <PurchaseButton
             item={shoppingList}
             isBought={isBought}
             selectedItem={selectedItem}
           />
-        )}
+        )} */}
       </HStack>
-      <Modal
-          //isOpen={showModal}
-          isOpen={!!selectedItem} 
+    </Card>
+    <Modal
+          isOpen={showModal}
+          //isOpen={!!selectedItem} 
           onClose={() => {
-            setShowModal(false);
+            setShowModal(!!showModal);
           }}
           size="md"
         >
           <ModalBackdrop />
           <ModalContent className="h-[100%] w-[100%] bg-gray-200">
             <ModalHeader className="mt-10">
-            <ModalCloseButton>
+            <ModalCloseButton
+               onPress={() => {
+                setShowModal(false);
+              }}
+            >
                 <Icon
                   as={CloseIcon}
                   size="md"
                   className="stroke-background-400 group-[:hover]/modal-close-button:stroke-background-700 group-[:active]/modal-close-button:stroke-background-900 group-[:focus-visible]/modal-close-button:stroke-background-900"
+                  
                 />
               </ModalCloseButton>
               <Heading size="md" className="text-typography-950">
@@ -259,7 +267,7 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
             </ModalFooter>
           </ModalContent>
         </Modal>
-    </Card>
+    </Pressable>
   );
 }
 
