@@ -211,7 +211,7 @@ export default function Index() {
                     className="bg-white rounded-md"
                   />
                   <InputSlot className="pr-3 bg-white" >
-                    <AntDesignIcon size={15} name="arrowsalt" color="#888"/>
+                    <AntDesignIcon size={15} name="arrowsalt" color="#888" onPress={() => setShowModal(true)}/>
                   </InputSlot>
                 </Input>
                 <HStack space="md" className="justify-between items-center pt-2">
@@ -241,7 +241,7 @@ export default function Index() {
             }}
             data={inventoryItems}
             renderItem={({ item }) => (
-              <ShoppingListItemPage shoppingList={item} />
+              <ShoppingListItemPage shoppingList={item} isModalOpen={showModal} onCloseModal={() => setShowModal(false)}/>
             )}
             keyExtractor={(item) => item.value}
             showsVerticalScrollIndicator={false}

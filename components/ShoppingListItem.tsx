@@ -43,9 +43,11 @@ import {
 
 type Props = {
   shoppingList: ShoppingListItem;
+  isModalOpen?: boolean; 
+  onCloseModal?: () => void;
 };
 
-export default function ShoppingListItemPage({ shoppingList }: Props) {
+export default function ShoppingListItemPage({ shoppingList, isModalOpen, onCloseModal}: Props) {
   const { state, dispatch } = useShoppingListContext();
   const { shoppingItems, loading } = useLoadShoppingItems();
   const { addNewItemToDB, updateExistingItemInDB, updateShoppingItemFields } =
@@ -143,6 +145,14 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
     }
   };
 
+  const handleClose = () => {
+    if (showModal) {
+      setShowModal(false);
+    } else if (onCloseModal) {
+      onCloseModal();
+    }
+  };
+
   const selectedItem = shoppingItems.find(
     (i: ShoppingItem) =>
       i.key === shoppingList.value &&
@@ -213,25 +223,28 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
           />
         )} */}
         {selectedItem && (
-          <AntDesignIcon size={16} name="arrowsalt" color="#888"/>
+          <AntDesignIcon size={16} name="arrowsalt" color="#888" onPress={() => setShowModal(true)}/>
         )}
       </HStack>
     </Card>
     <Modal
-          isOpen={showModal}
+          //isOpen={showModal}
           //isOpen={!!selectedItem} 
-          onClose={() => {
-            setShowModal(!!showModal);
-          }}
+          // onClose={() => {
+          //   setShowModal(!!showModal);
+          // }}
+          isOpen={showModal || isModalOpen} 
+          onClose={handleClose}
           size="md"
         >
           <ModalBackdrop />
           <ModalContent className="h-[100%] w-[100%] bg-gray-200">
             <ModalHeader className="mt-10">
             <ModalCloseButton
-               onPress={() => {
-                setShowModal(false);
-              }}
+              //  onPress={() => {
+              //   setShowModal(false);
+              // }}
+              onPress={handleClose}
             >
                 <Icon
                   as={CloseIcon}
@@ -255,9 +268,10 @@ export default function ShoppingListItemPage({ shoppingList }: Props) {
               <Button
                 variant="outline"
                 action="secondary"
-                onPress={() => {
-                  setShowModal(false);
-                }}
+                // onPress={() => {
+                //   setShowModal(false);
+                // }}
+                onPress={handleClose}
               >
                 <ButtonText>Cancel</ButtonText>
               </Button>
