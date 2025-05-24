@@ -32,9 +32,10 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS category_items (
         id TEXT PRIMARY KEY NOT NULL,
         label TEXT NOT NULL,
-        value TEXT NOT NULL,
+        value TEXT NOT NULL, 
         category_id TEXT NOT NULL,
         FOREIGN KEY (category_id) REFERENCES categories(id)
+        UNIQUE (value, category_id)  -- ensures uniqueness within a category
       );
       -- Delete all items from shopping_items table
       -- DELETE FROM shopping_items;

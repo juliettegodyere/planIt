@@ -15,7 +15,7 @@ import { Fab, FabLabel, FabIcon } from "@/components/ui/fab";
 import { AddIcon, Icon, ThreeDotsIcon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import { getAllShoppingItems } from "../../db/queries";
+import { getAllShoppingItems, searchSimilarCatalogueItems } from "../../db/queries";
 import { CategoryItemResponseType } from "../../db/types";
 import { useSQLiteContext } from "expo-sqlite";
 import { useShoppingListContext } from "@/service/store";
@@ -30,6 +30,7 @@ import { Image } from "@/components/ui/image";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { useShoppingActions } from "@/db/context/useShoppingList";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
+import Fuse from 'fuse.js'
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
@@ -106,6 +107,24 @@ export default function Index() {
 
   const handleAddCustomItem = async (itemLabel: string, category: string) => {
     if (!itemLabel.trim()) return;
+
+    const data = await getAllShoppingItems(db);
+    const fuse = new Fuse(data, {
+      keys: ["label", "value"],
+      threshold: 0.4, // Adjust sensitivity (lower = stricter)
+      includeScore: true,
+      ignoreLocation: true,
+    });
+    const fuseResults = fuse.search(itemLabel).map((result) => result.item);
+
+    if (fuseResults.length > 0) {
+      // Show suggestions (you can render this in a modal or dropdown)
+      //setSuggestedItems(similarItems);
+      console.log("From the user input handler")
+      console.log(fuseResults)
+      return; // 🔒 Do NOT insert
+    }
+
     await addUserDefinedItem(itemLabel, category);
     fetchItems();
 
