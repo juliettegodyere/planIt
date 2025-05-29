@@ -40,6 +40,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@/components/ui/modal";
+import { useShoppingItemActions } from "@/hooks/useShoppingItemActions";
 
 type Props = {
   shoppingList: ShoppingListItem;
@@ -53,6 +54,7 @@ export default function ShoppingListItemPage({ shoppingList, isModalOpen, onClos
   const { addNewItemToDB, updateExistingItemInDB, updateShoppingItemFields } =
     useShoppingActions();
   const [showModal, setShowModal] = React.useState(false);
+  const { isChecked, handleCheckboxChange } = useShoppingItemActions();
 
   //console.log(shoppingItems)
   // useEffect(() => {
@@ -61,89 +63,83 @@ export default function ShoppingListItemPage({ shoppingList, isModalOpen, onClos
 
   if (loading) return <Text>Loading...</Text>;
 
-  const isChecked = (key: string) => {
-    if (!shoppingItems || shoppingItems.length === 0) return false;
-    // console.log("The ischecked shoppiing items")
-    // console.log(shoppingItems)
-    // console.log(_item.value + " " + "Key")
-    // console.log(_item.value)
-    const item = shoppingItems.find((item: ShoppingItem) => item.key === key);
-    // console.log("From the ischecked function")
-    // console.log(item)
-    return item
-      ? item.selected[item.selected.length - 1] &&
-          !item.purchased[item.purchased.length - 1]
-      : false;
-  };
+  // const isChecked = (key: string) => {
+  //   if (!shoppingItems || shoppingItems.length === 0) return false;
+  //   const item = shoppingItems.find((item: ShoppingItem) => item.key === key);
+  //   return item
+  //     ? item.selected[item.selected.length - 1] &&
+  //         !item.purchased[item.purchased.length - 1]
+  //     : false;
+  // };
 
-  const handleCheckboxChange = async (item: ShoppingListItem) => {
-    const now = new Date().toISOString();
-    const existingItem = shoppingItems.find(
-      (existingItem: ShoppingItem) => existingItem.key === item.value
-    );
+  // const handleCheckboxChange = async (item: ShoppingListItem) => {
+  //   const now = new Date().toISOString();
+  //   const existingItem = shoppingItems.find(
+  //     (existingItem: ShoppingItem) => existingItem.key === item.value
+  //   );
 
-    if (existingItem) {
-      const lastPurchaseStatus =
-        existingItem.purchased?.[existingItem.purchased.length - 1] ?? false;
-      const lastSelectedStatus =
-        existingItem.selected?.[existingItem.selected.length - 1] ?? false;
+  //   if (existingItem) {
+  //     const lastPurchaseStatus =
+  //       existingItem.purchased?.[existingItem.purchased.length - 1] ?? false;
+  //     const lastSelectedStatus =
+  //       existingItem.selected?.[existingItem.selected.length - 1] ?? false;
 
-      if (!lastSelectedStatus) {
-        if (lastPurchaseStatus) {
-          const newEntry = {
-            id: existingItem.id,
-            key: item.value,
-            name: item.label,
-            category: item.category,
-            modifiedDate: [now],
-            createDate: [now],
-            price: [""],
-            purchased: [false],
-            selected: [true],
-            qtyUnit: ["None"],
-            quantity: [1],
-            priority: ["Low"],
-            isSelectedShoppingItemsHydrated: true,
-          };
-          // update DB and state
-          await updateExistingItemInDB(newEntry);
-        } else {
-          //dispatch(updateSelected(existingItem.id));
-          await updateShoppingItemFields(
-            existingItem.id,
-            { selected: [true] },
-            updateItem
-          );
-        }
-      } else {
-        //dispatch(updatePurchase(existingItem.key));
-        //dispatch(updateSelected(existingItem.key));
-        await updateShoppingItemFields(
-          existingItem.id,
-          { selected: [true] },
-          updateItem
-        );
-      }
-    } else {
-      const newItem = {
-        id: "",
-        key: item.value,
-        name: item.label,
-        category: item.category,
-        modifiedDate: [now],
-        createDate: [now],
-        price: [""],
-        purchased: [false],
-        selected: [true],
-        qtyUnit: ["None"],
-        quantity: [1],
-        priority: ["Low"],
-        isSelectedShoppingItemsHydrated: true,
-      };
-      //Creates Item in DB and state
-      await addNewItemToDB(newItem);
-    }
-  };
+  //     if (!lastSelectedStatus) {
+  //       if (lastPurchaseStatus) {
+  //         const newEntry = {
+  //           id: existingItem.id,
+  //           key: item.value,
+  //           name: item.label,
+  //           category: item.category,
+  //           modifiedDate: [now],
+  //           createDate: [now],
+  //           price: [""],
+  //           purchased: [false],
+  //           selected: [true],
+  //           qtyUnit: ["None"],
+  //           quantity: [1],
+  //           priority: ["Low"],
+  //           isSelectedShoppingItemsHydrated: true,
+  //         };
+  //         // update DB and state
+  //         await updateExistingItemInDB(newEntry);
+  //       } else {
+  //         //dispatch(updateSelected(existingItem.id));
+  //         await updateShoppingItemFields(
+  //           existingItem.id,
+  //           { selected: [true] },
+  //           updateItem
+  //         );
+  //       }
+  //     } else {
+  //       //dispatch(updatePurchase(existingItem.key));
+  //       //dispatch(updateSelected(existingItem.key));
+  //       await updateShoppingItemFields(
+  //         existingItem.id,
+  //         { selected: [true] },
+  //         updateItem
+  //       );
+  //     }
+  //   } else {
+  //     const newItem = {
+  //       id: "",
+  //       key: item.value,
+  //       name: item.label,
+  //       category: item.category,
+  //       modifiedDate: [now],
+  //       createDate: [now],
+  //       price: [""],
+  //       purchased: [false],
+  //       selected: [true],
+  //       qtyUnit: ["None"],
+  //       quantity: [1],
+  //       priority: ["Low"],
+  //       isSelectedShoppingItemsHydrated: true,
+  //     };
+  //     //Creates Item in DB and state
+  //     await addNewItemToDB(newItem);
+  //   }
+  // };
 
   const handleClose = () => {
     if (showModal) {

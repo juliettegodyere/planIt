@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
 import ShoppingListItemPage from "../../components/ShoppingListItem";
 import { Box } from "@/components/ui/box";
@@ -15,13 +16,13 @@ import { Fab, FabLabel, FabIcon } from "@/components/ui/fab";
 import { AddIcon, Icon, ThreeDotsIcon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import { getAllShoppingItems, searchSimilarCatalogueItems } from "../../db/queries";
+import { getAllShoppingItems } from "../../db/queries";
 import { CategoryItemResponseType } from "../../db/types";
 import { useSQLiteContext } from "expo-sqlite";
 import { useShoppingListContext } from "@/service/store";
 import { categoryOptions } from "@/data/dataStore";
 import { Spinner } from "@/components/ui/spinner";
-import { setInventoryItems } from "@/service/stateActions";
+import { setInventoryItems, addItem } from "@/service/stateActions";
 import { Heading } from "@/components/ui/heading";
 import { VStack } from "@/components/ui/vstack";
 import { Center } from "@/components/ui/center";
@@ -30,7 +31,24 @@ import { Image } from "@/components/ui/image";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { useShoppingActions } from "@/db/context/useShoppingList";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
-import Fuse from 'fuse.js'
+import Fuse from "fuse.js";
+import {
+  AlertDialog,
+  AlertDialogBackdrop,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogCloseButton,
+  AlertDialogFooter,
+  AlertDialogBody,
+} from "@/components/ui/alert-dialog";
+import {
+  Checkbox,
+  CheckboxIndicator,
+  CheckboxLabel,
+  CheckboxIcon,
+} from "@/components/ui/checkbox"
+import { CheckIcon } from "@/components/ui/icon"
+import { useShoppingItemActions } from "@/hooks/useShoppingItemActions";
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
@@ -45,6 +63,13 @@ export default function Index() {
   const [isCreateButtonPressed, setCreateButtonPressed] = useState(false);
   const [customItem, setCustomItem] = useState("");
   const { addUserDefinedItem } = useShoppingActions();
+  const [similarItems, setSimilarItems] = useState<CategoryItemResponseType[]>(
+    []
+  );
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSimilarItems, setSelectedSimilarItems] = useState<string[]>([]);
+  const { isChecked, handleCheckboxChange } = useShoppingItemActions();
+
 
   const fetchItems = async () => {
     const data = await getAllShoppingItems(db);
@@ -108,30 +133,67 @@ export default function Index() {
   const handleAddCustomItem = async (itemLabel: string, category: string) => {
     if (!itemLabel.trim()) return;
 
-    const data = await getAllShoppingItems(db);
+    const data = await getAllShoppingItems(db); // returns static + db items
+
     const fuse = new Fuse(data, {
       keys: ["label", "value"],
-      threshold: 0.4, // Adjust sensitivity (lower = stricter)
+      threshold: 0.4,
       includeScore: true,
       ignoreLocation: true,
     });
+
     const fuseResults = fuse.search(itemLabel).map((result) => result.item);
 
     if (fuseResults.length > 0) {
-      // Show suggestions (you can render this in a modal or dropdown)
-      //setSuggestedItems(similarItems);
-      console.log("From the user input handler")
-      console.log(fuseResults)
-      return; // 🔒 Do NOT insert
+      setSimilarItems(fuseResults);
+      setShowSuggestions(true);
+      return; // Don’t insert yet
     }
 
     await addUserDefinedItem(itemLabel, category);
     fetchItems();
-
     setCustomItem("");
   };
 
+  const handleAddUserDefinedItemEvenIfItExist = async () => {
+    const entered = customItem.trim().toLowerCase();
+    if (!entered) return;
+  
+    const similarTextMatch = similarItems.find((item) => {
+      const existing = item.label.toLowerCase();
+  
+      // Match: entered and existing are the same (e.g., "banana" vs "bananas")
+      const pluralRegex = new RegExp(`^${entered}s?$`, 'i');
+      const reverseRegex = new RegExp(`^${existing}s?$`, 'i');
+  
+      return pluralRegex.test(existing) || reverseRegex.test(entered);
+    });
+  
+    if (
+      similarTextMatch &&
+      similarTextMatch.category.toLowerCase() === "uncategorized"
+    ) {
+      Alert.alert(
+        "Item Exists",
+        `A similar item "${similarTextMatch.label}" already exists in this category. Please select the existing one.`
+      );
+      return;
+    }
+  
+    await addUserDefinedItem(customItem, "Uncategorized");
+    fetchItems();
+    setCustomItem("");
+    setShowSuggestions(false);
+    setSimilarItems([]);
+    setSelectedSimilarItems([]);
+  };  
+
+  const hasSelectedSimilarItems = () => {
+    return similarItems.some((item) => isChecked(item.value));
+  };
+
   return (
+    <>
     <KeyboardAvoidingView
       style={{
         flex: 1,
@@ -256,7 +318,7 @@ export default function Index() {
                       </Pressable>
                       <Pressable
                         onPress={() =>
-                          handleAddCustomItem(customItem, "uncategorized")
+                          handleAddCustomItem(customItem, "Uncategorized")
                         }
                       >
                         <Text
@@ -296,6 +358,93 @@ export default function Index() {
         </Box>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+    <AlertDialog
+        isOpen={showSuggestions}
+        onClose={() => setShowSuggestions(false)}
+      >
+        <AlertDialogContent>
+          {/* <AlertDialogHeader>Similar Item(s) Found</AlertDialogHeader> */}
+          <AlertDialogHeader>
+            <Heading className="text-typography-950 font-semibold mb-2" size="md">
+              Similar Item(s) Found
+            </Heading>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            {similarItems.map((item, index) => (
+
+              <Checkbox 
+                size="md" 
+                key={index} 
+                value={item.label} 
+                // isChecked={selectedSimilarItems.includes(item.label)}
+                isChecked={isChecked(item.value)}
+                onChange={() => handleCheckboxChange(item)}
+                // onChange={(isChecked) => {
+                //   setSelectedSimilarItems((prev) =>
+                //     isChecked
+                //       ? [...prev, item.label]
+                //       : prev.filter((label) => label !== item.label)
+                //   );
+
+                //   if (isChecked) {
+                //     const now = new Date().toISOString();
+                //     const newItem = {
+                //       id: "",
+                //       key: item.value,
+                //       name: item.label,
+                //       category: item.category,
+                //       modifiedDate: [now],
+                //       createDate: [now],
+                //       price: [""],
+                //       purchased: [false],
+                //       selected: [true],
+                //       qtyUnit: ["None"],
+                //       quantity: [1],
+                //       priority: ["Low"],
+                //       isSelectedShoppingItemsHydrated: true,
+                //     }
+                //     dispatch(addItem(newItem));
+                //   }else
+                // }}
+                
+                className="m-2"
+                >
+                <CheckboxIndicator>
+                  <CheckboxIcon as={CheckIcon} />
+                </CheckboxIndicator>
+                <CheckboxLabel>{item.label} ({item.category})</CheckboxLabel>
+              </Checkbox>
+            ))}
+          </AlertDialogBody>
+          <AlertDialogFooter>
+          {hasSelectedSimilarItems() ? (
+          <Pressable
+            onPress={() => {
+              setShowSuggestions(false);
+              setSimilarItems([]);
+              setSelectedSimilarItems([]);
+              setCustomItem("");
+            }}
+          >
+            <Text
+              className="font-extrabold"
+              style={{ color: "#FF6347" }}
+            >
+              Done
+            </Text>
+          </Pressable>
+          ) : (
+            <Pressable onPress={handleAddUserDefinedItemEvenIfItExist}>
+              <Text className="font-extrabold" style={{ color: "#FF6347" }}>
+                Add anyway
+              </Text>
+            </Pressable>
+          )}
+
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
