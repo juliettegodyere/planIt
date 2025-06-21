@@ -12,7 +12,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.queencoder.planIt",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photo library"
       },
       "icon": {
         "dark": "./assets/icons/ios-dark.png",
@@ -48,12 +51,6 @@
         }
       ],
       [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps.718749830947-s0otgninnnh74mmh3mqlvrhll6q4j9cv"
-        }
-      ],
-      [
         "expo-sqlite",
         {
           "enableFTS": true,
@@ -67,6 +64,33 @@
               "-DSQLITE_ENABLE_DBSTAT_VTAB=1",
               "-DSQLITE_ENABLE_SNAPSHOT=1"
             ]
+          }
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.4",
+            "podfileProperties": {
+              "GTMSessionFetcher": "~> 4.1.1"
+            }
           }
         }
       ]

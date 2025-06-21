@@ -3,13 +3,7 @@ import { setGuestUser, setUser } from "./stateActions";
 import { ShoppingListAction } from "./store";
 import { Dispatch } from "react";
 import { UserInfo, GuestUserInfo } from "./state";
-import {
-  GoogleSignin,
-  isSuccessResponse,
-  isErrorWithCode,
-  statusCodes,
-  User
-} from '@react-native-google-signin/google-signin';
+
 import { useRouter } from "expo-router";
 
 // Android client ID: 718749830947-mi51a4ggbaopkvfk4g3pknt3bq3d5m6u.apps.googleusercontent.com
@@ -48,43 +42,43 @@ export const handleGuestLogin = async (
 };
 
 
-export const handleAuthLogin = async (
-  provider: "google" | "facebook",
-  dispatch: Dispatch<ShoppingListAction>,
-) => {
-  console.log("Provider:", provider);
+// export const handleAuthLogin = async (
+//   provider: "google" | "facebook",
+//   dispatch: Dispatch<ShoppingListAction>,
+// ) => {
+//   console.log("Provider:", provider);
 
-  const user = await AsyncStorage.getItem("@user");
+//   const user = await AsyncStorage.getItem("@user");
 
-  if (provider === "google") {
-    try {
-      // Ensure Google Play Services are available (Android only)
-      await GoogleSignin.hasPlayServices();
+//   if (provider === "google") {
+//     try {
+//       // Ensure Google Play Services are available (Android only)
+//       await GoogleSignin.hasPlayServices();
 
-      // Begin Google Sign-In
-      const response = await GoogleSignin.signIn();
+//       // Begin Google Sign-In
+//       const response = await GoogleSignin.signIn();
 
-      // Save to AsyncStorage and dispatch
-      //await AsyncStorage.setItem("@user", JSON.stringify(userInfo));
-      //dispatch(setUser(userInfo));
-      console.log("Signed in user:", response.data);
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
+//       // Save to AsyncStorage and dispatch
+//       //await AsyncStorage.setItem("@user", JSON.stringify(userInfo));
+//       //dispatch(setUser(userInfo));
+//       console.log("Signed in user:", response.data);
+//     } catch (error: any) {
+//       console.error("Google Sign-In Error:", error);
 
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("User cancelled the login flow.");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Login already in progress.");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log("Play services not available or outdated.");
-      } else {
-        console.log("Some other error occurred.");
-      }
-    }
-  } else if (provider === "facebook") {
-    // TODO: Handle Facebook logic here
-  }
-};
+//       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+//         console.log("User cancelled the login flow.");
+//       } else if (error.code === statusCodes.IN_PROGRESS) {
+//         console.log("Login already in progress.");
+//       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+//         console.log("Play services not available or outdated.");
+//       } else {
+//         console.log("Some other error occurred.");
+//       }
+//     }
+//   } else if (provider === "facebook") {
+//     // TODO: Handle Facebook logic here
+//   }
+// };
 
 const getUserInfo = async (
   token: string,

@@ -6,39 +6,41 @@ import React, {
   Dispatch,
 } from "react";
 import { shoppingListReducer } from "./reducer";
-import { initialState, ShoppingListState, ShoppingItem, UserInfo, GuestUserInfo, ShoppingListItem } from "./state";
+import { initialState,AllItemsInitialStateType, UserInfo, GuestUserInfo } from "./state";
+import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
 
 // Define action type
 export type ShoppingListAction =
-  | { type: "ADD_ITEM"; payload: ShoppingItem }
-  | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItem }}
-  | { type: "ADD_NEW_ENTRY"; payload: { item: ShoppingItem } }
-  | { type: 'SET_INVENTORY_ITEMS'; payload: ShoppingListItem[] }
-  | {type: 'SET_SHOPPING_ITEMS'; payload: ShoppingItem[]}
-  | {
-      type:
-        | "UPDATE_PRIORITY"
-        | "UPDATE_UNIT"
-        // | "UPDATE_QUANTITY"
-        | "UPDATE_PRICE";
-      payload: {
-        key: string;
-        val:string[];
-      };
-    }
-  | {type: "UPDATE_QUANTITY"; payload: {key: string;quantity:number[]};}
-  | {type: "UPDATE_SELECTED"; payload: string}
-  | {type: "UPDATE_PURCHASE"; payload: string}
+  | { type: "ADD_ITEM"; payload: ShoppingItemTypes }
+  | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItemTypes }}
+  | { type: 'SET_CATALOG_ITEMS'; payload: CategoryItemResponseType[] }
+  // | { type: "ADD_NEW_ENTRY"; payload: { item: ShoppingItem } }
+  // | { type: 'SET_INVENTORY_ITEMS'; payload: ShoppingListItem[] }
+  | {type: 'SET_SHOPPING_ITEMS'; payload: ShoppingItemTypes[]}
+  // | {
+  //     type:
+  //       | "UPDATE_PRIORITY"
+  //       | "UPDATE_UNIT"
+  //       // | "UPDATE_QUANTITY"
+  //       | "UPDATE_PRICE";
+  //     payload: {
+  //       key: string;
+  //       val:string[];
+  //     };
+  //   }
+  // | {type: "UPDATE_QUANTITY"; payload: {key: string;quantity:number[]};}
+  // | {type: "UPDATE_SELECTED"; payload: string}
+  // | {type: "UPDATE_PURCHASE"; payload: string}
   | { type: "SET_USER"; payload:  UserInfo  }
   | { type: "SET_GUEST_USER"; payload: GuestUserInfo } 
-  | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
-  | { type: "SET_SEARCH_QUERY"; payload: {query:string} }
+  // | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
+  // | { type: "SET_SEARCH_QUERY"; payload: {query:string} }
   | {type: "SET_SELECTED_ITEMS_HYDRATED"; payload:boolean}
-  | { type: "UPDATE_SHOPPING_ITEMS"; payload: { items: ShoppingItem[] } }; 
+  // | { type: "UPDATE_SHOPPING_ITEMS"; payload: { items: ShoppingItem[] } }; 
 
 // Context type
 interface ShoppingListContextType {
-  state: ShoppingListState;
+  state: AllItemsInitialStateType;
   dispatch: Dispatch<ShoppingListAction>;
 }
 

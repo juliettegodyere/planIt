@@ -1,43 +1,44 @@
 // src/context/shoppingList/state.ts
 
-import { PriorityLevel } from "./PriorityLevel";
+import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
 
-export interface ShoppingItem {
-  id:string;
-  key: string;
-  name: string;
-  quantity: number[];
-  qtyUnit: string[];
-  price: string[];
-  purchased: boolean[];
-  selected: boolean[]; // ✅ Ensure selected is an array
-  createDate: string[];
-  modifiedDate: string[];
-  priority: string[];
-  category:string;
-}
-
-export interface ShoppingListState {
+export interface AllItemsInitialStateType {
   guest: Record<string, any>;
   user: Record<string, any>;
-  shoppingItems: ShoppingItem[];
+  shoppingItemLists: ShoppingItemTypes[];
   searchQuery: string;
   filterVisible: boolean;
   isToggled: boolean;
   selectedCategory: string;
-  inventoryItems: ShoppingListItem[];
+  catalogItems: CategoryItemResponseType[];
   isSelectedShoppingItemsHydrated:boolean;
 }
 
-export const initialState: ShoppingListState = {
+export type SelectedItemType = {
+  id:string;
+  key: string;
+  name: string;
+  quantity: string; 
+  qtyUnit: string;
+  price: string;
+  purchased: boolean;
+  selected: boolean;
+  createDate: string;
+  modifiedDate: string;
+  priority: string;
+  category: string;
+  note: string
+};
+
+export const initialState: AllItemsInitialStateType = {
   guest: {},
   user: {},
-  shoppingItems: [],
+  shoppingItemLists: [],
   searchQuery: "",
   filterVisible: false,
   isToggled: false,
   selectedCategory: "",
-  inventoryItems: [],
+  catalogItems: [],
   isSelectedShoppingItemsHydrated:false
 };
 
@@ -57,10 +58,4 @@ export interface GuestUserInfo {
   country: string;
   currency: string;
   createdAt: string;
-}
-
-export interface ShoppingListItem {
-  label: string;
-  value: string;
-  category: string;
 }

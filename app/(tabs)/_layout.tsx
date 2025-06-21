@@ -40,6 +40,13 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
+                name="notification"
+                options={{
+                    tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="bells" color={color} />,
+                    headerShown: false,
+                }}
+            />
+            <Tabs.Screen
                 name="setting"
                 options={{
                     tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="setting" color={color} />,

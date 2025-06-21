@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ShoppingItem } from "../service/state";
 import { format, isToday, isYesterday } from "date-fns";
 import { useShoppingListContext } from "@/service/store";
-import { loadUShoppingItemsFromDB } from "@/db/queries";
-import { updateShoppingItems } from "@/service/stateActions";
 import { useSQLiteContext } from "expo-sqlite";
 import * as Crypto from 'expo-crypto';
+import { ShoppingItemTypes } from "@/service/types";
 
 // This function helps convert the currency label to the value
 export const getCurrencyLabelByValue = (selectedCountry: string) => {
@@ -58,14 +56,14 @@ export function useLocalStorageSync<T>(key: string, value: T) {
   }, [value, key]);
 }
 
-export const updateLocalStorage = (items: ShoppingItem[]) => {
-  try {
-    AsyncStorage.setItem("@shoppingItems", JSON.stringify(items));
-    console.log("The update local storage was called");
-  } catch (e) {
-    console.error("Failed to update local storage:", e);
-  }
-};
+// export const updateLocalStorage = (items: ShoppingItem[]) => {
+//   try {
+//     AsyncStorage.setItem("@shoppingItems", JSON.stringify(items));
+//     console.log("The update local storage was called");
+//   } catch (e) {
+//     console.error("Failed to update local storage:", e);
+//   }
+// };
 
 export const formatDate = (input: string | Date) => {
   const date = typeof input === "string" ? new Date(input) : input;
@@ -80,54 +78,57 @@ export const formatDate = (input: string | Date) => {
   return format(date, "EEEE, d MMM");
 };
 
-export function cleanUpItem(item: ShoppingItem): ShoppingItem {
-  let cleanedItem = { ...item };
-  console.log("Cleaned Item function")
-  console.log(cleanedItem)
-  while (cleanedItem.purchased.length > 0 && cleanedItem.purchased[cleanedItem.purchased.length - 1] === false) {
-    cleanedItem = {
-      ...cleanedItem,
-      purchased: cleanedItem.purchased.slice(0, -1),
-      quantity: cleanedItem.quantity.slice(0, -1),
-      price: cleanedItem.price.slice(0, -1),
-      priority: cleanedItem.priority.slice(0, -1),
-      selected: cleanedItem.selected.slice(0, -1),
-      modifiedDate: cleanedItem.modifiedDate.slice(0, -1),
-      createDate: cleanedItem.createDate.slice(0, -1),
-      qtyUnit: cleanedItem.qtyUnit.slice(0, -1),
-    };
-  }
-  console.log("Cleaned Item function - Before return")
-  console.log(cleanedItem)
-  return cleanedItem;
-}
+// export function cleanUpItem(item: ShoppingItemTypes): ShoppingItemTypes {
+//   let cleanedItem = { ...item };
 
-export const useLoadShoppingItems = (forceReload = false) => {
-  const {state, dispatch } = useShoppingListContext();
-  const {shoppingItems} = state;
-  const [loading, setLoading] = useState(false);
-  const db = useSQLiteContext();
+//   while (cleanedItem.purchased.length > 0 && cleanedItem.purchased[cleanedItem.purchased.length - 1] === false) {
+//     cleanedItem = {
+//       ...cleanedItem,
+//       purchased: cleanedItem.purchased.slice(0, -1),
+//       quantity: cleanedItem.quantity.slice(0, -1),
+//       price: cleanedItem.price.slice(0, -1),
+//       priority: cleanedItem.priority.slice(0, -1),
+//       selected: cleanedItem.selected.slice(0, -1),
+//       modifiedDate: cleanedItem.modifiedDate.slice(0, -1),
+//       createDate: cleanedItem.createDate.slice(0, -1),
+//       qtyUnit: cleanedItem.qtyUnit.slice(0, -1),
+//       key: cleanedItem.key,
+//       name: cleanedItem.name,
+//       category: cleanedItem.category,
+//       id: cleanedItem.id,
+     
+//     };
+//   }
 
-  useEffect(() => {
-    const load = async () => {
-      if (!shoppingItems || shoppingItems.length === 0 || forceReload) {
-        setLoading(true);
-        try {
-          const itemsFromDB: ShoppingItem[] = await loadUShoppingItemsFromDB(db);
-          dispatch(updateShoppingItems(itemsFromDB));
-        } catch (error) {
-          console.error("Failed to load shopping items:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+//   return cleanedItem;
+// }
 
-    load();
-  }, [forceReload]);
+// export const useLoadShoppingItems = (forceReload = false) => {
+//   const {state, dispatch } = useShoppingListContext();
+//   const {shoppingItems} = state;
+//   const [loading, setLoading] = useState(false);
+//   const db = useSQLiteContext();
 
-  return { shoppingItems, loading };
-};
+//   useEffect(() => {
+//     const load = async () => {
+//       if (!shoppingItems || shoppingItems.length === 0 || forceReload) {
+//         setLoading(true);
+//         try {
+//           const itemsFromDB: ShoppingItem[] = await loadUShoppingItemsFromDB(db);
+//           dispatch(updateShoppingItems(itemsFromDB));
+//         } catch (error) {
+//           console.error("Failed to load shopping items:", error);
+//         } finally {
+//           setLoading(false);
+//         }
+//       }
+//     };
+
+//     load();
+//   }, [forceReload]);
+
+//   return { shoppingItems, loading };
+// };
 
 export const generateSimpleUUID = async () => {
   // Create a unique string based on a timestamp and a random value

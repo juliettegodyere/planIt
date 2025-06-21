@@ -1,0 +1,54 @@
+// types.ts
+
+export interface ShoppingItemTypes {
+    id:string;
+    key: string;
+    // name: string;
+    quantity: string;
+    qtyUnit: string;
+    price: string;
+    purchased: boolean;
+    selected: boolean;
+    createDate: string;
+    modifiedDate: string;
+    priority: string;
+    category_item_id: string;
+    note: string
+  }
+
+  export interface CreateShoppingItemTypes {
+    key: string;
+    quantity: string;
+    qtyUnit: string;
+    price: string;
+    purchased: boolean;
+    selected: boolean;
+    createDate: string;
+    modifiedDate: string;
+    priority: string;
+    category_item_id: string;
+    note: string
+  }
+
+export type CategoriesType = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+export type CategoryItemTypes = {
+  id: string;
+  label: string;
+  value: string;
+  category_id: string; 
+};
+
+export interface CategoryItemResponseType  {
+  label: string;
+  value: string;
+  category:string;
+}
+
+
+
+  

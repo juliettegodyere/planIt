@@ -7,21 +7,10 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
   try {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
+
       DROP TABLE IF EXISTS shopping_items;
-      CREATE TABLE IF NOT EXISTS shopping_items (
-        id TEXT PRIMARY KEY NOT NULL,
-        key TEXT NOT NULL,
-        name TEXT NOT NULL,
-        quantity TEXT,
-        qtyUnit TEXT,
-        price TEXT,
-        purchased TEXT,
-        selected TEXT,
-        createDate TEXT,
-        modifiedDate TEXT,
-        priority TEXT,
-        category TEXT
-      );
+      DROP TABLE IF EXISTS catalog_items;
+      DROP TABLE IF EXISTS categories;
 
       CREATE TABLE IF NOT EXISTS categories (
         id TEXT PRIMARY KEY NOT NULL,
@@ -32,14 +21,31 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS category_items (
         id TEXT PRIMARY KEY NOT NULL,
         label TEXT NOT NULL,
-        value TEXT NOT NULL, 
+        value TEXT NOT NULL,
+        unit TEXT, -- optional: JSON array of available units
         category_id TEXT NOT NULL,
-        FOREIGN KEY (category_id) REFERENCES categories(id)
-        UNIQUE (value, category_id)  -- ensures uniqueness within a category
+        FOREIGN KEY (category_id) REFERENCES categories(id),
+        UNIQUE (value, category_id)
       );
-      -- Delete all items from shopping_items table
-      -- DELETE FROM shopping_items;
+
+      CREATE TABLE IF NOT EXISTS shopping_items (
+        id TEXT PRIMARY KEY NOT NULL,
+        key TEXT NOT NULL,
+        category_item_id TEXT NOT NULL,
+        quantity TEXT,
+        qtyUnit TEXT,
+        price TEXT,
+        purchased INTEGER DEFAULT 0,
+        selected INTEGER DEFAULT 0,
+        createDate TEXT,
+        modifiedDate TEXT,
+        priority TEXT,
+        note TEXT,
+        FOREIGN KEY (category_item_id) REFERENCES category_items(id)
+      );
     `);
+
+    // Seed categories
     for (const category of categoryOptions) {
       const existing = await db.getFirstAsync(
         "SELECT * FROM categories WHERE value = ?",
@@ -47,8 +53,7 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       );
 
       if (!existing) {
-         // Generate a unique ID using generateSimpleUUID function
-         const id = await generateSimpleUUID(); 
+        const id = await generateSimpleUUID();
         await db.runAsync(
           "INSERT INTO categories (id, label, value) VALUES (?, ?, ?)",
           [id, category.label, category.value]
@@ -64,5 +69,6 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
     console.error('Failed to initialize tables:', error);
   }
 };
+
 
 // Next is to handle update

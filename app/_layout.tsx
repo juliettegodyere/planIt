@@ -6,12 +6,12 @@ import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqli
 import { StatusBar } from 'expo-status-bar';
 import {ShoppingListProvider, useShoppingListContext} from '../service/store'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setGuestUser, setSelectedShoppingItemsHydrated, setSelectedShoppingItemsItems, setUser } from '@/service/stateActions';
+import { setGuestUser, setSelectedShoppingItemsHydrated, sethoppingItemsState, setUser } from '@/service/stateActions';
 import { useRouter } from 'expo-router';
 import { useLocalStorageSync } from '@/Util/HelperFunction';
 import { createTables } from '@/db/schema';
-import { getSelectedItemsFromSQLite } from '@/db/shoppingItems';
-import { ShoppingItem } from '@/service/state';
+import { getAllShoppingItems } from '@/db/EntityManager';
+import { ShoppingItemTypes } from '@/service/types';
 
 export default function RootLayout() {
   const [loading, setLoading] = useState(true);
@@ -36,16 +36,16 @@ type RootLayoutInnerProps = {
 
 function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) {
   const {state, dispatch } = useShoppingListContext();
-  const {shoppingItems, isSelectedShoppingItemsHydrated} = state
+  const {shoppingItemLists, isSelectedShoppingItemsHydrated} = state
   const db = useSQLiteContext();
 
   //Rehydate the local storage always
-  useLocalStorageSync("@shoppingItems", shoppingItems);
+  useLocalStorageSync("@shoppingItems", shoppingItemLists);
 
   const fetchItemsIfNeeded = async () => {
     if (!isSelectedShoppingItemsHydrated) {
-      const items: ShoppingItem[] = await getSelectedItemsFromSQLite(db);
-      dispatch(setSelectedShoppingItemsItems(items));
+      const items: ShoppingItemTypes[] = await getAllShoppingItems(db);
+      dispatch(sethoppingItemsState(items));
       dispatch(setSelectedShoppingItemsHydrated(true));
     }
   };

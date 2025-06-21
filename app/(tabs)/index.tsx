@@ -9,35 +9,26 @@ import {
   Keyboard,
   Alert,
 } from "react-native";
-import ShoppingListItemPage from "../../components/ShoppingListItem";
 import { Box } from "@/components/ui/box";
-import AddCustomItem from "../../components/AddCustomItem";
-import { Fab, FabLabel, FabIcon } from "@/components/ui/fab";
 import { AddIcon, Icon, ThreeDotsIcon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import { getAllShoppingItems } from "../../db/queries";
-import { CategoryItemResponseType } from "../../db/types";
+import { CategoryItemResponseType } from "../../service/types";
 import { useSQLiteContext } from "expo-sqlite";
 import { useShoppingListContext } from "@/service/store";
-import { categoryOptions } from "@/data/dataStore";
 import { Spinner } from "@/components/ui/spinner";
-import { setInventoryItems, addItem } from "@/service/stateActions";
+import { setCatalogItems} from "@/service/stateActions";
 import { Heading } from "@/components/ui/heading";
 import { VStack } from "@/components/ui/vstack";
-import { Center } from "@/components/ui/center";
-import { BookImage, PlusIcon } from "lucide-react-native";
+import { BookImage } from "lucide-react-native";
 import { Image } from "@/components/ui/image";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
-import { useShoppingActions } from "@/db/context/useShoppingList";
+import { Input, InputField, InputSlot } from "@/components/ui/input";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
 import Fuse from "fuse.js";
 import {
   AlertDialog,
-  AlertDialogBackdrop,
   AlertDialogContent,
   AlertDialogHeader,
-  AlertDialogCloseButton,
   AlertDialogFooter,
   AlertDialogBody,
 } from "@/components/ui/alert-dialog";
@@ -48,15 +39,15 @@ import {
   CheckboxIcon,
 } from "@/components/ui/checkbox"
 import { CheckIcon } from "@/components/ui/icon"
-import { useShoppingItemActions } from "@/hooks/useShoppingItemActions";
+import { checkboxControlActions } from "@/hooks/checkboxControlActions";
+import { getAllCatalogItems } from "@/db/EntityManager";
+import { useShoppingActions } from "@/db/Transactions";
+import ShoppingListItemComponent from "../../components/ShoppingListItemComponent";
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
-  const { inventoryItems } = state;
+  const { catalogItems } = state;
   const [showModal, setShowModal] = React.useState(false);
-  const [inventoryItem, setInventoryItem] = useState<
-    CategoryItemResponseType[]
-  >([]);
   const [loading, setLoading] = useState(true);
   const db = useSQLiteContext();
   const [selectedCat, setSelectedCat] = useState("All");
@@ -68,39 +59,50 @@ export default function Index() {
   );
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSimilarItems, setSelectedSimilarItems] = useState<string[]>([]);
-  const { isChecked, handleCheckboxChange } = useShoppingItemActions();
+  const { addNewItemToShoppingItemsAndUpdateState, updateShoppingItemAndUpdateState } = useShoppingActions();
+  const { isChecked, handleCheckboxChange } = checkboxControlActions(
+    db,
+    state,
+    dispatch,
+    addNewItemToShoppingItemsAndUpdateState,
+    updateShoppingItemAndUpdateState
+  );
 
 
   const fetchItems = async () => {
-    const data = await getAllShoppingItems(db);
-
-    const selectedKeys = state.shoppingItems
-      .filter((item) => item.selected[item.selected.length - 1])
-      .map((item) => item.key);
-
-    const sorted = [...data].sort((a, b) => {
-      const aIsSelected = selectedKeys.includes(a.value);
-      const bIsSelected = selectedKeys.includes(b.value);
-
-      if (aIsSelected && !bIsSelected) return -1;
-      if (!aIsSelected && bIsSelected) return 1;
-
-      return a.label.localeCompare(b.label);
-    });
-
-    const filtered =
-      selectedCat === "All"
+    try {
+      const data = await getAllCatalogItems(db);
+  
+      const selectedKeys = state.shoppingItemLists
+        .filter((item) => item.selected)
+        .map((item) => item.key);
+  
+      const sorted = [...data].sort((a, b) => {
+        const aIsSelected = selectedKeys.includes(a.value);
+        const bIsSelected = selectedKeys.includes(b.value);
+  
+        if (aIsSelected && !bIsSelected) return -1;
+        if (!aIsSelected && bIsSelected) return 1;
+        return a.label.localeCompare(b.label);
+      });
+  
+      const isAllCategory = selectedCat.toLowerCase() === "all";
+      const filtered = isAllCategory
         ? sorted
         : sorted.filter((item) => item.category === selectedCat);
-
-    dispatch(setInventoryItems(filtered));
-
-    setLoading(false);
+  
+      dispatch(setCatalogItems(filtered));
+    } catch (error) {
+      console.error("Failed to fetch items:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   useEffect(() => {
     fetchItems();
-  }, [selectedCat, state.shoppingItems]);
+  }, [selectedCat, state.shoppingItemLists]);
 
   if (loading) {
     <HStack space="sm">
@@ -109,31 +111,18 @@ export default function Index() {
     </HStack>;
   }
 
-  const toggleSelect = (label: string) => {
-    setSelectedCat(label);
-  };
-
   const onPressCreateItemFunction = () => {
     setCreateButtonPressed(true);
-    console.log("onPressCreateItemFunction Clicked");
-    console.log(isCreateButtonPressed);
   };
 
   const onPressCancelFunction = () => {
     setCreateButtonPressed(false);
-    console.log("onPressCancelFunction Clicked");
-    console.log(isCreateButtonPressed);
-  };
-  const onPressAddFunction = () => {
-    setCreateButtonPressed(false);
-    console.log("onPressAddFunction Clicked");
-    console.log(isCreateButtonPressed);
   };
 
   const handleAddCustomItem = async (itemLabel: string, category: string) => {
     if (!itemLabel.trim()) return;
 
-    const data = await getAllShoppingItems(db); // returns static + db items
+    const data = await getAllCatalogItems(db); 
 
     const fuse = new Fuse(data, {
       keys: ["label", "value"],
@@ -147,7 +136,7 @@ export default function Index() {
     if (fuseResults.length > 0) {
       setSimilarItems(fuseResults);
       setShowSuggestions(true);
-      return; // Don’t insert yet
+      return; 
     }
 
     await addUserDefinedItem(itemLabel, category);
@@ -162,7 +151,6 @@ export default function Index() {
     const similarTextMatch = similarItems.find((item) => {
       const existing = item.label.toLowerCase();
   
-      // Match: entered and existing are the same (e.g., "banana" vs "bananas")
       const pluralRegex = new RegExp(`^${entered}s?$`, 'i');
       const reverseRegex = new RegExp(`^${existing}s?$`, 'i');
   
@@ -204,18 +192,14 @@ export default function Index() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Box style={{ flex: 1, position: "relative" }}>
-          {/* Background Image */}
           <Box
             style={{
-              ...StyleSheet.absoluteFillObject, // fills the parent
+              ...StyleSheet.absoluteFillObject, 
               zIndex: 0,
             }}
           >
             <Image
               size="full"
-              // source={{
-              //   uri: "https://gluestack.github.io/public-blog-video-assets/mountains.png",
-              // }}
               source={require("../../assets/images/background.png")}
               alt="background"
               style={{ flex: 1 }}
@@ -235,7 +219,6 @@ export default function Index() {
               style={{
                 height: "85%",
                 width: "85%",
-                //padding: 16,
                 position: "relative",
                 marginTop: -80,
                 backgroundColor: "#F1F1F1",
@@ -333,18 +316,15 @@ export default function Index() {
                 )}
               </Box>
 
-              {/* Scrollable Content */}
               <FlatList
                 contentContainerStyle={{
                   padding: 5,
-                  // paddingTop: "10%",
-                  // paddingBottom: "10%",
                   paddingTop: isCreateButtonPressed ? "16%" : "10%",
                   paddingBottom: isCreateButtonPressed ? "16%" : "10%",
                 }}
-                data={inventoryItems}
+                data={catalogItems}
                 renderItem={({ item }) => (
-                  <ShoppingListItemPage
+                  <ShoppingListItemComponent
                     shoppingList={item}
                     isModalOpen={showModal}
                     onCloseModal={() => setShowModal(false)}
@@ -363,7 +343,6 @@ export default function Index() {
         onClose={() => setShowSuggestions(false)}
       >
         <AlertDialogContent>
-          {/* <AlertDialogHeader>Similar Item(s) Found</AlertDialogHeader> */}
           <AlertDialogHeader>
             <Heading className="text-typography-950 font-semibold mb-2" size="md">
               Similar Item(s) Found
@@ -376,37 +355,8 @@ export default function Index() {
                 size="md" 
                 key={index} 
                 value={item.label} 
-                // isChecked={selectedSimilarItems.includes(item.label)}
                 isChecked={isChecked(item.value)}
                 onChange={() => handleCheckboxChange(item)}
-                // onChange={(isChecked) => {
-                //   setSelectedSimilarItems((prev) =>
-                //     isChecked
-                //       ? [...prev, item.label]
-                //       : prev.filter((label) => label !== item.label)
-                //   );
-
-                //   if (isChecked) {
-                //     const now = new Date().toISOString();
-                //     const newItem = {
-                //       id: "",
-                //       key: item.value,
-                //       name: item.label,
-                //       category: item.category,
-                //       modifiedDate: [now],
-                //       createDate: [now],
-                //       price: [""],
-                //       purchased: [false],
-                //       selected: [true],
-                //       qtyUnit: ["None"],
-                //       quantity: [1],
-                //       priority: ["Low"],
-                //       isSelectedShoppingItemsHydrated: true,
-                //     }
-                //     dispatch(addItem(newItem));
-                //   }else
-                // }}
-                
                 className="m-2"
                 >
                 <CheckboxIndicator>

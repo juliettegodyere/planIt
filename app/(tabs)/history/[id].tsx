@@ -2,8 +2,6 @@ import { TextInput, View, StyleSheet, ScrollView } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { useLocalSearchParams } from "expo-router";
-import { cleanUpItem, formatDate } from "../../../Util/HelperFunction";
-import { ShoppingItem } from "@/service/state";
 import { useShoppingListContext } from "@/service/store";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
@@ -28,54 +26,53 @@ import { MinusIcon, PlusIcon } from "lucide-react-native";
 import ShoppingItemDetails from "@/components/ShoppingItemDetails";
 import { Input, InputField, InputSlot } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useShoppingActions } from "@/db/context/useShoppingList";
 import { updateItem } from "@/service/stateActions";
+import { SelectedItemType } from "@/service/state";
 
 const ItemDetails = () => {
   const { state, dispatch } = useShoppingListContext();
-  const { shoppingItems, guest } = state;
+  const { shoppingItemLists, guest } = state;
   const { id } = useLocalSearchParams();
-  const {updateShoppingItemFields } = useShoppingActions()
 
-  const item = shoppingItems.find((entry: ShoppingItem) => entry.id === id);
+  const item = shoppingItemLists.find((entry: SelectedItemType) => entry.id === id);
 
-  const cleanedItem = item ? cleanUpItem(item) : undefined;
+  // const cleanedItem = item ? cleanUpItem(item) : undefined;
 
-  const combinedPurchases = cleanedItem?.createDate.map((date, index) => ({
-    createDate: new Date(date),
-    quantity: cleanedItem.quantity[index],
-    price: cleanedItem.price[index],
-    priority: cleanedItem.priority[index],
-    purchased: cleanedItem.purchased[index],
-    selected: cleanedItem.selected[index],
-    modifiedDate: new Date(cleanedItem.modifiedDate[index]),
-  }));
+  // const combinedPurchases = cleanedItem?.createDate.map((date, index) => ({
+  //   createDate: new Date(date),
+  //   quantity: cleanedItem.quantity[index],
+  //   price: cleanedItem.price[index],
+  //   priority: cleanedItem.priority[index],
+  //   purchased: cleanedItem.purchased[index],
+  //   selected: cleanedItem.selected[index],
+  //   modifiedDate: new Date(cleanedItem.modifiedDate[index]),
+  // }));
 
-  // 2. Sort by date (newest first)
-  const sortedPurchases = combinedPurchases?.sort(
-    (a, b) => b.modifiedDate.getTime() - a.modifiedDate.getTime()
-  );
+  // // 2. Sort by date (newest first)
+  // const sortedPurchases = combinedPurchases?.sort(
+  //   (a, b) => b.modifiedDate.getTime() - a.modifiedDate.getTime()
+  // );
 
-  const totalAmountSpent = cleanedItem?.price.reduce((acc, price, index) => {
-    const numericPrice = parseFloat(price);
-    const quantity = cleanedItem.quantity[index];
+  // const totalAmountSpent = cleanedItem?.price.reduce((acc, price, index) => {
+  //   const numericPrice = parseFloat(price);
+  //   const quantity = cleanedItem.quantity[index];
 
-    if (!isNaN(numericPrice)) {
-      acc += numericPrice * quantity;
-    }
+  //   if (!isNaN(numericPrice)) {
+  //     acc += numericPrice * quantity;
+  //   }
 
-    return acc;
-  }, 0);
+  //   return acc;
+  // }, 0);
 
   const handleMarkAsPurchased = async (id: string) => {
     //dispatch(updatePurchase(id));
     //dispatch(updateSelected(id));
-    await updateShoppingItemFields(id, { purchased: [true], selected:[false] }, updateItem);
+    //await updateShoppingItemFields(id, { purchased: [true], selected:[false] }, updateItem);
   };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="m-2">
-      <Card className="p-6 rounded-lg m-3 bg-inherit">
+      {/* <Card className="p-6 rounded-lg m-3 bg-inherit">
         <Box className="flex-row justify-between">
           <VStack>
             <Heading size="xl" className="mb-1">
@@ -159,7 +156,7 @@ const ItemDetails = () => {
             </AccordionContent>
           </AccordionItem>
         ))}
-      </Accordion>
+      </Accordion> */}
     </ScrollView>
   );
 };

@@ -1,3 +1,6 @@
+import { CameraIcon, FileIcon, FileUpIcon, ScanBarcodeIcon, ScanTextIcon, UploadCloud, VideoIcon } from "lucide-react-native";
+
+
 export const countryOptions = [
     { label: "United Kingdom", value: "United Kingdom" },
     { label: "Canada", value: "Canada" },
@@ -32,4 +35,13 @@ export const currencyOptions = [
     { label: "African", value: "african" },
     { label: "Chinese", value: "chinese" },
     { label: "Everyday Essentials", value: "essentials" },
+  ];
+
+  export const qtyOptions = ["None","Bag", "Packet", "Satchet", "Carton", "Box", "Bottle"]
+  export const priorityOption = ["None", "Low", "Medium", "High"]
+
+  export const imageAttachmentOptions = [
+    { label: "Take Photo", icon: CameraIcon},
+    { label: "Scan Document", value: ScanTextIcon },
+    { label: "Photo Lbrary", value: VideoIcon },
   ];

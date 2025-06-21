@@ -1,50 +1,62 @@
-import { View, FlatList, StyleSheet } from "react-native";
-import { Text } from "@/components/ui/text";
-import { HStack } from "@/components/ui/hstack";
-import { useShoppingListContext } from "../service/store";
-import { updateItem, updatePurchase,updateSelected } from "../service/stateActions";
-import { Input, InputField } from "@/components/ui/input";
+import {StyleSheet } from "react-native";
+import { updateItem} from "../service/stateActions";
 import { Button, ButtonText } from "@/components/ui/button";
-import { theme } from "../assets/colors";
-import {ShoppingItem, ShoppingListItem} from "../service/state"
-import { useShoppingActions } from "@/db/context/useShoppingList";
+import { useEffect, useState } from "react";
+import { CategoryItemResponseType, ShoppingItemTypes } from "@/service/types";
+import {useShoppingActions} from "../db/Transactions"
 
 
 type Props = {
-  item: ShoppingListItem;
-  selectedItem: ShoppingItem;
-  isBought: boolean;
+  item: CategoryItemResponseType;
+  selectedItemPurchaseFalse: any;
+  shoppingItems:ShoppingItemTypes[];
+  handleCheckboxChange?: (item: CategoryItemResponseType) => Promise<void>;
 };
 
 
-const PurchaseButton = ({ item, selectedItem, isBought }: Props) => {
-  const { state, dispatch } = useShoppingListContext();
-  const {updateShoppingItemFields } = useShoppingActions()
+const PurchaseButton = ({ item, selectedItemPurchaseFalse, shoppingItems, handleCheckboxChange}: Props) => {
+  const [selectedItem, setSelectedItem] = useState<ShoppingItemTypes | undefined>();
+  const{updateShoppingItemAndUpdateState} = useShoppingActions()
 
-  const handleMarkAsPurchased = async (id: string) => {
-    //dispatch(updatePurchase(id));
-    //dispatch(updateSelected(id));
-    await updateShoppingItemFields(selectedItem.id, { purchased: [true], selected:[false] }, updateItem);
+  const isBought = selectedItem?.purchased ?? false;
+
+  useEffect(() => {
+    const s_item = shoppingItems.find(i => 
+      i.key === item.value &&
+      i.selected=== false &&
+      i.purchased === true
+    );
+    setSelectedItem(s_item);
+    if(isBought){
+      handleCheckboxChange?.(item);
+    }
+  }, [shoppingItems, item]);
+
+  const handleMarkAsPurchased = async () => {
+    if (!selectedItem) return;
+  
+    const updatedItem: ShoppingItemTypes = {
+      ...selectedItem,
+      purchased: true,
+      selected: false, 
+      modifiedDate: new Date().toISOString(),
+    };
+  
+    await updateShoppingItemAndUpdateState(updatedItem);
   };
-//   console.log("from purcahse page")
-// console.log(state.shoppingItems)
+
+console.log("PurchaseButton - shoppingItems")
+console.log(shoppingItems)
   return (
     <Button
-      //color={isBought ? "red" : "green"} //
-      style={{
-        borderColor: theme.colors.buttonPrimary,
-        //color: theme.colors.buttonSecondary
-      }}
+      className="border-2 border-gray-200 rounded-md"
       variant="outline"
-      onPress={() => handleMarkAsPurchased(item.value)}
+      onPress={() => handleMarkAsPurchased()}
     >
       <ButtonText
-        //className={isBought ? "bg-red-500" : "bg-green-700"}
-        className="text-typography-400 font-medium"
-        style={{ color: theme.colors.fontPrimary }}
+        className="font-medium text-md px-2"
       >
-        {/* {isBought ? "Undo" : "Bought"} */}
-        Bought
+        {isBought? "Undo" : "Bought"}
       </ButtonText>
     </Button>
   );

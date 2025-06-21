@@ -2,17 +2,17 @@ import { Box } from "@/components/ui/box";
 import { useShoppingListContext } from "@/service/store";
 import { useRouter } from "expo-router";
 import { Text, View, FlatList } from "react-native";
-import {ShoppingItem} from '../../../service/state'
 import HistoryItem from "@/components/HistoryItems";
 import {cleanUpItem} from "../../../Util/HelperFunction"
+import { SelectedItemType } from "@/service/state";
 
 export default function History() {
   const { state, dispatch } = useShoppingListContext();
-  const { shoppingItems } = state;
+  const { shoppingItemLists } = state;
   const router = useRouter();
 
   
-  const groupByDate = (items: ShoppingItem[]) => {
+  const groupByDate = (items: SelectedItemType[]) => {
     return items
       .map(cleanUpItem) // 👈 clean up first
       .filter(item => {
@@ -30,20 +30,20 @@ export default function History() {
         acc[lastCreateDate].push(item);
   
         return acc;
-      }, {} as Record<string, ShoppingItem[]>);
+      }, {} as Record<string, SelectedItemType[]>);
   };
   
 
-  const groupedItems = groupByDate(shoppingItems); 
+  const groupedItems = groupByDate(shoppingItemLists); 
   return (
     <Box>
-      <FlatList 
+      {/* <FlatList 
         data={Object.entries(groupedItems)}
         keyExtractor={(item) => item[0]}
         renderItem={({item}) => (
           <HistoryItem items ={item}/>
         )}
-        />
+        /> */}
     </Box>
   );
 }

@@ -2,22 +2,17 @@ import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
-import { handleGuestLogin, handleAuthLogin } from "@/service/authentication";
 import * as Google from "expo-auth-session/providers/google";
 import * as AuthSession from "expo-auth-session";
 import { useShoppingListContext } from "@/service/store";
 import {setUser, setGuestUser } from "@/service/stateActions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+
 import { useRouter } from "expo-router";
 
 export default function Auth() {
   const { state, dispatch } = useShoppingListContext();
-  const { shoppingItems } = state;
+  // const { shoppingItems } = state;
   const router = useRouter();
 
   // GoogleSignin.configure({
@@ -80,7 +75,7 @@ export default function Auth() {
         </ButtonText>
       </Button> */}
 
-      <Button
+      {/* <Button
         onPress={() => handleGuestLogin(dispatch, () => router.replace('/(tabs)'))}
         style={{
           width: 250,
@@ -97,7 +92,7 @@ export default function Auth() {
         size={GoogleSigninButton.Size.Wide}
         color={GoogleSigninButton.Color.Dark}
         onPress={onGooglePress}
-      /> */}
+      /> */} 
        
     </Box>
   );
