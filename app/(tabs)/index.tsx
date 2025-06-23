@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  SectionList,
 } from "react-native";
 import { Box } from "@/components/ui/box";
 import { AddIcon, Icon, ThreeDotsIcon } from "@/components/ui/icon";
@@ -43,6 +44,7 @@ import { checkboxControlActions } from "@/hooks/checkboxControlActions";
 import { getAllCatalogItems } from "@/db/EntityManager";
 import { useShoppingActions } from "@/db/Transactions";
 import ShoppingListItemComponent from "../../components/ShoppingListItemComponent";
+import ThreeDotIconMenu from "@/components/ThreeDotIconMenu";
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
@@ -60,6 +62,9 @@ export default function Index() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSimilarItems, setSelectedSimilarItems] = useState<string[]>([]);
   const { addNewItemToShoppingItemsAndUpdateState, updateShoppingItemAndUpdateState } = useShoppingActions();
+  const [sortByValue, setSortByValue] = useState<string>("Marked Items");
+  const [filterByValue, setFilterByValue] = useState<string>("All");
+  const [groupByCategory, setGroupByCategory] = useState<boolean>(false);
   const { isChecked, handleCheckboxChange } = checkboxControlActions(
     db,
     state,
@@ -78,18 +83,32 @@ export default function Index() {
         .map((item) => item.key);
   
       const sorted = [...data].sort((a, b) => {
-        const aIsSelected = selectedKeys.includes(a.value);
-        const bIsSelected = selectedKeys.includes(b.value);
+        switch (sortByValue) {
+          case "Marked Items": {
+            const aIsSelected = selectedKeys.includes(a.value);
+            const bIsSelected = selectedKeys.includes(b.value);
   
-        if (aIsSelected && !bIsSelected) return -1;
-        if (!aIsSelected && bIsSelected) return 1;
-        return a.label.localeCompare(b.label);
+            if (aIsSelected && !bIsSelected) return -1;
+            if (!aIsSelected && bIsSelected) return 1;
+            return a.label.localeCompare(b.label);
+          }
+          case "Alphabet":
+            return a.label.localeCompare(b.label);
+  
+          // case "Category":
+          //   return a.category.localeCompare(b.category);
+  
+          default:
+            return 0;
+        }
       });
   
-      const isAllCategory = selectedCat.toLowerCase() === "all";
+      const isAllCategory = filterByValue.toLowerCase() === "all";
       const filtered = isAllCategory
         ? sorted
-        : sorted.filter((item) => item.category === selectedCat);
+        : sorted.filter((item) =>
+        item.category.toLowerCase() === filterByValue.toLowerCase()
+          );
   
       dispatch(setCatalogItems(filtered));
     } catch (error) {
@@ -97,12 +116,24 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
+
+  const groupedCatalogItems = groupByCategory
+  ? catalogItems.reduce((acc: any[], item) => {
+      const existingGroup = acc.find(group => group.title === item.category);
+      if (existingGroup) {
+        existingGroup.data.push(item);
+      } else {
+        acc.push({ title: item.category, data: [item] });
+      }
+      return acc;
+    }, [])
+  : catalogItems;
   
 
   useEffect(() => {
     fetchItems();
-  }, [selectedCat, state.shoppingItemLists]);
+  }, [filterByValue, sortByValue, state.shoppingItemLists]);
 
   if (loading) {
     <HStack space="sm">
@@ -179,7 +210,7 @@ export default function Index() {
   const hasSelectedSimilarItems = () => {
     return similarItems.some((item) => isChecked(item.value));
   };
-
+  
   return (
     <>
     <KeyboardAvoidingView
@@ -242,7 +273,18 @@ export default function Index() {
                   <Heading className="text-gray-900 font-normal">
                     Shopping list
                   </Heading>
-                  <Icon as={ThreeDotsIcon} className="text-gray-900" />
+                  {/* <Icon as={ThreeDotsIcon} size="xl" style={{color:"#FF6347"}} /> */}
+                  <ThreeDotIconMenu
+                      onFilterBySelect={(key) => {
+                        setFilterByValue(key);
+                      }}
+                      onSortBySelect={(key) => {
+                        setSortByValue(key);
+                      }}
+                      onGroupBySelect={(key) => {
+                        setGroupByCategory(key);
+                      }}
+                  />
                 </HStack>
               </Box>
 
@@ -315,14 +357,10 @@ export default function Index() {
                   </VStack>
                 )}
               </Box>
-
-              <FlatList
-                contentContainerStyle={{
-                  padding: 5,
-                  paddingTop: isCreateButtonPressed ? "16%" : "10%",
-                  paddingBottom: isCreateButtonPressed ? "16%" : "10%",
-                }}
-                data={catalogItems}
+              {groupByCategory ? (
+              <SectionList
+                sections={groupedCatalogItems}
+                keyExtractor={(item) => item.value}
                 renderItem={({ item }) => (
                   <ShoppingListItemComponent
                     shoppingList={item}
@@ -330,9 +368,35 @@ export default function Index() {
                     onCloseModal={() => setShowModal(false)}
                   />
                 )}
-                keyExtractor={(item) => item.value}
+                renderSectionHeader={({ section: { title } }) => (
+                  <Text className="font-semibold text-lg mt-3 mb-1 ml-2 text-gray-900">{title}</Text>
+                )}
+                contentContainerStyle={{
+                  padding: 5,
+                  paddingTop: isCreateButtonPressed ? "16%" : "10%",
+                  paddingBottom: isCreateButtonPressed ? "16%" : "10%",
+                }}
                 showsVerticalScrollIndicator={false}
               />
+            ) : (
+              <FlatList
+                data={catalogItems}
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => (
+                  <ShoppingListItemComponent
+                    shoppingList={item}
+                    isModalOpen={showModal}
+                    onCloseModal={() => setShowModal(false)}
+                  />
+                )}
+                contentContainerStyle={{
+                  padding: 5,
+                  paddingTop: isCreateButtonPressed ? "16%" : "10%",
+                  paddingBottom: isCreateButtonPressed ? "16%" : "10%",
+                }}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
             </Box>
           </Box>
         </Box>
