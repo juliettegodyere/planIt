@@ -1,9 +1,11 @@
 // db/schema.ts or db/shoppingItems.ts
 
-import { CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, ShoppingItemTypes } from '../service/types';
+import { CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from '../service/types';
 import * as SQLite from 'expo-sqlite';
 import { generateSimpleUUID } from '@/Util/HelperFunction';
 import { shoppingData } from '@/data/shoppingListData';
+
+type GuestUserUpdateParams = Partial<guestUserType> & { id: string };
 
 export const insertShoppingItem = async (db: SQLite.SQLiteDatabase, item: ShoppingItemTypes) => {
   try {
@@ -153,7 +155,7 @@ export const getShoppingItemById = async (db: SQLite.SQLiteDatabase, id: string)
   };
 };
 
-export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase,): Promise<CategoryItemResponseType[]> => {
+export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase): Promise<CategoryItemResponseType[]> => {
   try {
     // Flatten static items from JSON
     const staticItems: CategoryItemResponseType[] = shoppingData.categories.flatMap((category) =>
@@ -186,6 +188,66 @@ export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase,): Promise<Ca
     return [];
   }
 };
+
+export const insertGuestUser = async (
+  db: SQLite.SQLiteDatabase
+): Promise<guestUserType> => {
+  const guestUser: guestUserType = {
+    id: `guest-${Date.now()}`,
+    name: "Guest",
+    createdAt: new Date().toISOString(),
+    country: "",
+    currencyCode: "",
+    currencySymbol: "",
+  };
+
+  await db.runAsync(
+    `INSERT INTO guests (id, name, createdAt, country, currencyCode, currencySymbol)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      guestUser.id,
+      guestUser.name,
+      guestUser.createdAt,
+      guestUser.country,
+      guestUser.currencyCode,
+      guestUser.currencySymbol,
+    ]
+  );
+
+  return guestUser;
+};
+
+export const updateGuestUserDB = async (
+  db: SQLite.SQLiteDatabase,
+  guest: GuestUserUpdateParams
+): Promise<guestUserType> => {
+  console.log("updateGuestUserDB")
+    console.log(guest)
+
+  if (!guest.id) {
+    console.log(guest.id)
+    throw new Error("User ID is required for update");
+  }
+
+  await db.runAsync(
+    `UPDATE guests
+     SET country = ?, currencyCode = ?, currencySymbol = ?
+     WHERE id = ?`,
+    [guest.country ?? "", guest.currencyCode ?? "", guest.currencySymbol ?? "", guest.id]
+  );
+
+  const updatedUser = await db.getFirstAsync<guestUserType>(
+    `SELECT * FROM guests WHERE id = ?`,
+    [guest.id]
+  );
+
+  if (!updatedUser) {
+    throw new Error(`User with ID ${guest.id} not found after update.`);
+  }
+
+  return updatedUser;
+};
+
 
 
 

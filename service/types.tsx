@@ -49,6 +49,15 @@ export interface CategoryItemResponseType  {
   category:string;
 }
 
+export interface guestUserType  {
+  id: string,
+  name: string,
+  createdAt: string,
+  country: string,
+  currencyCode: string,
+  currencySymbol: string,
+}
+
 
 
   

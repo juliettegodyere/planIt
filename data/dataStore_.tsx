@@ -14,3 +14,16 @@ import {
     { label: "Scan Document", icon: ScanTextIcon },
     { label: "Photo Library", icon: VideoIcon },
   ];
+
+  export const countryCurrencyMap: {
+    [key: string]: {
+      currencyCode: string;
+      symbol: string;
+    };
+  } = {
+    "United Kingdom": { currencyCode: "GBP", symbol: "£" },
+    "Canada": { currencyCode: "CAD", symbol: "C$" },
+    "Nigeria": { currencyCode: "NGN", symbol: "₦" },
+    "Germany": { currencyCode: "EUR", symbol: "€" },
+    "Japan": { currencyCode: "JPY", symbol: "¥" },
+  };

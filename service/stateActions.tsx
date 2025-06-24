@@ -1,6 +1,6 @@
 import { GuestUserInfo, UserInfo } from "./state";
 import { ShoppingListAction } from "./store";
-import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
+import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./types";
 
   export const addItem = (item: ShoppingItemTypes): ShoppingListAction => ({
     type: "ADD_ITEM",
@@ -94,10 +94,16 @@ import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
     payload: userInfo ,
   });
   
-  export const setGuestUser = (guestUserInfo: GuestUserInfo): ShoppingListAction => ({
+  export const setGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
     type: "SET_GUEST_USER",
     payload: guestUserInfo,  
   });
+
+  export const updateGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
+    type: "UPDATE_GUEST_USER",
+    payload: guestUserInfo,  
+  });
+
 
   // export const updateShoppingItems = (items: ShoppingItem[]): ShoppingListAction => ({
   //   type: "UPDATE_SHOPPING_ITEMS",

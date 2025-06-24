@@ -36,11 +36,8 @@ type RootLayoutInnerProps = {
 
 function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) {
   const {state, dispatch } = useShoppingListContext();
-  const {shoppingItemLists, isSelectedShoppingItemsHydrated} = state
+  const {shoppingItemLists, isSelectedShoppingItemsHydrated, guest} = state
   const db = useSQLiteContext();
-
-  //Rehydate the local storage always
-  useLocalStorageSync("@shoppingItems", shoppingItemLists);
 
   const fetchItemsIfNeeded = async () => {
     if (!isSelectedShoppingItemsHydrated) {
@@ -51,30 +48,18 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
   };
 
   useEffect(() => {
-
+    fetchItemsIfNeeded();
+  }, []);
+  useEffect(() => {
+    console.log(guest)
     const restoreSession = async () => {
     
       try {
-        //await AsyncStorage.removeItem('@guestUser')
-        
-        const guestUserData = await AsyncStorage.getItem('@guestUser');
-        const userData = await AsyncStorage.getItem('@guser');
-        if (userData) {
-          const user = JSON.parse(userData);
-          dispatch(setUser(user)); 
+        if (guest && guest.id && guest.country) {
           router.replace('/(tabs)');
-        } else if (guestUserData) {
-          const guest = JSON.parse(guestUserData);
-          dispatch(setGuestUser(guest)); 
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/(auth)' as any); 
-        }
-        if(userData || guestUserData){
-          fetchItemsIfNeeded()
-        }    
+        } 
       } catch (error) {
-        console.error('Failed to restore session:', error);
+        console.error('Login failed:', error);
         router.replace('/(auth)' as any);
       } finally {
         setLoading(false);

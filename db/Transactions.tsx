@@ -1,9 +1,11 @@
 import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";
-import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes } from "../service/types";
-import { getShoppingItemById, insertCategory, insertCategoryItem, insertShoppingItem, updateShoppingItem } from "./EntityManager";
-import { addItem, updateItem } from "@/service/stateActions";
+import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from "../service/types";
+import { getShoppingItemById, insertCategory, insertCategoryItem, insertGuestUser, insertShoppingItem, updateGuestUserDB, updateShoppingItem } from "./EntityManager";
+import { addItem, setGuestUser, updateItem, updateGuestUser } from "@/service/stateActions";
 import { generateSimpleUUID } from "@/Util/HelperFunction";
+
+type GuestUserUpdateParams = Partial<guestUserType> & { id: string };
 
 export const useShoppingActions = () => {
   const { state, dispatch } = useShoppingListContext();
@@ -122,3 +124,32 @@ export const useShoppingActions = () => {
     addUserDefinedItem,
   };
 };
+
+export const userTransactions = () => {
+  const { state, dispatch } = useShoppingListContext();
+  const db = useSQLiteContext();
+
+  const addNewGuestUserAndUpdateState = async () => {
+    const savedUser = await insertGuestUser(db);
+    dispatch(setGuestUser(savedUser));
+    return savedUser;
+  }
+
+  // const updateGuestUserAndUpdateState = async (user: guestUserType) => {
+  //   const updatedUser = await updateGuestUserDB(db, user);
+  //   dispatch(updateGuestUser(updatedUser));
+  //   return updatedUser;
+  // }
+  const updateGuestUserAndUpdateState = async (user: GuestUserUpdateParams) => {
+    console.log("updateGuestUserAndUpdateState")
+    console.log(user)
+    const updatedUser = await updateGuestUserDB(db, user);
+    dispatch(updateGuestUser(updatedUser));
+    return updatedUser;
+  }
+
+  return {
+    addNewGuestUserAndUpdateState,
+    updateGuestUserAndUpdateState
+  };
+}

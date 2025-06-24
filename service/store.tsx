@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { shoppingListReducer } from "./reducer";
 import { initialState,AllItemsInitialStateType, UserInfo, GuestUserInfo } from "./state";
-import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
+import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./types";
 
 // Define action type
 export type ShoppingListAction =
@@ -32,7 +32,8 @@ export type ShoppingListAction =
   // | {type: "UPDATE_SELECTED"; payload: string}
   // | {type: "UPDATE_PURCHASE"; payload: string}
   | { type: "SET_USER"; payload:  UserInfo  }
-  | { type: "SET_GUEST_USER"; payload: GuestUserInfo } 
+  | { type: "SET_GUEST_USER"; payload: guestUserType } 
+  | { type: "UPDATE_GUEST_USER"; payload: guestUserType } 
   // | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
   // | { type: "SET_SEARCH_QUERY"; payload: {query:string} }
   | {type: "SET_SELECTED_ITEMS_HYDRATED"; payload:boolean}

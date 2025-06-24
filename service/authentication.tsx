@@ -9,37 +9,37 @@ import { useRouter } from "expo-router";
 // Android client ID: 718749830947-mi51a4ggbaopkvfk4g3pknt3bq3d5m6u.apps.googleusercontent.com
 // IOS Client ID: 718749830947-15fiuodcrenfveajk45uq0emn9fle5tl.apps.googleusercontent.com
 
-export const handleGuestLogin = async (
-  dispatch: Dispatch<ShoppingListAction>,
-  onSuccess: () => void
-) => {
-  const userDetails = {
-    sessionId: `guest-${Date.now()}`,
-    name: "Guest",
-    createdAt: new Date().toISOString(),
-    country: "",
-    currency: "",
-  };
-  const guest = await AsyncStorage.getItem("@guestUser");
+// export const handleGuestLogin = async (
+//   dispatch: Dispatch<ShoppingListAction>,
+//   onSuccess: () => void
+// ) => {
+//   const userDetails = {
+//     sessionId: `guest-${Date.now()}`,
+//     name: "Guest",
+//     createdAt: new Date().toISOString(),
+//     country: "",
+//     currency: "",
+//   };
+//   const guest = await AsyncStorage.getItem("@guestUser");
 
-  if (guest) {
-    try {
-      const parsedGuest: GuestUserInfo = JSON.parse(guest);
-      dispatch(setGuestUser(parsedGuest));
-      onSuccess()
-    } catch (err) {
-      console.error("Failed to parse guest:", err);
-    }
-  } else {
-    try {
-      setGuestUser(userDetails);
-      await AsyncStorage.setItem("@guestUser", JSON.stringify(userDetails));
-      onSuccess()
-    } catch (error) {
-      console.error("Failed to save guest user:", error);
-    }
-  }
-};
+//   if (guest) {
+//     try {
+//       const parsedGuest: GuestUserInfo = JSON.parse(guest);
+//       dispatch(setGuestUser(parsedGuest));
+//       onSuccess()
+//     } catch (err) {
+//       console.error("Failed to parse guest:", err);
+//     }
+//   } else {
+//     try {
+//       setGuestUser(userDetails);
+//       await AsyncStorage.setItem("@guestUser", JSON.stringify(userDetails));
+//       onSuccess()
+//     } catch (error) {
+//       console.error("Failed to save guest user:", error);
+//     }
+//   }
+// };
 
 
 // export const handleAuthLogin = async (

@@ -11,6 +11,25 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       DROP TABLE IF EXISTS shopping_items;
       DROP TABLE IF EXISTS catalog_items;
       DROP TABLE IF EXISTS categories;
+      DROP TABLE IF EXISTS guests;
+
+      CREATE TABLE IF NOT EXISTS guests (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        country TEXT,
+        currencyCode TEXT,
+        currencySymbol TEXT,
+        createdAt TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        country TEXT,
+        currencyCode TEXT,
+        currencySymbol TEXT,
+        createdAt TEXT NOT NULL
+      );
 
       CREATE TABLE IF NOT EXISTS categories (
         id TEXT PRIMARY KEY NOT NULL,
