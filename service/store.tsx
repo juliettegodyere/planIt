@@ -33,6 +33,7 @@ export type ShoppingListAction =
   // | {type: "UPDATE_PURCHASE"; payload: string}
   | { type: "SET_USER"; payload:  UserInfo  }
   | { type: "SET_GUEST_USER"; payload: guestUserType } 
+  | { type: "ADD_GUEST_USER"; payload: guestUserType } 
   | { type: "UPDATE_GUEST_USER"; payload: guestUserType } 
   // | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
   // | { type: "SET_SEARCH_QUERY"; payload: {query:string} }

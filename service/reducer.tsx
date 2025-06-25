@@ -38,7 +38,7 @@ export const shoppingListReducer = (
         ...state,
         shoppingItemLists: uniqueItems,
       };
-    case "SET_GUEST_USER":
+    case "ADD_GUEST_USER":
       return {
         ...state,
         guest: {
@@ -54,6 +54,11 @@ export const shoppingListReducer = (
           ...action.payload, // Only update country/currency or any subset
         },
       };
+    case "SET_GUEST_USER":
+      return {
+        ...state,
+        guest: action.payload,
+       };
 
     case "SET_SELECTED_ITEMS_HYDRATED":
       return {

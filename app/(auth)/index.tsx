@@ -23,7 +23,7 @@ export default function Auth() {
   const [showActionsheet, setShowActionsheet] = React.useState(false);
   const { state, dispatch } = useShoppingListContext();
   const {guest} = state
-  const isLoggedIn = !!guest && Object.keys(guest).length > 0;
+  const isLoggedIn = guest && guest.id && !guest.country;
   const {selectedCountry, currencyCode, currencySymbol } = useLocalSearchParams();
           const handleClose = () => setShowActionsheet(false);
 

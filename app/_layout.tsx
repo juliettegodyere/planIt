@@ -10,8 +10,8 @@ import { setGuestUser, setSelectedShoppingItemsHydrated, sethoppingItemsState, s
 import { useRouter } from 'expo-router';
 import { useLocalStorageSync } from '@/Util/HelperFunction';
 import { createTables } from '@/db/schema';
-import { getAllShoppingItems } from '@/db/EntityManager';
-import { ShoppingItemTypes } from '@/service/types';
+import { getAllShoppingItems, getGuestInfo } from '@/db/EntityManager';
+import { ShoppingItemTypes, guestUserType } from '@/service/types';
 
 export default function RootLayout() {
   const [loading, setLoading] = useState(true);
@@ -37,6 +37,9 @@ type RootLayoutInnerProps = {
 function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) {
   const {state, dispatch } = useShoppingListContext();
   const {shoppingItemLists, isSelectedShoppingItemsHydrated, guest} = state
+  const isLoggedIn = !!guest && Object.keys(guest).length > 0;
+  const isShoppingData = !!shoppingItemLists && Object.keys(shoppingItemLists).length > 0;
+
   const db = useSQLiteContext();
 
   const fetchItemsIfNeeded = async () => {
@@ -48,8 +51,27 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
   };
 
   useEffect(() => {
-    fetchItemsIfNeeded();
+    const refetchShoppingItemIfEmpty = async() => {
+      if(!isShoppingData){
+        const items: ShoppingItemTypes[] = await getAllShoppingItems(db);
+        dispatch(sethoppingItemsState(items));
+      }
+    }
+    refetchShoppingItemIfEmpty();
   }, []);
+
+  useEffect(() => {
+    const refetchGuestUserIfEmpty = async() => {
+      if(!isLoggedIn){
+        const guest: guestUserType[] = await getGuestInfo(db);
+        if (guest.length > 0) {
+          dispatch(setGuestUser({...guest[0]}));
+        }
+      }
+    }
+    refetchGuestUserIfEmpty();
+  }, []);
+
   useEffect(() => {
     console.log(guest)
     const restoreSession = async () => {

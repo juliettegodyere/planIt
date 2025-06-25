@@ -94,13 +94,18 @@ import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./ty
     payload: userInfo ,
   });
   
-  export const setGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
-    type: "SET_GUEST_USER",
+  export const addGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
+    type: "ADD_GUEST_USER",
     payload: guestUserInfo,  
   });
 
   export const updateGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
     type: "UPDATE_GUEST_USER",
+    payload: guestUserInfo,  
+  });
+
+  export const setGuestUser = (guestUserInfo: guestUserType): ShoppingListAction => ({
+    type: "SET_GUEST_USER",
     payload: guestUserInfo,  
   });
 

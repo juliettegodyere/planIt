@@ -248,6 +248,26 @@ export const updateGuestUserDB = async (
   return updatedUser;
 };
 
+export const getGuestInfo = async (
+  db: SQLite.SQLiteDatabase,
+): Promise<guestUserType[]> => {
+
+  const rawItems = await db.getAllAsync<guestUserType>(
+    `SELECT * FROM guests ORDER BY createdAt DESC LIMIT 1`
+  );
+
+  const items: guestUserType[] = rawItems.map((item) => ({
+    id: item.id,
+    name: item.name,
+    createdAt: item.createdAt,
+    country: item.country,
+    currencyCode: item.currencyCode,
+    currencySymbol: item.currencySymbol,
+  }));
+
+  return items;
+}
+
 
 
 

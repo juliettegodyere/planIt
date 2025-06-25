@@ -2,7 +2,7 @@ import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";
 import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from "../service/types";
 import { getShoppingItemById, insertCategory, insertCategoryItem, insertGuestUser, insertShoppingItem, updateGuestUserDB, updateShoppingItem } from "./EntityManager";
-import { addItem, setGuestUser, updateItem, updateGuestUser } from "@/service/stateActions";
+import { addItem, addGuestUser, updateItem, updateGuestUser } from "@/service/stateActions";
 import { generateSimpleUUID } from "@/Util/HelperFunction";
 
 type GuestUserUpdateParams = Partial<guestUserType> & { id: string };
@@ -131,7 +131,7 @@ export const userTransactions = () => {
 
   const addNewGuestUserAndUpdateState = async () => {
     const savedUser = await insertGuestUser(db);
-    dispatch(setGuestUser(savedUser));
+    dispatch(addGuestUser(savedUser));
     return savedUser;
   }
 
