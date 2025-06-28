@@ -3,7 +3,7 @@
 export interface ShoppingItemTypes {
     id:string;
     key: string;
-    // name: string;
+    name: string;
     quantity: string;
     qtyUnit: string;
     price: string;
@@ -18,6 +18,7 @@ export interface ShoppingItemTypes {
 
   export interface CreateShoppingItemTypes {
     key: string;
+    name: string;
     quantity: string;
     qtyUnit: string;
     price: string;
@@ -56,6 +57,13 @@ export interface guestUserType  {
   country: string,
   currencyCode: string,
   currencySymbol: string,
+}
+
+export interface FullCategoryItem {
+  id: string;
+  label: string;
+  value: string;
+  categoryLabel: string;
 }
 
 

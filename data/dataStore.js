@@ -1,20 +1,5 @@
 import { CameraIcon, FileIcon, FileUpIcon, ScanBarcodeIcon, ScanTextIcon, UploadCloud, VideoIcon } from "lucide-react-native";
 
-
-export const countryOptions = [
-    { label: "United Kingdom", value: "United Kingdom" },
-    { label: "Canada", value: "Canada" },
-    { label: "Nigeria", value: "Nigeria" },
-    { label: "United State", value: "United State" },
-  ];
-
-export const currencyOptions = [
-    { label: "£-GBP - British Pound", value: "£" },
-    { label: "CAD$ - CAD - Canada Dallar", value: "CAD$" },
-    { label: "NGN - Nigerian Naira", value: "N" },
-    { label: "US$ - USD - US Dollar", value: "US$" },
-  ];
-
   export const categoryOptions = [
     { label: "All", value: "all" },
     { label: "Grocery", value: "grocery" },
@@ -44,6 +29,14 @@ export const currencyOptions = [
     { label: "Take Photo", icon: CameraIcon},
     { label: "Scan Document", value: ScanTextIcon },
     { label: "Photo Lbrary", value: VideoIcon },
+  ];
+
+  export const countries = [
+    { name: "United Kingdom", currencyCode: "GBP", symbol: "£" },
+    { name: "Canada", currencyCode: "CAD", symbol: "C$" },
+    { name: "Nigeria", currencyCode: "NGN", symbol: "₦" },
+    { name: "Germany", currencyCode: "EUR", symbol: "€" },
+    { name: "Japan", currencyCode: "JPY", symbol: "¥" },
   ];
 
   

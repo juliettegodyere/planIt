@@ -1,9 +1,9 @@
 // src/context/shoppingList/state.ts
 
-import { CategoryItemResponseType, ShoppingItemTypes } from "./types";
+import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./types";
 
 export interface AllItemsInitialStateType {
-  guest: Record<string, any>;
+  guest: guestUserType | null;
   user: Record<string, any>;
   shoppingItemLists: ShoppingItemTypes[];
   searchQuery: string;
@@ -12,6 +12,7 @@ export interface AllItemsInitialStateType {
   selectedCategory: string;
   catalogItems: CategoryItemResponseType[];
   isSelectedShoppingItemsHydrated:boolean;
+  isGuestHydrated: boolean;
 }
 
 export type SelectedItemType = {
@@ -31,7 +32,7 @@ export type SelectedItemType = {
 };
 
 export const initialState: AllItemsInitialStateType = {
-  guest: {},
+  guest: null,
   user: {},
   shoppingItemLists: [],
   searchQuery: "",
@@ -39,7 +40,8 @@ export const initialState: AllItemsInitialStateType = {
   isToggled: false,
   selectedCategory: "",
   catalogItems: [],
-  isSelectedShoppingItemsHydrated:false
+  isSelectedShoppingItemsHydrated:false,
+  isGuestHydrated:false
 };
 
 export interface UserInfo {

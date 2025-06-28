@@ -1,6 +1,6 @@
 // db/schema.ts or db/shoppingItems.ts
 
-import { CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from '../service/types';
+import { CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, FullCategoryItem, ShoppingItemTypes, guestUserType } from '../service/types';
 import * as SQLite from 'expo-sqlite';
 import { generateSimpleUUID } from '@/Util/HelperFunction';
 import { shoppingData } from '@/data/shoppingListData';
@@ -11,13 +11,13 @@ export const insertShoppingItem = async (db: SQLite.SQLiteDatabase, item: Shoppi
   try {
     await db.runAsync(
       `INSERT INTO shopping_items (
-          id, key, category_item_id, quantity, qtyUnit, price, purchased, selected,
+          id, key, name, category_item_id, quantity, qtyUnit, price, purchased, selected,
           createDate, modifiedDate, priority, note
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         item.id,
         item.key,
-        // newItem.name,
+        item.name,
         item.category_item_id,
         item.quantity,
         item.qtyUnit,
@@ -53,12 +53,13 @@ export const updateShoppingItem = async (db: SQLite.SQLiteDatabase,item: Shoppin
 
   await db.runAsync(
     `UPDATE shopping_items
-     SET category_item_id = ?, key = ?, quantity = ?, qtyUnit = ?, price = ?, purchased = ?,
+     SET category_item_id = ?, key = ?,name = ?, quantity = ?, qtyUnit = ?, price = ?, purchased = ?,
          selected = ?, createDate = ?, modifiedDate = ?, priority = ?
      WHERE id = ?;`,
     [
       updatedItem.category_item_id,
       updatedItem.key,
+      updatedItem.name,
       updatedItem.quantity,
       updatedItem.qtyUnit,
       updatedItem.price,
@@ -114,21 +115,28 @@ export const getAllShoppingItems = async (
   const rawItems = await db.getAllAsync<ShoppingItemTypes>(
     `SELECT * FROM shopping_items`
   );
-
+    console.log("getAllShoppingItems rawItems")
+    console.log(rawItems)
   const items: ShoppingItemTypes[] = rawItems.map((item) => ({
     id: item.id,
     key: item.key,
+    name: item.name,
     category_item_id: item.category_item_id,
     quantity: item.quantity,
     qtyUnit: item.qtyUnit,
     price: item.price,
-    purchased: item.purchased,
-    selected: item.selected,
+    // purchased: item.purchased,
+    // selected: item.selected,
+    purchased: Boolean(item.purchased), // Convert 1 or 0 to true/false
+    selected: Boolean(item.selected),
     createDate: item.createDate,
     modifiedDate: item.modifiedDate,
     priority: item.priority,
     note: item.note
   }));
+
+  console.log("getAllShoppingItems items")
+  console.log(items)
 
   return items;
 };
@@ -142,6 +150,7 @@ export const getShoppingItemById = async (db: SQLite.SQLiteDatabase, id: string)
   return {
     id: row.id,
     key: row.key,
+    name: row.name,
     category_item_id: row.category_item_id,
     quantity: row.quantity,
     qtyUnit: row.qtyUnit,
@@ -267,6 +276,35 @@ export const getGuestInfo = async (
 
   return items;
 }
+export const deleteGuestUserDB = async (
+  db: SQLite.SQLiteDatabase,
+  id: string
+): Promise<void> => {
+  await db.runAsync(`DELETE FROM guests WHERE id = ?`, [id]);
+};
+
+export const getFullCategoryItems = async (
+  db: SQLite.SQLiteDatabase
+): Promise<FullCategoryItem[]> => {
+  console.log("I got to getFullCategoryItems")
+  const rows = await db.getAllAsync<{
+    id: string;
+    label: string;
+    value: string;
+    categoryLabel: string;
+  }>(`
+    SELECT 
+      ci.id,
+      ci.label,
+      ci.value,
+      c.label AS categoryLabel
+    FROM category_items ci
+    JOIN categories c ON ci.category_id = c.id;
+  `);
+  console.log("getFullCategoryItems rows")
+  console.log(rows)
+  return rows;
+};
 
 
 

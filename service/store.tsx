@@ -35,9 +35,11 @@ export type ShoppingListAction =
   | { type: "SET_GUEST_USER"; payload: guestUserType } 
   | { type: "ADD_GUEST_USER"; payload: guestUserType } 
   | { type: "UPDATE_GUEST_USER"; payload: guestUserType } 
+  | {type: "REMOVE_GUEST_USER"}
   // | { type: "SET_SELECTED_CATEGORY"; payload: { category: string }}
   // | { type: "SET_SEARCH_QUERY"; payload: {query:string} }
   | {type: "SET_SELECTED_ITEMS_HYDRATED"; payload:boolean}
+  | {type: "SET_GUEST_HYDRATED"; payload:boolean}
   // | { type: "UPDATE_SHOPPING_ITEMS"; payload: { items: ShoppingItem[] } }; 
 
 // Context type

@@ -4,7 +4,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";
 import * as Crypto from 'expo-crypto';
-import { ShoppingItemTypes } from "@/service/types";
+import { CategoryItemResponseType, FullCategoryItem, ShoppingItemTypes } from "@/service/types";
 
 // This function helps convert the currency label to the value
 export const getCurrencyLabelByValue = (selectedCountry: string) => {
@@ -30,41 +30,6 @@ export const getCurrencyByCountry = (selectedCountry: string) => {
   return countryCurrencyMap[selectedCountry] || "";
 };
 
-export function useLocalStorageSync<T>(key: string, value: T) {
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return; // ⛔ Skip saving on first render
-    }
-
-    if (!value || (Array.isArray(value) && value.length === 0)) {
-      return; // ✅ Skip saving if value is empty array or undefined
-    }
-
-    const saveToStorage = async () => {
-      try {
-        await AsyncStorage.setItem(key, JSON.stringify(value));
-        // console.log(`Saved ${key} to storage`);
-      } catch (error) {
-        console.error(`Error saving ${key} to storage:`, error);
-      }
-    };
-
-    saveToStorage();
-  }, [value, key]);
-}
-
-// export const updateLocalStorage = (items: ShoppingItem[]) => {
-//   try {
-//     AsyncStorage.setItem("@shoppingItems", JSON.stringify(items));
-//     console.log("The update local storage was called");
-//   } catch (e) {
-//     console.error("Failed to update local storage:", e);
-//   }
-// };
-
 export const formatDate = (input: string | Date) => {
   const date = typeof input === "string" ? new Date(input) : input;
 
@@ -77,58 +42,6 @@ export const formatDate = (input: string | Date) => {
 
   return format(date, "EEEE, d MMM");
 };
-
-// export function cleanUpItem(item: ShoppingItemTypes): ShoppingItemTypes {
-//   let cleanedItem = { ...item };
-
-//   while (cleanedItem.purchased.length > 0 && cleanedItem.purchased[cleanedItem.purchased.length - 1] === false) {
-//     cleanedItem = {
-//       ...cleanedItem,
-//       purchased: cleanedItem.purchased.slice(0, -1),
-//       quantity: cleanedItem.quantity.slice(0, -1),
-//       price: cleanedItem.price.slice(0, -1),
-//       priority: cleanedItem.priority.slice(0, -1),
-//       selected: cleanedItem.selected.slice(0, -1),
-//       modifiedDate: cleanedItem.modifiedDate.slice(0, -1),
-//       createDate: cleanedItem.createDate.slice(0, -1),
-//       qtyUnit: cleanedItem.qtyUnit.slice(0, -1),
-//       key: cleanedItem.key,
-//       name: cleanedItem.name,
-//       category: cleanedItem.category,
-//       id: cleanedItem.id,
-     
-//     };
-//   }
-
-//   return cleanedItem;
-// }
-
-// export const useLoadShoppingItems = (forceReload = false) => {
-//   const {state, dispatch } = useShoppingListContext();
-//   const {shoppingItems} = state;
-//   const [loading, setLoading] = useState(false);
-//   const db = useSQLiteContext();
-
-//   useEffect(() => {
-//     const load = async () => {
-//       if (!shoppingItems || shoppingItems.length === 0 || forceReload) {
-//         setLoading(true);
-//         try {
-//           const itemsFromDB: ShoppingItem[] = await loadUShoppingItemsFromDB(db);
-//           dispatch(updateShoppingItems(itemsFromDB));
-//         } catch (error) {
-//           console.error("Failed to load shopping items:", error);
-//         } finally {
-//           setLoading(false);
-//         }
-//       }
-//     };
-
-//     load();
-//   }, [forceReload]);
-
-//   return { shoppingItems, loading };
-// };
 
 export const generateSimpleUUID = async () => {
   // Create a unique string based on a timestamp and a random value
@@ -152,18 +65,57 @@ export const generateSimpleUUID = async () => {
   return digestHex.substring(0, 16);
 };
 
-export const useQuantityDebouncer = () => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+export const transformToCategoryItemResponse = (
+  shoppingItems: ShoppingItemTypes[],
+  fullCategoryItems: CategoryItemResponseType[]
+): CategoryItemResponseType[] => {
+  // Build a lookup map for quick access
+  const categoryItemMap = new Map<string, CategoryItemResponseType>();
+  fullCategoryItems.forEach((item) => {
+    categoryItemMap.set(item.label, item);
+  });
+  // Map the shopping items
+  return shoppingItems.map((shoppingItem) => {
+    const categoryItem = categoryItemMap.get(shoppingItem.name);
 
-  const debounce = (callback: () => void, delay = 500) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (!categoryItem) {
+      throw new Error(`No category item found for ID: ${shoppingItem.category_item_id}`);
     }
-    timeoutRef.current = setTimeout(callback, delay);
-  };
 
-  return debounce;
+    return {
+      label: categoryItem.label,
+      value: categoryItem.value,
+      category: categoryItem.label,
+    };
+  });
 };
+
+export function groupItemsByDate(items: CategoryItemResponseType[], itemMap: Record<string, ShoppingItemTypes>): {
+  title: string;
+  data: CategoryItemResponseType[];
+}[] {
+  const grouped: Record<string, CategoryItemResponseType[]> = {};
+
+  items.forEach((item) => {
+    const matched = itemMap[item.value]; // Map for faster lookup
+
+    if (!matched) return;
+
+    const dateKey = formatDate(matched.createDate);
+
+    if (!grouped[dateKey]) {
+      grouped[dateKey] = [];
+    }
+
+    grouped[dateKey].push(item);
+  });
+
+  return Object.entries(grouped).map(([title, data]) => ({
+    title,
+    data,
+  }));
+}
+
 
 
 

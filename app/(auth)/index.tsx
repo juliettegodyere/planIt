@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Heading } from "@/components/ui/heading";
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import CustomSelectItem from "@/components/CustomSelectItem";
 
 export default function Auth() {
   const { addNewGuestUserAndUpdateState, updateGuestUserAndUpdateState } = userTransactions();
@@ -25,9 +26,10 @@ export default function Auth() {
   const {guest} = state
   const isLoggedIn = guest && guest.id && !guest.country;
   const {selectedCountry, currencyCode, currencySymbol } = useLocalSearchParams();
-          const handleClose = () => setShowActionsheet(false);
+  const [loading, setLoading] = useState(false);
 
-  // const { shoppingItems } = state;
+  const handleClose = () => setShowActionsheet(false);
+
   const router = useRouter();
 
   // GoogleSignin.configure({
@@ -38,11 +40,7 @@ export default function Auth() {
   //   iosClientId: '', 
   //   profileImageSize: 120, // [iOS] The desired height (and width) of the profile image. Defaults to 120px
   // });
- 
-
-  useEffect(() => {
-   
-  }, []);
+  
   
   console.log("Login Page")
 
@@ -66,16 +64,24 @@ export default function Auth() {
   };
 
   const handleGuestUserUpdate = async () => {
-    console.log("Update user function")
-    console.log(guest)
-    console.log(guest.id)
+    if (!guest?.id) {
+      console.warn("Guest ID is not available yet.");
+      return; // or show a toast / error to user
+    }
+
+    if(!selectedCountry && !currencyCode && !currencySymbol){
+      console.warn("selectedCountry, currencyCode, currencySymbol are not available yet.");
+      return; // or show a toast / error to user
+    }
+  
     try {
       const guestUser = await updateGuestUserAndUpdateState({
-        id: guest.id, // required!
+        id: guest.id,
         country: selectedCountry.toString(),
         currencyCode: currencyCode.toString(),
-        currencySymbol: currencySymbol.toString()
+        currencySymbol: currencySymbol.toString(),
       });
+  
       if (guestUser) {
         router.replace('/(tabs)');
       }
@@ -83,6 +89,7 @@ export default function Auth() {
       console.error('Guest login failed:', error);
     }
   };
+  
 console.log(guest)
 console.log(selectedCountry)
   return (
@@ -96,62 +103,76 @@ console.log(selectedCountry)
         }}
       >
         {(isLoggedIn) ? (
+          // <VStack className="w-full pt-5 px-5">
+          //   {/* Header */}
+          //   <HStack space="md" className="justify-center items-center">
+          //     <VStack className="flex-1">
+          //       <Heading size="2xl" bold={true} className="text-center mb-2">Provide Location Details</Heading>
+          //     </VStack>
+          //   </HStack>
+  
+          //   {/* Country & Currency Selection */}
+          //   <VStack className="mt-6 space-y-6">
+          //     {/* Country */}
+          //     <Pressable
+          //       onPress={() => {
+          //         router.push("/select-country");
+          //       }}
+          //       className="mb-5"
+          //     >
+          //       <HStack className="justify-between items-center">
+          //         <Heading size="lg">Country</Heading>
+          //         <HStack space="lg" className="items-center">
+          //         <Text>{selectedCountry ? selectedCountry : "Never"}</Text>
+          //           <Icon
+          //             as={ChevronRightIcon}
+          //             size="xl"
+          //             className="text-typography-500"
+          //           />
+          //         </HStack>
+          //       </HStack>
+          //     </Pressable>
+  
+          //     {/* Currency */}
+          //     <Pressable className="mb-5">
+          //       <HStack className="justify-between items-center">
+          //         <Heading size="lg">Currency</Heading>
+          //         <HStack space="lg" className="items-center">
+          //           <Text>{selectedCountry ? currencyCode : "Never"}</Text>
+          //           <Icon
+          //             as={ChevronRightIcon}
+          //             size="xl"
+          //             className="text-typography-500"
+          //           />
+          //         </HStack>
+          //       </HStack>
+          //     </Pressable>
+  
+          //     {/* Continue Button */}
+          //     <Button 
+          //       size="md" 
+          //       variant="outline" 
+          //       action={selectedCountry ? 'positive' : 'negative'} 
+          //       onPress={handleGuestUserUpdate}
+          //      // disabled={selectedCountry ? true : false}
+          //       >
+          //       <ButtonText>Continue</ButtonText>
+          //     </Button>
+          //   </VStack>
+          // </VStack>
           <VStack className="w-full pt-5 px-5">
-            {/* Header */}
             <HStack space="md" className="justify-center items-center">
               <VStack className="flex-1">
                 <Heading size="2xl" bold={true} className="text-center mb-2">Provide Location Details</Heading>
               </VStack>
             </HStack>
-  
-            {/* Country & Currency Selection */}
-            <VStack className="mt-6 space-y-6">
-              {/* Country */}
-              <Pressable
-                onPress={() => {
-                  router.push("/select-country");
-                }}
-                className="mb-5"
-              >
-                <HStack className="justify-between items-center">
-                  <Heading size="lg">Country</Heading>
-                  <HStack space="lg" className="items-center">
-                  <Text>{selectedCountry ? selectedCountry : "Never"}</Text>
-                    <Icon
-                      as={ChevronRightIcon}
-                      size="xl"
-                      className="text-typography-500"
-                    />
-                  </HStack>
-                </HStack>
-              </Pressable>
-  
-              {/* Currency */}
-              <Pressable className="mb-5">
-                <HStack className="justify-between items-center">
-                  <Heading size="lg">Currency</Heading>
-                  <HStack space="lg" className="items-center">
-                    <Text>{selectedCountry ? currencyCode : "Never"}</Text>
-                    <Icon
-                      as={ChevronRightIcon}
-                      size="xl"
-                      className="text-typography-500"
-                    />
-                  </HStack>
-                </HStack>
-              </Pressable>
-  
-              {/* Continue Button */}
-              <Button 
-                size="md" 
-                variant="outline" 
-                action={selectedCountry ? 'positive' : 'negative'} 
-                onPress={handleGuestUserUpdate}
-               // disabled={selectedCountry ? true : false}
-                >
-                <ButtonText>Continue</ButtonText>
-              </Button>
-            </VStack>
+            <CustomSelectItem
+          name={(selectedCountry as string) ?? guest?.country ?? ""}
+          currencyCode={(currencyCode as string) ?? guest?.currencyCode ?? ""}
+          symbol={(currencySymbol as string) ?? guest?.currencySymbol ?? ""}
+          handleGuestUserUpdate={handleGuestUserUpdate}
+          page={"/"}
+        />
           </VStack>
         ) : (
           <VStack space="md" style={{alignItems:"center"}}>

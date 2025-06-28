@@ -3,38 +3,32 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { VStack } from "@/components/ui/vstack";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
+import { countries } from "@/data/dataStore";
 
-const countries = [
-    { name: "United Kingdom", currencyCode: "GBP", symbol: "£" },
-    { name: "Canada", currencyCode: "CAD", symbol: "C$" },
-    { name: "Nigeria", currencyCode: "NGN", symbol: "₦" },
-    { name: "Germany", currencyCode: "EUR", symbol: "€" },
-    { name: "Japan", currencyCode: "JPY", symbol: "¥" },
-  ];
 type CountryItem = {
     name: string;
     currencyCode: string;
     symbol: string;
   };
+  type KnownRoutes = "/" | "/setting";
+
 export default function SelectCountryScreen() {
   const router = useRouter();
+  const rawPage = useLocalSearchParams().page;
+  const page = Array.isArray(rawPage) ? rawPage[0] : rawPage;
 
-//   const handleSelect = (country: string) => {
-//     // Pass selected country back to the previous screen using router.replace or router.back with params
-//     router.push({ pathname: "/", params: { selectedCountry: country } }); // You may adapt this to your layout
-//   };
+const handleSelect = (country: CountryItem) => {
+  if (!page || !["/", "/setting"].includes(page)) return;
 
-  const handleSelect = (country: CountryItem) => {
-    router.push({
-      pathname: "/",
-      params: {
-        selectedCountry: country.name,
-        currencyCode: country.currencyCode,
-        currencySymbol: country.symbol,
-      },
-    });
-  };
-
+  router.push({
+    pathname: page as KnownRoutes,
+    params: {
+      selectedCountry: country.name,
+      currencyCode: country.currencyCode,
+      currencySymbol: country.symbol,
+    },
+  });
+};
   return (
     <VStack className="p-4">
     <FlatList

@@ -120,7 +120,7 @@ import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./ty
   //   payload: items,
   // });
 
-  export const sethoppingItemsState = (items: ShoppingItemTypes[]): ShoppingListAction => ({
+  export const setShoppingItemsState = (items: ShoppingItemTypes[]): ShoppingListAction => ({
     type: 'SET_SHOPPING_ITEMS',
     payload: items,
   });
@@ -128,6 +128,15 @@ import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./ty
   export const setSelectedShoppingItemsHydrated = (val: boolean): ShoppingListAction => ({
     type: 'SET_SELECTED_ITEMS_HYDRATED',
     payload: val,
+  });
+
+  export const setGuestUserHydrated = (flag: boolean): ShoppingListAction => ({
+    type: 'SET_GUEST_HYDRATED',
+    payload: flag,
+  });
+
+  export const removeGuestUser = ():ShoppingListAction => ({
+    type: 'REMOVE_GUEST_USER',
   });
 
   

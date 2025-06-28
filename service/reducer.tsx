@@ -21,7 +21,7 @@ export const shoppingListReducer = (
       return {
         ...state,
         shoppingItemLists: state.shoppingItemLists.map((existingItem) =>
-          existingItem.key === action.payload.key
+          existingItem.id === action.payload.key
             ? action.payload.item
             : existingItem
         ),
@@ -37,6 +37,7 @@ export const shoppingListReducer = (
       return {
         ...state,
         shoppingItemLists: uniqueItems,
+        isSelectedShoppingItemsHydrated:true
       };
     case "ADD_GUEST_USER":
       return {
@@ -58,12 +59,24 @@ export const shoppingListReducer = (
       return {
         ...state,
         guest: action.payload,
+        isGuestHydrated: true,
        };
+
+    case "REMOVE_GUEST_USER":
+      return {
+         ...state,
+        guest: null,
+      };
 
     case "SET_SELECTED_ITEMS_HYDRATED":
       return {
         ...state,
         isSelectedShoppingItemsHydrated: action.payload,
+      };
+    case "SET_GUEST_HYDRATED":
+      return {
+        ...state,
+        isGuestHydrated: action.payload,
       };
 
     default:

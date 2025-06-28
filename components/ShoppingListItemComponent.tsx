@@ -26,6 +26,8 @@ import {
 import ItemInformationSheet from "./ItemInformationSheet";
 import { priorityOption, qtyOptions } from "@/data/dataStore";
 import { ActionType, AttachmentParam, AttachmentType } from "./type";
+import ShoppingListCheckboxRow from "./ShoppingListCheckboxRow";
+import ItemInformationSheetController, { ItemInformationSheetHandle } from "./ItemInformationSheetController";
 
 type Props = {
   shoppingList: CategoryItemResponseType;
@@ -59,6 +61,8 @@ export default function ShoppingListItemComponent({
   const [actionType, setActionType] = useState<ActionType | null>('none');
   const [showActionsheet, setShowActionsheet] = useState(false);
   const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+
+  const sheetRef = useRef<ItemInformationSheetHandle>(null);
 
   const toast = useToast();
   const db = useSQLiteContext();
@@ -194,14 +198,14 @@ export default function ShoppingListItemComponent({
     const item_update: ShoppingItemTypes = {
       ...selectedItem,
       selected: !selectedItem.selected,
-      purchased: !selectedItem.purchased,
+      purchased: itemPurchase,
       modifiedDate: now,
       price: priceInput !== "0" ? priceInput : selectedItem.price,
       quantity: qtyVal !== "0" ? qtyVal : selectedItem.quantity,
       qtyUnit: qtyUnit !== "None" ? qtyUnit : selectedItem.qtyUnit,
       priority: priorityVal !== "None" ? priorityVal : selectedItem.priority,
       note: note.trim() !== "" ? note : selectedItem.note,
-      key: ""
+      key: itemPurchase ? selectedItem.key+"purchased".toLowerCase():selectedItem.key
       // attachments: attachments.length > 0 ? JSON.stringify(attachments) : selectedItem.attachments,
     };
   
@@ -305,59 +309,20 @@ export default function ShoppingListItemComponent({
     handleClose();
   };
 
+  const handlePress = (selectedItem : ShoppingItemTypes, catalogItem: CategoryItemResponseType) => {
+    sheetRef.current?.open(selectedItem, catalogItem); // ✅ opens the sheet from anywhere
+  };
+
   return (
     <Pressable onPress={() => setShowModal(true)}>
-      <Card size="md" variant="elevated" className="m-1">
-        <HStack
-          space="4xl"
-          style={{
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Checkbox
-            value={shoppingList.value}
-            size="lg"
-            isChecked={isChecked(shoppingList.value)}
-            onChange={() => handleCheckboxChange(shoppingList)}
-          >
-            <CheckboxIndicator
-              style={{
-                backgroundColor: isChecked(shoppingList.value)
-                  ? "#1c1616"
-                  : "transparent",
-                borderColor: isChecked(shoppingList.value) ? "#000" : "#000",
-                borderWidth: 1,
-                borderRadius: 9999,
-                width: 15,
-                height: 15,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <CheckboxIcon
-                color="#fff"
-                as={CheckIcon}
-                size="sm"
-                style={{ borderWidth: 2 }}
-              />
-            </CheckboxIndicator>
-            <CheckboxLabel className="text-lg ml-1 text-gray-900">
-              {shoppingList.label}
-            </CheckboxLabel>
-          </Checkbox>
-          {selectedItem && (
-            <AntDesignIcon
-              size={16}
-              name="arrowsalt"
-              color="#888"
-              onPress={handleShowItemInformationActionsheet}
-            />
-          )}
-        </HStack>
-      </Card>
-      <ItemInformationSheet
+      {/* <ShoppingListCheckboxRow
+          shoppingList={shoppingList}
+          isChecked={isChecked}
+          handleCheckboxChange={handleCheckboxChange}
+          selectedItem={selectedItem}
+          onShowInfo={handleShowItemInformationActionsheet}
+        /> */}
+      {/* <ItemInformationSheet
         isOpen={showItemInformationActionsheet}
         onClose={handleItemInformationActionsheetClose}
         onDone={handleItemInformationActionsheetUpdate}
@@ -392,7 +357,19 @@ export default function ShoppingListItemComponent({
         handleDiscardConfirmationSheet={() => setShowDiscardConfirmation(false)}
         handleRemoveAttachment={handleRemoveAttachment}
         handleUpdateItems={handleUpdateItems}
-      />
+      /> */}
+      <ShoppingListCheckboxRow
+          shoppingList={shoppingList}
+          isChecked={isChecked}
+          handleCheckboxChange={handleCheckboxChange}
+          selectedItem={selectedItem}
+          onShowInfo={() => {
+            if (selectedItem) {
+              handlePress(selectedItem, shoppingList);
+            }
+          }}
+        />
+       <ItemInformationSheetController ref={sheetRef} />
     </Pressable>
   );
 }

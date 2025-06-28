@@ -8,10 +8,10 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
 
-      DROP TABLE IF EXISTS shopping_items;
-      DROP TABLE IF EXISTS catalog_items;
-      DROP TABLE IF EXISTS categories;
-      DROP TABLE IF EXISTS guests;
+      -- DROP TABLE IF EXISTS shopping_items; --
+      -- DROP TABLE IF EXISTS catalog_items; --
+      -- DROP TABLE IF EXISTS categories; --
+      -- DROP TABLE IF EXISTS guests;  -- ✅ this is a valid SQL comment
 
       CREATE TABLE IF NOT EXISTS guests (
         id TEXT PRIMARY KEY NOT NULL,
@@ -50,6 +50,7 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS shopping_items (
         id TEXT PRIMARY KEY NOT NULL,
         key TEXT NOT NULL,
+        name TEXT NOT NULL,
         category_item_id TEXT NOT NULL,
         quantity TEXT,
         qtyUnit TEXT,

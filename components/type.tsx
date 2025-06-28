@@ -1,4 +1,4 @@
-import { CategoryItemResponseType } from "@/service/types";
+import { CategoryItemResponseType, ShoppingItemTypes } from "@/service/types";
 
 export type ActionType = 'none' | 'camera' | 'scan' | 'library';
 export type MenuItem = {
@@ -18,6 +18,7 @@ export interface ItemInformationSheetProps {
     onClose: () => void;
     onDone: () => void;
     shoppingList: CategoryItemResponseType;
+    selectedItem: ShoppingItemTypes | null;
     isChecked: (value: string) => boolean;
     handleCheckboxChange: (item: CategoryItemResponseType) => void;
     itemPurchase: boolean;

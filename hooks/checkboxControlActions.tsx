@@ -43,7 +43,7 @@ export const checkboxControlActions = (
     const newItem: ShoppingItemTypes = {
       id: "", // fill as needed
       key: item.value,
-      //name: item.label,
+      name: item.label,
       category_item_id: existingCategory?.category_id || "uncategorized",
       modifiedDate: now,
       createDate: now,

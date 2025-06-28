@@ -1,8 +1,8 @@
 import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";
 import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from "../service/types";
-import { getShoppingItemById, insertCategory, insertCategoryItem, insertGuestUser, insertShoppingItem, updateGuestUserDB, updateShoppingItem } from "./EntityManager";
-import { addItem, addGuestUser, updateItem, updateGuestUser } from "@/service/stateActions";
+import { deleteGuestUserDB, getShoppingItemById, insertCategory, insertCategoryItem, insertGuestUser, insertShoppingItem, updateGuestUserDB, updateShoppingItem } from "./EntityManager";
+import { addItem, addGuestUser, updateItem, updateGuestUser, removeGuestUser } from "@/service/stateActions";
 import { generateSimpleUUID } from "@/Util/HelperFunction";
 
 type GuestUserUpdateParams = Partial<guestUserType> & { id: string };
@@ -17,7 +17,7 @@ export const useShoppingActions = () => {
       ...item,
       id,
       key: item.key,
-      //name: item.name,
+      name: item.name,
       category_item_id: item.category_item_id,
       quantity: item.quantity,
       qtyUnit: item.qtyUnit,
@@ -66,7 +66,7 @@ export const useShoppingActions = () => {
       console.log("Item to be updated")
       console.log(updatedItem)
       await updateShoppingItem(db, updatedItem);
-      dispatch(updateItem(itemInDB.key, updatedItem));
+      dispatch(updateItem(itemInDB.id, updatedItem));
     //   console.log(state.shoppingItemLists);
   }
 
@@ -96,7 +96,7 @@ export const useShoppingActions = () => {
         id:"",
         key: value,
         name: label,
-        category_item_id: "uncategorized",
+        category_item_id: categoryId,
         modifiedDate: now,
         createDate: now,
         price: "",
@@ -148,8 +148,16 @@ export const userTransactions = () => {
     return updatedUser;
   }
 
+  const deleteGuestUser = async (id:string) => {
+    console.log("deleteGuestUser")
+    console.log(id)
+    await deleteGuestUserDB(db, id);
+    dispatch(removeGuestUser());
+  }
+
   return {
     addNewGuestUserAndUpdateState,
-    updateGuestUserAndUpdateState
+    updateGuestUserAndUpdateState,
+    deleteGuestUser
   };
 }
