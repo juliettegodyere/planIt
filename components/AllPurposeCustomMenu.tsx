@@ -5,7 +5,7 @@ import {
   MenuItemLabel,
   MenuSeparator,
 } from "@/components/ui/menu";
-import { CheckIcon, Icon, LinkIcon } from "@/components/ui/icon";
+import { CheckIcon, ChevronRightIcon, Icon, LinkIcon } from "@/components/ui/icon";
 import { ChevronsUpDownIcon } from "lucide-react-native";
 import { Pressable } from "./ui/pressable";
 import { HStack } from "./ui/hstack";
@@ -42,9 +42,12 @@ const AllPurposeCustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onS
       trigger={({ ...triggerProps }) => {
         return (
           <Pressable {...triggerProps}>
+            <HStack className="justify-between">
             <HStack space="sm" style={{alignItems:"center"}}>
-              <Icon as={LinkIcon} size="lg"  style={{color:"#FF6347"}}/>
-              <Text className="font-medium text-lg" style={{color:"#FF6347"}}>{value}</Text>
+              <Icon as={LinkIcon} size="lg"  />
+              <Text className="font-medium text-lg">{value}</Text>
+            </HStack>
+            <Icon as={ChevronRightIcon} className="text-typography-500" />
             </HStack>
           </Pressable>
         );

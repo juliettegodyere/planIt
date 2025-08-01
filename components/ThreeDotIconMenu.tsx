@@ -47,7 +47,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
         setSelectedValue(selectedValue)
       }}
       trigger={({ ...triggerProps }) => (
-        <Button {...triggerProps} size="sm" className="bg-transparent">
+        <Button {...triggerProps}  className="bg-transparent">
           <ButtonIcon
             as={ThreeDotsIcon}
             size="xl"
@@ -66,7 +66,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
             onGroupBySelect(groupValue)
         }}
       >
-        <MenuItemLabel size="md">Group By Category</MenuItemLabel>
+        <MenuItemLabel size="lg" className="font-bold">Group By Category</MenuItemLabel>
       </MenuItem>
 
       <MenuSeparator />
@@ -84,8 +84,8 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
       >
         <MenuItemLabel size="md">
            <VStack>
-           <Text size={sortValue ? "xl" : "md"}>Sort By</Text>
-            {sortValue && <Text>      {sortValue}</Text>}
+           <Text size={sortValue ? "lg" : "md"} className="font-bold">Sort By</Text>
+            {sortValue && <Text className="font-medium">      {sortValue}</Text>}
            </VStack>
         </MenuItemLabel>
         <Icon
@@ -106,8 +106,8 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
                 onSortBySelect(val)
                 }}
             >
-                {sortValue === val && <Icon as={CheckIcon} size="md" />}
-                <MenuItemLabel size="sm">{val}</MenuItemLabel>
+                {sortValue === val && <Icon as={CheckIcon} size="xl" className="font-medium"/>}
+                <MenuItemLabel size="lg">{val}</MenuItemLabel>
             </MenuItem>
             ))}
         </>
@@ -128,8 +128,8 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
       >
         <MenuItemLabel size="md">
         <VStack>
-           <Text size={filterValue ? "xl" : "md"}>Filter By</Text>
-            {filterValue && <Text>      {filterValue}</Text>}
+           <Text size={filterValue ? "lg" : "md"} className="font-bold">Filter By</Text>
+            {filterValue && <Text className="font-medium">      {filterValue}</Text>}
            </VStack>
         </MenuItemLabel>
         <Icon
@@ -161,9 +161,9 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
 
       <MenuSeparator />
 
-      <MenuItem key="Print" textValue="Print" className="p-2">
+      {/* <MenuItem key="Print" textValue="Print" className="p-2">
         <MenuItemLabel size="sm">Print</MenuItemLabel>
-      </MenuItem>
+      </MenuItem> */}
     </Menu>
   );
 }

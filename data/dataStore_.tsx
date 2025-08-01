@@ -11,7 +11,7 @@ import {
   
   export const imageAttachmentOptions: MenuOption[] = [
     { label: "Take Photo", icon: CameraIcon },
-    { label: "Scan Document", icon: ScanTextIcon },
+    // { label: "Scan Document", icon: ScanTextIcon },
     { label: "Photo Library", icon: VideoIcon },
   ];
 

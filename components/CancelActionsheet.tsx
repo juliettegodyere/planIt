@@ -1,5 +1,7 @@
-import { Actionsheet, ActionsheetBackdrop, ActionsheetContent, ActionsheetDragIndicator, ActionsheetDragIndicatorWrapper, ActionsheetItem } from "./ui/actionsheet";
+import { Actionsheet, ActionsheetBackdrop, ActionsheetContent, ActionsheetDragIndicator, ActionsheetDragIndicatorWrapper, ActionsheetItem, ActionsheetItemText } from "./ui/actionsheet";
 import { Text } from "@/components/ui/text";
+import { VStack } from "./ui/vstack";
+import { Divider } from "./ui/divider";
 
 export interface Props {
     isOpen: boolean;
@@ -7,7 +9,8 @@ export interface Props {
     handleCancel: () => void;
     text1: string;
     text2: string;
-    topInfo: string
+    topInfo?: string;
+    subtopInfo?: string
 }
 const CancelActionSheet: React.FC<Props> = ({
     isOpen,
@@ -15,7 +18,8 @@ const CancelActionSheet: React.FC<Props> = ({
     handleCancel,
     text1,
     text2,
-    topInfo
+    topInfo,
+    subtopInfo
   }) => {
 
     return (
@@ -25,15 +29,23 @@ const CancelActionSheet: React.FC<Props> = ({
             <ActionsheetDragIndicatorWrapper>
             <ActionsheetDragIndicator />
             </ActionsheetDragIndicatorWrapper>
-            <ActionsheetItem onPress={handleClose}  className="justify-center align-middle bg-white mb-4 rounded-md">
-               {topInfo && (
-                     <Text>{topInfo}</Text>
-               )}
-                <Text className="text-red-600 font-medium text-2xl mb-3" >{text1}</Text>
+            {
+                topInfo && (
+                    <ActionsheetItem  className="justify-center align-middle bg-white ">
+               <VStack space="md" >
+                        <ActionsheetItemText className="text-center text-lg text-gray-900 font-bold">{topInfo}?</ActionsheetItemText>
+                        <ActionsheetItemText className="text-center text-sm text-gray-700">{subtopInfo}</ActionsheetItemText>
+                        </VStack>
+            </ActionsheetItem>
+                )
+            }
+            <Divider />
+            <ActionsheetItem onPress={handleClose}  className="justify-center align-middle bg-white mb-4 ">
+                <ActionsheetItemText className="text-red-600 font-medium text-2xl mb-3" >{text1}</ActionsheetItemText>
             </ActionsheetItem>
 
-            <ActionsheetItem onPress={handleCancel}  className="justify-center align-middle bg-white rounded-md mb-4">
-            <Text className="text-blue-600 font-medium text-xl mb-3">{text2}</Text>
+            <ActionsheetItem onPress={handleCancel}  className="justify-center align-middle bg-white mb-4">
+            <ActionsheetItemText className="text-blue-600 font-medium text-xl mb-3">{text2}</ActionsheetItemText>
             </ActionsheetItem>
         </ActionsheetContent>
         </Actionsheet>

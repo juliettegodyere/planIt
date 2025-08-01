@@ -1,81 +1,130 @@
-import React from "react";
-import {
-  Actionsheet,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  ActionsheetBackdrop,
-  ActionsheetItem,
-  ActionsheetIcon,
-  ActionsheetItemText,
-} from "@/components/ui/actionsheet";
-import { Box } from "@/components/ui/box";
-import { Button, ButtonText, ButtonGroup } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
+import React, { useEffect, useState } from "react";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import {
   Icon,
-  CloseIcon,
-  EyeOffIcon,
-  EditIcon,
-  ClockIcon,
-  DownloadIcon,
-  TrashIcon,
   LinkIcon,
+  ChevronRightIcon,
 } from "@/components/ui/icon";
-import { CameraIcon, FileIcon, FileUpIcon, ScanBarcodeIcon, ScanTextIcon, UploadCloud, VideoIcon } from "lucide-react-native";
+import { AttachmentParam } from "./type";
+import { Image } from "@/components/ui/image";
+import CancelActionSheet from "./CancelActionsheet";
+import { useImageViewer } from "@/hooks/useImageViewer";
+import { ImageModalViewer } from "./ImageModalViewer";
+import AddImageActionSheet from "./AddImageActionSheet";
+
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
+  handleAttachment: (attachment: AttachmentParam) => void;
+  imageAttachments: AttachmentParam[];
+  setAttachments: React.Dispatch<React.SetStateAction<AttachmentParam[]>>;
 }
 
-const AddAttachmentActionsheet = ({ isOpen, onClose }: Props) => {
+const AddAttachmentComponent = ({handleAttachment, imageAttachments, setAttachments}:Props) => {
+  const [showActionsheet, setShowActionsheet] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
+  const [pendingZoomUpdate, setPendingZoomUpdate] = useState(false);
+
+  const {
+    zoomedImageIndex,
+    showModal,
+    setShowModal,
+    showDeleteWarning,
+    setShowDeleteWarning,
+    setZoomedImageIndex,
+    imageUrls,
+    openModalAtIndex,
+    handleDelete,
+  } = useImageViewer(imageAttachments, setAttachments);
+
+  useEffect(() => {
+    if (imageAttachments.length === 0) {
+      setShowModal(false);
+    }
+  }, [imageAttachments]);
+
+  useEffect(() => {
+    if (pendingZoomUpdate && imageUrls.length > 0) {
+      setZoomedImageIndex(imageUrls.length - 1); // Zoom to the latest
+      setPendingZoomUpdate(false); // Reset flag
+    }
+  }, [imageUrls, pendingZoomUpdate]);
+
+  const openSheet = () => {
+    setHasChanged(false);
+    setShowActionsheet(true);
+  };
+
+  
+  const handleAttachmentWithZoomUpdate = (attachment: AttachmentParam) => {
+    setPendingZoomUpdate(true); // We want to update zoom after new image added
+    handleAttachment(attachment);
+  };
+  
+  
   return (
     <>
-      <Actionsheet isOpen={isOpen} onClose={onClose}>
-        <ActionsheetBackdrop />
-        <ActionsheetContent className="px-5">
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
-          <ActionsheetItem onPress={onClose}>
-            <ActionsheetIcon className="stroke-background-700" as={FileUpIcon} />
-            <ActionsheetItemText>File</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem onPress={onClose}>
-            <ActionsheetIcon
-              className="stroke-background-700"
-              as={ScanTextIcon}
-            />
-            <ActionsheetItemText>Document scanner</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem onPress={onClose}>
-            <ActionsheetIcon className="stroke-background-700" as={ScanBarcodeIcon} />
-            <ActionsheetItemText>QR Code</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem onPress={onClose}>
-            <ActionsheetIcon
-              className="stroke-background-700"
-              as={CameraIcon}
-            />
-            <ActionsheetItemText>Camera</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem onPress={onClose}>
-            <ActionsheetIcon className="stroke-background-700" as={LinkIcon} />
-            <ActionsheetItemText>Link</ActionsheetItemText>
-          </ActionsheetItem>
-          <ActionsheetItem  onPress={onClose}>
-            <ActionsheetIcon className="stroke-background-700" as={VideoIcon} />
-            <ActionsheetItemText>Photo or Video</ActionsheetItemText>
-          </ActionsheetItem>
-        </ActionsheetContent>
-      </Actionsheet>
+      <VStack>
+        <Pressable
+            onPress={() => {
+              if (imageAttachments.length > 0) {
+                openModalAtIndex(0);
+              } else {
+                openSheet();
+              }
+            }}
+          >
+          <HStack className="justify-between">
+            <HStack space="sm" style={{ alignItems: "center" }}>
+              <Icon as={LinkIcon} size="lg" />
+              <Text className="font-medium text-lg">{imageAttachments.length > 0 ? "View Receipts": "Add Receipt"}</Text>
+            </HStack>
+            {imageAttachments.length > 0 ? (
+               <Image
+               source={{ uri: imageAttachments[0].data }}
+               alt={`Attachment 1`}
+               size="xs"
+               className="rounded-sm"
+             />
+            ):(
+              <Icon as={ChevronRightIcon} className="text-typography-500" />
+            )}
+          </HStack>
+        </Pressable>
+      </VStack>
+      <AddImageActionSheet
+        isOpen={showActionsheet}
+        onClose={() => setShowActionsheet(false)}
+        onAttachment={handleAttachmentWithZoomUpdate}
+      />
+      {/* Modal Viewer using refactored shared component */}
+      <ImageModalViewer
+        showModal={showModal}
+        setShowModal={setShowModal}
+        imageUrls={imageUrls}
+        zoomedImageIndex={zoomedImageIndex}
+        setZoomedImageIndex={setZoomedImageIndex}
+        onAddPress={openSheet}
+        showDeleteWarning={showDeleteWarning}
+        setShowDeleteWarning={setShowDeleteWarning}
+        onDelete={handleDelete}
+      />
+
+      {/* Delete confirmation */}
+      <CancelActionSheet
+        isOpen={showDeleteWarning}
+        handleClose={handleDelete}
+        handleCancel={() => setShowDeleteWarning(false)}
+        text1="Delete"
+        text2="Cancel"
+        topInfo="Delete receipt"
+        subtopInfo="We won't save it, so you'll need to add a new one."
+      />
     </>
   );
 };
 
-export default AddAttachmentActionsheet;
+export default AddAttachmentComponent;
+

@@ -9,79 +9,80 @@ import { Button, ButtonText } from "./ui/button";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 interface SelectOption {
-    name: string;
-    currencyCode: string;
-    symbol: string;
+  name: string;
+  currencyCode: string;
+  symbol: string;
 }
 
 interface SelectItemProps {
   name: string;
   currencyCode: string;
-    symbol: string;
-    handleGuestUserUpdate:()=> void,
-    page:string
+  symbol: string;
+  handleGuestUserUpdate: () => void;
+  page: string;
 }
 
 const CustomSelectItem: React.FC<SelectItemProps> = ({
   name,
   currencyCode,
-  symbol ,
+  symbol,
   handleGuestUserUpdate,
-  page
+  page,
 }) => {
   const router = useRouter();
 
   return (
-    <VStack className="mt-6 space-y-6">
-              {/* Country */}
-              <Pressable
-                onPress={() => {
-                  router.push({
-                    pathname: "/select-country",
-                    params: { page: page }, 
-                  });
-                }}
-                className="mb-5"
-              >
-                <HStack className="justify-between items-center">
-                  <Heading size="md">Country</Heading>
-                  <HStack space="lg" className="items-center">
-                  <Text>{name ? name : "Never"}</Text>
-                    <Icon
-                      as={ChevronRightIcon}
-                      size="xl"
-                      className="text-typography-500"
-                    />
-                  </HStack>
-                </HStack>
-              </Pressable>
-  
-              {/* Currency */}
-              <Pressable className="mb-5">
-                <HStack className="justify-between items-center">
-                  <Heading size="md">Currency</Heading>
-                  <HStack space="lg" className="items-center">
-                    <Text>{name ? currencyCode : "Never"}</Text>
-                    <Icon
-                      as={ChevronRightIcon}
-                      size="xl"
-                      className="text-typography-500"
-                    />
-                  </HStack>
-                </HStack>
-              </Pressable>
-  
-              {/* Continue Button */}
-              <Button 
-                size="md" 
-                variant="outline" 
-                action={name ? 'positive' : 'negative'} 
-                onPress={handleGuestUserUpdate}
-               // disabled={selectedCountry ? true : false}
-                >
-                <ButtonText>Continue</ButtonText>
-              </Button>
-            </VStack>
+    <VStack space="lg">
+      {/* Country */}
+      <Pressable
+        onPress={() => {
+          router.push({
+            pathname: "/select-country",
+            params: { page: page },
+          });
+        }}
+        className="mb-5"
+      >
+        <HStack className="justify-between items-center">
+          <Text className="text-lg text-gray-900 font-bold">Country</Text>
+          <HStack space="lg" className="items-center">
+            <Text text-lg text-gray-900 font-normal>{name ? name : "Never"}</Text>
+            <Icon
+              as={ChevronRightIcon}
+              size="xl"
+              className="text-typography-500"
+            />
+          </HStack>
+        </HStack>
+      </Pressable>
+
+      {/* Currency */}
+      <Pressable className="mb-5">
+        <HStack className="justify-between items-center">
+          <Text className="text-lg text-gray-900 font-bold">Currency</Text>
+          <HStack space="lg" className="items-center">
+            <Text className="text-lg text-gray-900 font-normal">{name ? currencyCode : "Never"}</Text>
+            <Icon
+              as={ChevronRightIcon}
+              size="xl"
+              className="text-typography-500"
+            />
+          </HStack>
+        </HStack>
+      </Pressable>
+
+      {/* Continue Button */}
+      <Button
+        size="md"
+        variant="outline"
+        action={name ? "positive" : "negative"}
+        onPress={handleGuestUserUpdate}
+       style={{borderColor:"#FF6347"}}
+        // disabled={selectedCountry ? true : false}
+      >
+        <ButtonText>Continue</ButtonText>
+      </Button>
+    </VStack>
   );
 };
 export default CustomSelectItem;

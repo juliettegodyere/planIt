@@ -27,6 +27,14 @@ export const shoppingListReducer = (
         ),
       };
 
+    case "DELETE_ITEM":
+      return {
+        ...state,
+        shoppingItemLists: state.shoppingItemLists.filter(
+          (item) => item.id !== action.payload // action.payload should be just the ID (a string)
+        ),
+      };
+
     case "SET_SHOPPING_ITEMS":
       const mergedItems = [...state.shoppingItemLists, ...action.payload];
 

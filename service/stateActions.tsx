@@ -17,6 +17,11 @@ import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./ty
     payload: items,
   });
 
+  export const removeItem = (id: string): ShoppingListAction => ({
+    type: "DELETE_ITEM",
+    payload: id,
+  });
+
   // export const addNewEntry = (item: ShoppingItem): ShoppingListAction => ({
   //   type: "ADD_NEW_ENTRY",
   //   payload: { item },

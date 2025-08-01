@@ -13,7 +13,14 @@ export interface ShoppingItemTypes {
     modifiedDate: string;
     priority: string;
     category_item_id: string;
-    note: string
+    note: string;
+    attachments:string;
+    reminderDate: string
+    reminderTime: string
+    isReminderTimeEnabled: boolean;
+    isReminderDateEnabled: boolean;
+    earlyReminder: string;
+    repeatReminder: string;
   }
 
   export interface CreateShoppingItemTypes {
@@ -28,7 +35,14 @@ export interface ShoppingItemTypes {
     modifiedDate: string;
     priority: string;
     category_item_id: string;
-    note: string
+    note: string;
+    attachments:string;
+    reminderDate: string
+    reminderTime: string
+    isReminderTimeEnabled: boolean;
+    isReminderDateEnabled: boolean;
+    earlyReminder: string;
+    repeatReminder: string;
   }
 
 export type CategoriesType = {

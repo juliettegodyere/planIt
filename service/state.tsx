@@ -28,7 +28,14 @@ export type SelectedItemType = {
   modifiedDate: string;
   priority: string;
   category: string;
-  note: string
+  note: string,
+  attachments:string;
+  reminderDate: string
+  reminderTime: string
+  isReminderTimeEnabled: boolean;
+  isReminderDateEnabled: boolean;
+  earlyReminder: string;
+  repeatReminder: string;
 };
 
 export const initialState: AllItemsInitialStateType = {

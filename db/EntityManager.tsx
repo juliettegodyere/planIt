@@ -1,6 +1,6 @@
 // db/schema.ts or db/shoppingItems.ts
 
-import { CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, FullCategoryItem, ShoppingItemTypes, guestUserType } from '../service/types';
+import { CategoriesType, CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, FullCategoryItem, ShoppingItemTypes, guestUserType } from '../service/types';
 import * as SQLite from 'expo-sqlite';
 import { generateSimpleUUID } from '@/Util/HelperFunction';
 import { shoppingData } from '@/data/shoppingListData';
@@ -11,9 +11,10 @@ export const insertShoppingItem = async (db: SQLite.SQLiteDatabase, item: Shoppi
   try {
     await db.runAsync(
       `INSERT INTO shopping_items (
-          id, key, name, category_item_id, quantity, qtyUnit, price, purchased, selected,
-          createDate, modifiedDate, priority, note
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        id, key, name, category_item_id, quantity, qtyUnit, price, purchased, selected,
+        createDate, modifiedDate, priority, note,
+        attachments, reminderDate, reminderTime, isReminderTimeEnabled, isReminderDateEnabled, earlyReminder, repeatReminder
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         item.id,
         item.key,
@@ -22,15 +23,21 @@ export const insertShoppingItem = async (db: SQLite.SQLiteDatabase, item: Shoppi
         item.quantity,
         item.qtyUnit,
         item.price,
-        Number(item.purchased),  // true → 1, false → 0
-        Number(item.selected),   // true → 1, false → 0
+        Number(item.purchased),
+        Number(item.selected),
         item.createDate,
         item.modifiedDate,
         item.priority,
-        // newItem.category,
-        item.note
+        item.note,
+        item.attachments, // Make sure it's a stringified JSON
+        item.reminderDate,
+        item.reminderTime,
+        Number(item.isReminderTimeEnabled),
+        Number(item.isReminderDateEnabled),
+        item.earlyReminder,
+        item.repeatReminder
       ]
-    );
+    );    
   } catch (error) {
     console.error("Failed to insert shopping item:", error);
     throw error; 
@@ -53,8 +60,10 @@ export const updateShoppingItem = async (db: SQLite.SQLiteDatabase,item: Shoppin
 
   await db.runAsync(
     `UPDATE shopping_items
-     SET category_item_id = ?, key = ?,name = ?, quantity = ?, qtyUnit = ?, price = ?, purchased = ?,
-         selected = ?, createDate = ?, modifiedDate = ?, priority = ?
+     SET category_item_id = ?, key = ?, name = ?, quantity = ?, qtyUnit = ?, price = ?, purchased = ?,
+         selected = ?, createDate = ?, modifiedDate = ?, priority = ?, note = ?,
+         attachments = ?, reminderDate = ?, reminderTime = ?, isReminderTimeEnabled = ?, isReminderDateEnabled = ?,
+         earlyReminder = ?, repeatReminder = ?
      WHERE id = ?;`,
     [
       updatedItem.category_item_id,
@@ -63,16 +72,22 @@ export const updateShoppingItem = async (db: SQLite.SQLiteDatabase,item: Shoppin
       updatedItem.quantity,
       updatedItem.qtyUnit,
       updatedItem.price,
-      updatedItem.purchased,
-      updatedItem.selected,
+      Number(updatedItem.purchased),
+      Number(updatedItem.selected),
       updatedItem.createDate,
       updatedItem.modifiedDate,
       updatedItem.priority,
-      // updatedItem.category,
-      updatedItem.id,
-      updatedItem.note
+      updatedItem.note,
+      updatedItem.attachments,
+      updatedItem.reminderDate,
+      updatedItem.reminderTime,
+      Number(updatedItem.isReminderTimeEnabled),
+      Number(updatedItem.isReminderDateEnabled),
+      updatedItem.earlyReminder,
+      updatedItem.repeatReminder,
+      updatedItem.id
     ]
-  );
+  );  
   console.log("updateShoppingItem - Updated item")
   console.log(updatedItem)
   return {
@@ -80,16 +95,47 @@ export const updateShoppingItem = async (db: SQLite.SQLiteDatabase,item: Shoppin
   };
 };
 
-export const insertCategory = async (db: SQLite.SQLiteDatabase,label: string, value: string) => {
-  const id = await generateSimpleUUID(); 
-  await db.runAsync(`
-    INSERT INTO categories (id, label, value)
-    VALUES (?, ?, ?);
-  `, [id, label, value]);
+export const deleteShoppingItem = async (
+  db: SQLite.SQLiteDatabase,
+  id: string
+) => {
+  console.log("deleteShoppingItem - Attempting to delete item with id:", id);
+
+  await db.runAsync(
+    `DELETE FROM shopping_items WHERE id = ?;`,
+    [id]
+  );
+
+  console.log("deleteShoppingItem - Successfully deleted item with id:", id);
 };
 
+export const insertCategory = async (
+  db: SQLite.SQLiteDatabase,
+  label: string,
+  value: string
+): Promise<{ id: string; message: string }> => {
+  const id = await generateSimpleUUID();
+  console.log("Category id - generateSimpleUUID", id);
+
+  await db.runAsync(
+    `
+    INSERT INTO categories (id, label, value)
+    VALUES (?, ?, ?);
+  `,
+    [id, label, value]
+  );
+
+  return {
+    id,
+    message: "Category inserted successfully"
+  };
+};
+
+
 export const getCategoryByValue = async (db: SQLite.SQLiteDatabase, value: string) => {
-  const row = await db.getFirstAsync('SELECT * FROM categories WHERE value = ?', [value.toLocaleLowerCase()]) as CategoryItemTypes | undefined;
+  console.log("getCategoryByValue - value")
+  console.log(value)
+  const row = await db.getFirstAsync('SELECT * FROM categories WHERE label = ?', [value]) as CategoryItemTypes | undefined;
 
   if (!row) return null;
 
@@ -100,6 +146,22 @@ export const getCategoryByValue = async (db: SQLite.SQLiteDatabase, value: strin
     category_id: row.id,
   };
 };
+
+export const getAllCategory = async (db: SQLite.SQLiteDatabase) => {
+  const row = await db.getAllAsync<CategoryItemTypes>(`SELECT * FROM categories`);
+
+  if (!row) return null;
+
+  const categories: CategoryItemTypes[] = row.map((cat) => ({
+    id: cat.id,
+    value: cat.value,
+    label: cat.label,
+    category_id: cat.id,
+  }));
+
+  return categories;
+};
+
 
 export const insertCategoryItem = async (db: SQLite.SQLiteDatabase,label: string, value: string, categoryId: string) => {
   const id = await generateSimpleUUID(); 
@@ -115,8 +177,6 @@ export const getAllShoppingItems = async (
   const rawItems = await db.getAllAsync<ShoppingItemTypes>(
     `SELECT * FROM shopping_items`
   );
-    console.log("getAllShoppingItems rawItems")
-    console.log(rawItems)
   const items: ShoppingItemTypes[] = rawItems.map((item) => ({
     id: item.id,
     key: item.key,
@@ -125,18 +185,20 @@ export const getAllShoppingItems = async (
     quantity: item.quantity,
     qtyUnit: item.qtyUnit,
     price: item.price,
-    // purchased: item.purchased,
-    // selected: item.selected,
     purchased: Boolean(item.purchased), // Convert 1 or 0 to true/false
     selected: Boolean(item.selected),
     createDate: item.createDate,
     modifiedDate: item.modifiedDate,
     priority: item.priority,
-    note: item.note
+    note: item.note,
+    attachments: item.attachments, // Remember to JSON.parse if you want the array
+    reminderDate: item.reminderDate,
+    reminderTime: item.reminderTime,
+    isReminderTimeEnabled: String(item.isReminderTimeEnabled) === '1',
+    isReminderDateEnabled: String(item.isReminderDateEnabled) === '1',
+    earlyReminder: item.earlyReminder,
+    repeatReminder: item.repeatReminder
   }));
-
-  console.log("getAllShoppingItems items")
-  console.log(items)
 
   return items;
 };
@@ -155,16 +217,27 @@ export const getShoppingItemById = async (db: SQLite.SQLiteDatabase, id: string)
     quantity: row.quantity,
     qtyUnit: row.qtyUnit,
     price: row.price,
-    purchased: String(row.purchased) === '1', // cast to boolean
-    selected: String(row.selected) === '1',   // cast to boolean
+    purchased: String(row.purchased) === '1',
+    selected: String(row.selected) === '1',
     createDate: row.createDate,
     modifiedDate: row.modifiedDate,
     priority: row.priority,
-    note: row.note
-  };
-};
+    note: row.note,
+    attachments: row.attachments, // Remember to JSON.parse if you want the array
+    reminderDate: row.reminderDate,
+    reminderTime: row.reminderTime,
+    isReminderTimeEnabled: String(row.isReminderTimeEnabled) === '1',
+    isReminderDateEnabled: String(row.isReminderDateEnabled) === '1',
+    earlyReminder: row.earlyReminder,
+    repeatReminder: row.repeatReminder
+  };  
+}
 
 export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase): Promise<CategoryItemResponseType[]> => {
+  if (!db || !db.getAllAsync) {
+    console.error("DB is not available or was closed.");
+    return [];
+  }
   try {
     // Flatten static items from JSON
     const staticItems: CategoryItemResponseType[] = shoppingData.categories.flatMap((category) =>
@@ -174,7 +247,7 @@ export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase): Promise<Cat
       }))
     );
 
-    // Fetch user-defined items from DB
+    //Fetch user-defined items from DB
     const dbRows = await db.getAllAsync(`
       SELECT 
         ci.label AS label,

@@ -69,13 +69,15 @@ export default function ShoppingListItemComponent({
   const {
     addNewItemToShoppingItemsAndUpdateState,
     updateShoppingItemAndUpdateState,
+    deleteShoppingItemAndUpdateState
   } = useShoppingActions();
   const { isChecked, handleCheckboxChange } = checkboxControlActions(
     db,
     state,
     dispatch,
     addNewItemToShoppingItemsAndUpdateState,
-    updateShoppingItemAndUpdateState
+    updateShoppingItemAndUpdateState,
+    deleteShoppingItemAndUpdateState,
   );
 
   const initialValuesRef = useRef({
@@ -91,8 +93,8 @@ export default function ShoppingListItemComponent({
   // if (loading) return <Text>Loading...</Text>;
 
   useEffect(() => {
-    console.log("state.shoppingItemLists")
-    console.log(state.shoppingItemLists)
+    //console.log("state.shoppingItemLists")
+    //console.log(state.shoppingItemLists)
     const item = state.shoppingItemLists.find(
       (i) =>
         i.key === shoppingList.value &&
@@ -288,8 +290,8 @@ export default function ShoppingListItemComponent({
   const handleSelect = (key:string) => {
     console.log("key = " + key)
     if (key === '0') setActionType('camera');
-    else if (key === '1') setActionType('scan');
-    else if (key === '2') setActionType('library');
+    // else if (key === '1') setActionType('scan');
+    else if (key === '1') setActionType('library');
   };
 
   const handleClose = () => {
@@ -312,7 +314,8 @@ export default function ShoppingListItemComponent({
   const handlePress = (selectedItem : ShoppingItemTypes, catalogItem: CategoryItemResponseType) => {
     sheetRef.current?.open(selectedItem, catalogItem); // ✅ opens the sheet from anywhere
   };
-
+  // console.log("state.shoppingItemLists")
+  // console.log(state.shoppingItemLists)
   return (
     <Pressable onPress={() => setShowModal(true)}>
       {/* <ShoppingListCheckboxRow
@@ -368,6 +371,7 @@ export default function ShoppingListItemComponent({
               handlePress(selectedItem, shoppingList);
             }
           }}
+          sheetRef={sheetRef}
         />
        <ItemInformationSheetController ref={sheetRef} />
     </Pressable>

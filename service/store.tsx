@@ -13,6 +13,7 @@ import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./ty
 export type ShoppingListAction =
   | { type: "ADD_ITEM"; payload: ShoppingItemTypes }
   | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItemTypes }}
+  | { type: "DELETE_ITEM"; payload: string}
   | { type: 'SET_CATALOG_ITEMS'; payload: CategoryItemResponseType[] }
   // | { type: "ADD_NEW_ENTRY"; payload: { item: ShoppingItem } }
   // | { type: 'SET_INVENTORY_ITEMS'; payload: ShoppingListItem[] }

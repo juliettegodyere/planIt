@@ -19,15 +19,8 @@ import {
 import { ArrowLeftIcon } from "@/components/ui/icon";
 import { Heading } from "@/components/ui/heading";
 import { categoryLists } from "../data/dataStore";
-import { ShoppingItem, ShoppingListItem } from "../service/state";
-import {useShoppingActions} from '../db/context/useShoppingList'
 import { VStack } from "./ui/vstack";
-
-type Props = {
-  item: ShoppingListItem;
-  selectedItem: ShoppingItem;
-  isBought: boolean;
-};
+import { useShoppingActions } from "@/db/Transactions";
 
 type AddCustomItemProps = {
   showModal: boolean;

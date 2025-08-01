@@ -1,4 +1,5 @@
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react'
+import { LogBox } from 'react-native';
 import { Stack } from "expo-router";
 import "@/global.css";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -11,12 +12,18 @@ import { createTables } from '@/db/schema';
 import { getAllShoppingItems, getGuestInfo } from '@/db/EntityManager';
 import { ShoppingItemTypes, guestUserType } from '@/service/types';
 
+// ✅ Ignore logs BEFORE any UI or module initialization
+LogBox.ignoreLogs([
+  'Module provider RNDatePickerManager does not conform to RCTModuleProvider',
+]);
+
 export default function RootLayout() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [colorMode, setColorMode] = useState<"light" | "dark">("light");
 
   return (
-    <GluestackUIProvider>
+    <GluestackUIProvider mode={colorMode}>
     <SQLiteProvider databaseName="shopping.db" onInit={createTables} >
       <ShoppingListProvider>
         <RootLayoutInner loading={loading} setLoading={setLoading} router={router} />
@@ -34,7 +41,7 @@ type RootLayoutInnerProps = {
 
 function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) {
   const {state, dispatch } = useShoppingListContext();
-  const {shoppingItemLists, isSelectedShoppingItemsHydrated, guest, isGuestHydrated} = state
+  const {isSelectedShoppingItemsHydrated, guest, isGuestHydrated} = state
   const isLoggedIn = !!guest && Object.keys(guest).length > 0;
 
   const db = useSQLiteContext();
@@ -42,9 +49,7 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
   useEffect(() => {
     const refetchShoppingItemIfEmpty = async() => {
       if(!isSelectedShoppingItemsHydrated){
-        const items: ShoppingItemTypes[] = await getAllShoppingItems(db);
-        console.log("RootLayoutInnerProps useEffect")
-        console.log(items)
+        const items: ShoppingItemTypes[] = await getAllShoppingItems(db);//Gets all the saved mshopping items
         if(items.length > 0){
           dispatch(setShoppingItemsState(items));
         }
@@ -58,7 +63,7 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
   useEffect(() => {
     const refetchGuestUserIfEmpty = async() => {
       if(!isLoggedIn && !isGuestHydrated){
-        const guest: guestUserType[] = await getGuestInfo(db);
+        const guest: guestUserType[] = await getGuestInfo(db); //Get user details from db
         if (guest.length > 0) {
           dispatch(setGuestUser({...guest[0]}));
         }
@@ -90,12 +95,21 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
     restoreSession();
   }, [state.isGuestHydrated, guest]);
 
+  // if (loading) {
+  //   return (
+  //     <HStack space="sm">
+  //     <Spinner />
+  //     <Text size="md">Please Wait</Text>
+  //   </HStack>
+  //   );
+  // }
 
   return (
     <>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false, title: 'Login' }} />
+        <Stack.Screen name="others" options={{ headerShown: true, title: 'history' }} />
       </Stack>
       <StatusBar style="auto" />
     </>

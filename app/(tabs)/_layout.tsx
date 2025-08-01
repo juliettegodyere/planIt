@@ -3,6 +3,8 @@ import { Tabs } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
 import SearchItems from '../../components/SearchItem'
+import { Badge, BadgeText } from "@/components/ui/badge"
+import { VStack } from '@/components/ui/vstack';
 
 export default function TabsLayout() {
   return (
@@ -36,20 +38,30 @@ export default function TabsLayout() {
                 name="history"
                 options={{
                     tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="clockcircleo" color={color} />,
-                    headerShown: false,
+                    headerShown: true,
                 }}
             />
-            <Tabs.Screen
+            {/* <Tabs.Screen
                 name="notification"
                 options={{
-                    tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="bells" color={color} />,
+                    tabBarIcon: ({ color }) => <VStack>
+                        <Badge
+                            className="z-10 self-end h-[22px] w-[22px] bg-red-600 rounded-full -mb-3.5 -mr-3.5"
+                            variant="solid"
+                            >
+                            <BadgeText className="text-white">2</BadgeText>
+                            </Badge>
+                        <AntDesignIcon size={22} name="bells" color={color} />
+                    </VStack>,
                     headerShown: false,
                 }}
-            />
+            /> */}
             <Tabs.Screen
                 name="setting"
                 options={{
                     tabBarIcon: ({ color }) => <AntDesignIcon size={22} name="setting" color={color} />,
+                    headerShown: true,
+                    headerTitle: "Setting"
                 }}
             />
     </Tabs>

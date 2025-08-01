@@ -63,6 +63,14 @@ export default function SearchItems() {
         style={{
           flex: 1,
           marginRight: showCancel ? 8 : 0,
+          borderWidth: 1,
+          borderColor: isFocused ? '#3498db' : '#E5E7EB', // blue border on focus
+          backgroundColor: '#F9FAFB',
+          paddingHorizontal: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.1,
+          shadowRadius: 2,
         }}
       >
         <InputSlot className="pl-3">

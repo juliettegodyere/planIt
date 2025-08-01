@@ -23,7 +23,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import { userTransactions } from "@/db/Transactions";
 import { CloseIcon, Icon, RemoveIcon } from "@/components/ui/icon";
 import { removeGuestUser } from "@/service/stateActions";
-import { Actionsheet, ActionsheetBackdrop, ActionsheetContent, ActionsheetDragIndicator, ActionsheetDragIndicatorWrapper, ActionsheetItem, ActionsheetItemText } from "@/components/ui/actionsheet";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetItem,
+  ActionsheetItemText,
+} from "@/components/ui/actionsheet";
 
 interface ConfirmActionSheetProps {
   isOpen: boolean;
@@ -33,16 +41,16 @@ interface ConfirmActionSheetProps {
   confirmLabel?: string;
 }
 
-
 export default function Settings() {
   const { state, dispatch } = useShoppingListContext();
   const { guest } = state;
   const isLoggedIn = guest && guest.id && !guest.country;
-  const [confirmType, setConfirmType] = useState<"logout" | "delete" | null>(null);
+  const [confirmType, setConfirmType] = useState<"logout" | "delete" | null>(
+    null
+  );
   const { selectedCountry, currencyCode, currencySymbol } =
     useLocalSearchParams();
-  const { deleteGuestUser, updateGuestUserAndUpdateState } =
-    userTransactions();
+  const { deleteGuestUser, updateGuestUserAndUpdateState } = userTransactions();
 
   useEffect(() => {}, [getCurrencyLabelByValue, getCurrencyByCountry]);
 
@@ -83,7 +91,7 @@ export default function Settings() {
   const handleGuestUserDelete = () => {
     setConfirmType("delete");
   };
-  
+
   const handleGuestUserLogout = () => {
     setConfirmType("logout");
   };
@@ -96,12 +104,11 @@ export default function Settings() {
     }
     setConfirmType(null); // close modal
   };
-  
 
   return (
-    <Box>
+    <Box className="p-2">
       <VStack>
-        <Card size="md" variant="elevated" className="m-3">
+        <Card size="md" variant="elevated" className="">
           <HStack space="md">
             <Avatar className="bg-indigo-600">
               <AvatarFallbackText className="text-white">
@@ -110,14 +117,14 @@ export default function Settings() {
               <AvatarBadge />
             </Avatar>
             <VStack>
-              <Heading size="sm">{guest?.name}</Heading>
-              <Text size="sm">sessionId: {guest?.id}</Text>
+              <Heading size="lg">{guest?.name}</Heading>
+              <Text size="md">sessionId: {guest?.id}</Text>
             </VStack>
           </HStack>
         </Card>
-        <Heading className="pt-5 px-5">Location Details</Heading>
-        <VStack className="w-full px-5">
-          <Card size="md" variant="elevated" className="m-3">
+        <Card className="mt-2" style={{ backgroundColor: "#F1F1F1" }}>
+          <Heading>Location Details</Heading>
+          <Card className="mt-2">
             <CustomSelectItem
               name={(selectedCountry as string) ?? guest?.country ?? ""}
               currencyCode={
@@ -128,11 +135,10 @@ export default function Settings() {
               page={"/setting"}
             />
           </Card>
-        </VStack>
-
-        <Heading className="pt-5 px-5">Settings And Tools</Heading>
-        <VStack className="w-full px-5">
-          <Card size="md" variant="elevated" className="m-3">
+        </Card>
+        <Card className="mt-2" style={{ backgroundColor: "#F1F1F1" }}>
+          <Heading>Settings & Tools</Heading>
+          <Card className="mt-2">
             <VStack space="lg">
               <Pressable onPress={handleGuestUserDelete}>
                 <HStack space="lg">
@@ -143,7 +149,9 @@ export default function Settings() {
                     color="#888"
                     className="mt-1"
                   />
-                  <Text className="color-red-600 font-medium">Delete</Text>
+                  <Text className="color-red-600 font-bold text-lg">
+                    Delete
+                  </Text>
                 </HStack>
               </Pressable>
 
@@ -156,33 +164,35 @@ export default function Settings() {
                     color="#888"
                     className="mt-1"
                   />
-                  <Text className="color-blue-600 font-medium">Log Out</Text>
+                  <Text className="color-blue-600 font-bold text-lg">
+                    Log Out
+                  </Text>
                 </HStack>
               </Pressable>
             </VStack>
           </Card>
-        </VStack>
+        </Card>
 
-        <Heading className="pt-5 px-5">App Information</Heading>
-        <VStack className="w-full px-5">
-          <Card size="md" variant="elevated" className="m-3">
-            <VStack space="lg">
+        {/* <Card className="mt-2" style={{backgroundColor:"#F1F1F1"}}>
+        <Heading >App Information</Heading>
+          <Card className="mt-1">
+          <VStack space="xl">
               <Pressable>
                 <HStack className="justify-between">
-                  <Text className="font-medium">App Version</Text>
-                  <Text className="font-medium">2025.12</Text>
+                  <Text className="text-lg text-gray-900 font-bold">App Version</Text>
+                  <Text className="text-lg text-gray-900 font-normal">2025.12</Text>
                 </HStack>
               </Pressable>
 
               <Pressable>
-                <HStack className="justify-between">
-                  <Text className="font-medium">Build</Text>
-                  <Text className="font-medium">20250611.150806</Text>
+                <HStack  className="justify-between">
+                  <Text  className="text-lg text-gray-900 font-bold">Build</Text>
+                  <Text className="text-lg text-gray-900 font-normal">20250611.150806</Text>
                 </HStack>
               </Pressable>
             </VStack>
           </Card>
-        </VStack>
+        </Card> */}
       </VStack>
       <ConfirmActionSheet
         isOpen={confirmType !== null}
@@ -208,51 +218,52 @@ export const ConfirmActionSheet: React.FC<ConfirmActionSheetProps> = ({
 }) => {
   return (
     <Actionsheet isOpen={isOpen} onClose={onClose}>
-  <ActionsheetBackdrop />
-  <ActionsheetContent  className="pb-10">
-    <ActionsheetDragIndicatorWrapper>
-      <ActionsheetDragIndicator />
-    </ActionsheetDragIndicatorWrapper>
+      <ActionsheetBackdrop />
+      <ActionsheetContent className="pb-10">
+        <ActionsheetDragIndicatorWrapper>
+          <ActionsheetDragIndicator />
+        </ActionsheetDragIndicatorWrapper>
 
-    <VStack space="md" className="min-w-full px-4" style={{alignItems:"flex-start"}}>
-      {/* Close button row */}
-      <Pressable onPress={onClose} style={{ alignSelf: "flex-end" }}>
-        <HStack className="justify-end w-full">
-          <Icon
-            as={CloseIcon}
-            size="lg"
-            className="stroke-background-500"
-          />
-        </HStack>
-      </Pressable>
+        <VStack
+          space="md"
+          className="min-w-full px-4"
+          style={{ alignItems: "flex-start" }}
+        >
+          {/* Close button row */}
+          <Pressable onPress={onClose} style={{ alignSelf: "flex-end" }}>
+            <HStack className="justify-end w-full">
+              <Icon
+                as={CloseIcon}
+                size="lg"
+                className="stroke-background-500"
+              />
+            </HStack>
+          </Pressable>
 
-      {/* Title */}
-      <Text className="font-bold text-lg">
-        {title}
-      </Text>
+          {/* Title */}
+          <Text className="font-bold text-lg text-gray-900">{title}</Text>
 
-      {/* Confirm button */}
-      <Pressable onPress={onConfirm} className="w-full">
-                <HStack space="lg">
-                  {/* <Icon as={RemoveIcon} size="md" /> */}
-                  <AntDesignIcon
-                    size={15}
-                    name="logout"
-                    color="#888"
-                    className="mt-1"
-                  />
-                                    <Text
-                    className={`font-medium ${
-                      confirmLabel === "Logout" ? "text-blue-600" : "text-red-600"
-                    }`}
-                  >
-                    {confirmLabel}
-                  </Text>
-                </HStack>
-              </Pressable>
-    </VStack>
-  </ActionsheetContent>
-</Actionsheet>
+          {/* Confirm button */}
+          <Pressable onPress={onConfirm} className="w-full">
+            <HStack space="lg">
+              {/* <Icon as={RemoveIcon} size="md" /> */}
+              <AntDesignIcon
+                size={15}
+                name="logout"
+                color="#888"
+                className="mt-1 "
+              />
+              <Text
+                className={`font-medium text-lg ${
+                  confirmLabel === "Logout" ? "text-blue-600" : "text-red-600"
+                }`}
+              >
+                {confirmLabel}
+              </Text>
+            </HStack>
+          </Pressable>
+        </VStack>
+      </ActionsheetContent>
+    </Actionsheet>
   );
 };
-

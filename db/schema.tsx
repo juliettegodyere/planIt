@@ -1,5 +1,4 @@
 import * as SQLite from 'expo-sqlite';
-import * as Crypto from 'expo-crypto';
 import {categoryOptions} from '../data/dataStore'
 import {generateSimpleUUID} from '../Util/HelperFunction'
 
@@ -9,8 +8,8 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       PRAGMA journal_mode = WAL;
 
       -- DROP TABLE IF EXISTS shopping_items; --
-      -- DROP TABLE IF EXISTS catalog_items; --
-      -- DROP TABLE IF EXISTS categories; --
+       -- DROP TABLE IF EXISTS catalog_items; --
+       -- DROP TABLE IF EXISTS categories; --
       -- DROP TABLE IF EXISTS guests;  -- ✅ this is a valid SQL comment
 
       CREATE TABLE IF NOT EXISTS guests (
@@ -33,9 +32,9 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
 
       CREATE TABLE IF NOT EXISTS categories (
         id TEXT PRIMARY KEY NOT NULL,
-        label TEXT NOT NULL,
-        value TEXT NOT NULL
-      );
+        label TEXT NOT NULL UNIQUE,
+        value TEXT NOT NULL UNIQUE
+      );      
 
       CREATE TABLE IF NOT EXISTS category_items (
         id TEXT PRIMARY KEY NOT NULL,
@@ -61,8 +60,15 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
         modifiedDate TEXT,
         priority TEXT,
         note TEXT,
+        reminderDate TEXT,
+        reminderTime TEXT,
+        isReminderTimeEnabled INTEGER DEFAULT 0,
+        isReminderDateEnabled INTEGER DEFAULT 0,
+        earlyReminder TEXT,
+        repeatReminder TEXT,
+        attachments TEXT, -- JSON stringified array of AttachmentParam
         FOREIGN KEY (category_item_id) REFERENCES category_items(id)
-      );
+      );      
     `);
 
     // Seed categories

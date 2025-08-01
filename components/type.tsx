@@ -1,6 +1,8 @@
-import { CategoryItemResponseType, ShoppingItemTypes } from "@/service/types";
+import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "@/service/types";
 
-export type ActionType = 'none' | 'camera' | 'scan' | 'library';
+//export type ActionType = 'none' | 'camera' | 'scan' | 'library';
+export type ActionType = 'none' | 'camera' | 'library';
+
 export type MenuItem = {
     label: string;
     value: string;
@@ -49,4 +51,17 @@ export interface ItemInformationSheetProps {
     handleDiscardConfirmationSheet: () => void;
     handleRemoveAttachment: (key: number) => void;
     handleUpdateItems: () => void;
+    reminderDate: string;
+    setReminderDate: (date: string) => void;
+    reminderTime: string;
+    setReminderTime: (date: string) => void;
+    isReminderTimeEnabled: boolean;
+    setIsReminderTimeEnabled: (flag: boolean) => void;
+    isReminderDateEnabled: boolean;
+    setIsReminderDateEnabled: (flag: boolean) => void
+    earlyReminder: string;
+    setEarlyReminder: (val: string) => void;
+    repeatReminder: string;
+    setRepeatReminder: (val: string) => void;
+    guest:guestUserType | null
   }

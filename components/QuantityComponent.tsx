@@ -17,6 +17,9 @@ type Props = {
 };
 
 const QuantityComponent = ({ qtyVal, qtyUnit, handleUpdateQuantity,  SetQtyUnit, shoppingList, qtyOptions}: Props) => {
+  console.log("QuantityComponent")
+  console.log(qtyVal)
+  console.log(qtyUnit)
   return (
     <VStack>
       <HStack style={{ justifyContent: "space-between" }}>

@@ -10,7 +10,7 @@ type CountryItem = {
     currencyCode: string;
     symbol: string;
   };
-  type KnownRoutes = "/" | "/setting";
+  type KnownRoutes = "/(auth)" | "/setting";
 
 export default function SelectCountryScreen() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function SelectCountryScreen() {
   const page = Array.isArray(rawPage) ? rawPage[0] : rawPage;
 
 const handleSelect = (country: CountryItem) => {
-  if (!page || !["/", "/setting"].includes(page)) return;
+  if (!page || !["/(auth)", "/setting"].includes(page)) return;
 
   router.push({
     pathname: page as KnownRoutes,

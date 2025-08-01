@@ -14,38 +14,31 @@ import {
 } from "@/components/ui/actionsheet";
 import { VStack } from "./ui/vstack";
 import AllPurposeCustomMenu from "./AllPurposeCustomMenu";
-import { imageAttachmentOptions } from "@/data/dataStore_";
-import TakePhotoComponent from "./TakePhotoComponent";
-import PhotoLibraryComponent from "./PhotoLibraryComponent";
-import ScanDocumentComponent from "./ScanDocumentComponent";
 import CustomSwitch from "./CustomSwitch";
 import { HStack } from "./ui/hstack";
 import { Card } from "./ui/card";
 import CancelActionSheet from "./CancelActionsheet";
 import PriceComponent from "./PriceComponent";
-import NoteComponent from "./NoteComponent";
 import QuantityComponent from "./QuantityComponent";
 import PriorityComponent from "./PriorityComponent";
 import ItemReminderComponent from "./ItemReminderCompoment";
-import { Image } from "@/components/ui/image";
-import { useState } from "react";
-import ImageViewer from "react-native-image-zoom-viewer";
-import {
-  Modal,
-  ModalBackdrop,
-  ModalContent,
-  ModalCloseButton,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@/components/ui/modal";
-import { CloseIcon, Icon, ShareIcon, TrashIcon } from "./ui/icon";
+import { useEffect, useState } from "react";
+import AddCategorySheet from "./AddCategorySheet";
+import { useShoppingActions } from "@/db/Transactions";
+import { getShoppingItemById } from "@/db/EntityManager";
+import { ShoppingItemTypes } from "@/service/types";
+import { useSQLiteContext } from "expo-sqlite";
+import { Divider } from "./ui/divider";
+import { useShoppingListContext } from "@/service/store";
+import NoteInputSheet from "./NoteComponentV2";
+import AddAttachmentComponent from "./AddAttachmentActionsheet";
 
 const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   isOpen,
   onClose,
   onDone,
   shoppingList,
+  selectedItem,
   isChecked,
   handleCheckboxChange,
   itemPurchase,
@@ -75,22 +68,96 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   handleDiscard,
   handleDiscardConfirmationSheet,
   handleRemoveAttachment,
-  handleUpdateItems
+  handleUpdateItems,
+  reminderDate,
+  setReminderDate,
+  reminderTime,
+  setReminderTime,
+  isReminderTimeEnabled,
+  setIsReminderTimeEnabled,
+  isReminderDateEnabled,
+  setIsReminderDateEnabled,
+  earlyReminder,
+  setEarlyReminder,
+  repeatReminder,
+  setRepeatReminder,
+  guest,
 }) => {
+  const db = useSQLiteContext();
   const [zoomedImageIndex, setZoomedImageIndex] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showDeleteWarningActionSheet, setShowDeleteWarningActionSheet] = useState(false);
+  const [showDeleteWarningActionSheet, setShowDeleteWarningActionSheet] =
+    useState(false);
+  const [showAddCategoryActionsheet, setShowAddCategoryActionsheet] =
+    useState(false);
+  const { updateShoppingItemCategory, getCategoryById, updateShoppingItemAndUpdateState } = useShoppingActions();
+  const [categoryLabel, setCategoryLabel] = useState<string | null>(null);
+  const [_selectedItem, set_SelectedItem] = useState<ShoppingItemTypes | null>(
+    null
+  );
+  const { state, dispatch } = useShoppingListContext();
+
+  useEffect(() => {
+    set_SelectedItem(selectedItem ?? null);
+
+    if (!selectedItem) return;
+
+    if (selectedItem?.attachments) {
+      try {
+        const parsed = JSON.parse(selectedItem.attachments);
+        if (Array.isArray(parsed)) {
+          setAttachments(parsed);
+        }
+      } catch (error) {
+        console.error("Failed to parse attachments:", error);
+      }
+    }
+    // Set enabled flags first
+    setIsReminderTimeEnabled(selectedItem.isReminderTimeEnabled ?? false);
+    setIsReminderDateEnabled(selectedItem.isReminderDateEnabled ?? false);
+
+    // Conditionally clear or set reminder values
+    if (
+      !selectedItem.isReminderDateEnabled &&
+      !selectedItem.isReminderTimeEnabled
+    ) {
+      setReminderDate("");
+      setReminderTime("");
+    } else {
+      setReminderDate(selectedItem.reminderDate || "");
+      setReminderTime(selectedItem.reminderTime || "");
+    }
+
+    // The rest
+    setEarlyReminder(selectedItem.earlyReminder ?? "None");
+    setRepeatReminder(selectedItem.repeatReminder ?? "Never");
+  }, [selectedItem]);
+
+  useEffect(() => {
+    const fetchCategoryLabel = async () => {
+      if (!_selectedItem) return;
+
+      try {
+        const category = await getCategoryById(_selectedItem.category_item_id);
+
+        if (category?.label === "Uncategorized") {
+          setCategoryLabel("Uncategorized");
+        } else {
+          setCategoryLabel(category?.label ?? null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch category:", error);
+      }
+    };
+
+    fetchCategoryLabel();
+  }, [_selectedItem]);
+
 
   const imageAttachments = attachments.filter((att) => att.type === "image");
 
   const imageUrls = imageAttachments.map((att) => ({ url: att.data }));
-
-  const handleDelete = () => {
-    console.log(zoomedImageIndex)
-    setAttachments(prev => prev.filter((_, i) => i !== zoomedImageIndex));
-    setShowDeleteWarningActionSheet(false)
-    setZoomedImageIndex(null)
-  }
+ 
   return (
     <>
       <Actionsheet
@@ -108,222 +175,182 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
           className="px-5"
           style={{
             backgroundColor: "#F1F1F1",
-            height: "95%",       
-            maxHeight: "95%",    
+            height: "95%",
+            maxHeight: "95%",
             flexDirection: "column",
           }}
         >
           <ActionsheetDragIndicatorWrapper>
             <ActionsheetDragIndicator />
           </ActionsheetDragIndicatorWrapper>
-            <VStack style={{ maxWidth: "100%" }}>
-              <HStack className="justify-between w-full mt-3 pb-5">
-                <Pressable onPress={onClose}>
-                  <Text
-                    style={{ color: "#FF6347" }}
-                    size="xl"
-                    className="font-medium"
-                  >
-                    Cancel
-                  </Text>
-                </Pressable>
-                <Heading size="md" className="font-bold">
-                  Details
-                </Heading>
-                <Pressable onPress={handleUpdateItems}>
-                  <Text
-                    style={{ color: "#FF6347" }}
-                    size="xl"
-                    className="font-semibold"
-                  >
-                    Done
-                  </Text>
-                </Pressable>
-              </HStack>
-              <ScrollView >
+          <VStack style={{ maxWidth: "100%" }}>
+            <HStack className="justify-between w-full mt-3 pb-5">
+              <Pressable onPress={onClose}>
+                <Text
+                  style={{ color: "#FF6347" }}
+                  size="xl"
+                  className="font-medium"
+                >
+                  Cancel
+                </Text>
+              </Pressable>
+              <Heading size="md" className="font-bold">
+                Details
+              </Heading>
+              <Pressable onPress={handleUpdateItems}>
+                <Text
+                  style={{ color: "#FF6347" }}
+                  size="xl"
+                  className="font-semibold"
+                >
+                  Done
+                </Text>
+              </Pressable>
+            </HStack>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              bounces={true}
+              overScrollMode="never" // Android only
+            >
               <VStack space="lg">
                 <Card variant="elevated" className=" bg-white">
-                  <HStack className="justify-between">
-                    <Box>
+                  <HStack className="justify-between items-start" style={{width:"100%"}}>
+                    <Box className="max-w-[50%]">
                       <CustomCheckbox
-                        value={shoppingList.value}
-                        label={shoppingList.label}
+                        shoppingList={shoppingList}
+                        isChecked={isChecked}
+                        handleCheckboxChange={handleCheckboxChange}
                         size="lg"
-                        isChecked={isChecked(shoppingList.value)}
-                        onChange={() => handleCheckboxChange(shoppingList)}
+                        onClose={onClose}
+                        
                       />
                       <Box className="my-3">
-                        <Text size="lg">{shoppingList.category}</Text>
+                        {categoryLabel === "Uncategorized" ? (
+                          <Pressable
+                            onPress={() => setShowAddCategoryActionsheet(true)}
+                          >
+                            <Text size="md">Change category</Text>
+                          </Pressable>
+                        ) : (
+                          <Text size="lg">{categoryLabel}</Text>
+                        )}
                       </Box>
                     </Box>
-                    <HStack space="md" style={{ alignContent: "flex-end" }}>
-                      <Text size="lg" className="font-medium">
+                    <HStack space="md" className="items-end min-w-[30%] ">
+                      <Text size="lg" className="font-medium flex-wrap">
                         Purchased
                       </Text>
                       <CustomSwitch
                         value={itemPurchase}
                         onToggle={handleMarkItemAsPurchased}
                       />
-                      {/* <Switch
-                        value={itemPurchase}
-                        trackColor={{ false: "#F1F1F1", true: "#FF6347" }}
-                        thumbColor="#F1F1F1"
-                        onToggle={handleMarkItemAsPurchased}
-                        // ios_backgroundColor={"#FF6347"}
-                      /> */}
                     </HStack>
                   </HStack>
                 </Card>
                 <Card>
-                  <VStack>
+                  <VStack className="pb-2">
                     <PriceComponent
                       priceInput={priceInput}
                       handleChange={handlePriceInputChange}
                       handleBlur={handlePriceInputBlur}
                       handleFocus={handlePriceInputFocus}
-                    />
-                    <NoteComponent
-                      noteInput={note}
-                      handleChange={HandleSetNote}
+                      guest={guest}
                     />
                   </VStack>
                 </Card>
                 <Card>
                   <QuantityComponent
-                    qtyVal={qtyVal}
-                    qtyUnit={qtyUnit}
+                    qtyVal={
+                      _selectedItem && _selectedItem.quantity !== "1"
+                        ? _selectedItem.quantity
+                        : qtyVal
+                    }
+                    qtyUnit={
+                      _selectedItem && _selectedItem.qtyUnit !== "None"
+                        ? _selectedItem.qtyUnit
+                        : qtyUnit
+                    }
                     handleUpdateQuantity={handleUpdateQuantity}
                     SetQtyUnit={SetQtyUnit}
                     shoppingList={shoppingList}
                     qtyOptions={qtyOptions}
                   />
-                </Card>
-                <Card>
-                  <VStack>
+                  <Box className="mt-4">
                     <PriorityComponent
-                      priorityVal={priorityVal}
+                      priorityVal={
+                        _selectedItem && _selectedItem.priority !== "None"
+                          ? _selectedItem.priority
+                          : priorityVal
+                      }
                       priorityOption={priorityOption}
                       setPriorityVal={setPriorityVal}
                     />
-                    <ItemReminderComponent />
-                  </VStack>
+                  </Box>
                 </Card>
+                {/**This card is used for reminders and the implementation is relatively complete. It is 
+                 * disabled and will be used in V2 */}
+                {/* <Card>
+                  <VStack className="w-full">
+                    <ItemReminderComponent
+                      reminderDate={reminderDate}
+                      setReminderDate={setReminderDate}
+                      reminderTime={reminderTime}
+                      setReminderTime={setReminderTime}
+                      isReminderTimeEnabled={isReminderTimeEnabled}
+                      setIsReminderTimeEnabled={setIsReminderTimeEnabled}
+                      isReminderDateEnabled={isReminderDateEnabled}
+                      setIsReminderDateEnabled={setIsReminderDateEnabled}
+                      earlyReminder={earlyReminder}
+                      setEarlyReminder={setEarlyReminder}
+                      repeatReminder={repeatReminder}
+                      setRepeatReminder={setRepeatReminder}
+                    />
+                  </VStack>
+                </Card> */}
                 <Card>
                   <VStack space="md">
-                    <AllPurposeCustomMenu
-                      value={"Add Attachment"}
+                    <NoteInputSheet
+                      note={
+                        _selectedItem && _selectedItem.note !== ""
+                          ? _selectedItem.note
+                          : note
+                      }
+                      placeholder = {selectedItem && selectedItem.note ? "View note" : "Add a note"}
+                      onNoteChange={HandleSetNote}
+                    />
+                    {/* <AllPurposeCustomMenu
+                      value={"Add Receipt"}
                       menuItems={imageAttachmentOptions}
                       onSelect={handleSelect}
+                    /> */}
+                    <Divider/>
+                    <AddAttachmentComponent 
+                    handleAttachment={handleAttachment}
+                    imageAttachments={imageAttachments} 
+                    setAttachments={setAttachments}
                     />
-                    {imageAttachments.length > 0 && (
-                      <VStack className="mt-4" space="md">
-                        {imageAttachments.map((attachment, index) => (
-                          <Box key={index}>
-                            {attachment.type === "image" ? (
-                              <HStack className="justify-between">
-                                <Pressable
-                                key={index}
-                                onPress={() => {
-                                  setZoomedImageIndex(index);
-                                  setShowModal(true);
-                                  console.log(showModal);
-                                }}
-                              >
-                                <Image
-                                  source={{ uri: attachment.data }}
-                                  alt={`Attachment ${index + 1}`}
-                                  size="xs"
-                                  className="rounded-sm"
-                                />
-                              </Pressable>
-                              <Pressable 
-                                onPress={() => {
-                                    setZoomedImageIndex(index);
-                                    setShowDeleteWarningActionSheet(true);
-                                  }}
-                              >
-                              <Icon
-                                size="lg"
-                                as={TrashIcon}
-                                className="text-red-500 m-3 w-6 h-6"
-                                />
-                              </Pressable>
-                              </HStack>
-                            ) : (
-                                <Box className="p-2 bg-gray-100 rounded-md">
-                                <Text className="text-black text-base break-words">{attachment.data || 'No text found'}</Text>
-                              </Box>
-                            )}
-                          </Box>
-                        ))}
-                      </VStack>
-                    )}
-                    <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
-                      <ActionsheetBackdrop />
-                      <ActionsheetContent>
-                        <ActionsheetDragIndicatorWrapper>
-                          <ActionsheetDragIndicator />
-                        </ActionsheetDragIndicatorWrapper>
-
-                        {actionType === "camera" && (
-                          <Box
-                            style={{
-                              display:
-                                actionType === "camera" ? "flex" : "none",
-                              marginTop: 50,
-                            }}
-                          >
-                            <TakePhotoComponent
-                              onCapture={handleAttachment}
-                              onCancel={handleClose}
-                            />
-                          </Box>
-                        )}
-                        {actionType === "scan" && (
-                          <Box
-                            style={{
-                              display: actionType === "scan" ? "flex" : "none",
-                              marginTop: 50,
-                            }}
-                          >
-                            <ScanDocumentComponent
-                              onScan={handleAttachment}
-                              onCancel={handleClose}
-                            />
-                          </Box>
-                        )}
-                        {actionType === "library" && (
-                          <PhotoLibraryComponent
-                            onPick={handleAttachment}
-                            onCancel={handleClose}
-                          />
-                        )}
-                      </ActionsheetContent>
-                    </Actionsheet>
+                    
                   </VStack>
                 </Card>
               </VStack>
-              </ScrollView>
-            </VStack>
+               {/**This component is used for showing similar purchased items and the implementation is relatively complete. It is 
+                 * disabled and will be used in V2 */}
+             {/* <ItemHistoryComponent 
+                state={state.shoppingItemLists} 
+                selectedItem={_selectedItem? _selectedItem:null}
+                // setZoomedImageIndex={setZoomedImageIndex}
+                // setShowDeleteWarningActionSheet={setShowDeleteWarningActionSheet}
+                // setShowModal={setShowModal}
+                handleAttachment={handleAttachment}
+                setSelectedItem={set_SelectedItem}
+                updateShoppingItemAndUpdateState={updateShoppingItemAndUpdateState}
+                imageAttachments={imageAttachments}
+                setAttachments={setAttachments}
+             /> */}
+            </ScrollView>
+          </VStack>
         </ActionsheetContent>
-        <Modal
-          isOpen={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setZoomedImageIndex(null);
-          }}
-          size="full"
-        >
-          <ImageViewer
-            imageUrls={imageUrls}
-            index={zoomedImageIndex ?? 0}
-            onCancel={() => {
-              setShowModal(false);
-              setZoomedImageIndex(null);
-            }}
-            enableSwipeDown
-          />
-        </Modal>
       </Actionsheet>
       <CancelActionSheet
         isOpen={isOpenDiscardSheet}
@@ -333,59 +360,10 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
         text2="Cancel"
         topInfo=""
       />
-      <Modal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setZoomedImageIndex(null);
-        }}
-        size="full"
-      >
-        <ModalContent className="flex-1 h-full w-full rounded-sm bg-black border-black">
-          <ModalHeader className="mt-safe flex-row justify-between items-center px-4 pb-4">
-            <Text className="text-white text-lg font-bold">Preview</Text>
-            <ModalCloseButton>
-              <Icon
-                as={CloseIcon}
-                size="lg"
-                className="text-typography-200  m-3 w-6 h-6"
-              />
-            </ModalCloseButton>
-          </ModalHeader>
-          {/* <ModalBody className="flex-1 p-0"> */}
-          <Box className="flex-1 w-full">
-            <ImageViewer
-              imageUrls={imageUrls}
-              index={zoomedImageIndex ?? 0}
-              onCancel={() => {
-                setShowModal(false);
-                setZoomedImageIndex(null);
-              }}
-              enableSwipeDown
-            />
-          </Box>
-          {/* </ModalBody> */}
-          <ModalFooter className="mb-safe w-full flex-row justify-between px-4 pt-5">
-            <Icon
-              size="lg"
-              as={ShareIcon}
-              className="text-typography-200  m-3 w-6 h-6"
-            />
-            <Icon
-              size="lg"
-              as={TrashIcon}
-              className="text-typography-200 m-3 w-6 h-6"
-            />
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <CancelActionSheet
-        isOpen={showDeleteWarningActionSheet}
-        handleClose={handleDelete}
-        handleCancel={()=> setShowDeleteWarningActionSheet(false)}
-        text1="Delete"
-        text2="Cancel"
-        topInfo=""
+      <AddCategorySheet
+        isOpen={showAddCategoryActionsheet}
+        onClose={() => setShowAddCategoryActionsheet(false)}
+        selectedItem={_selectedItem}
       />
     </>
   );

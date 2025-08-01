@@ -14,6 +14,8 @@ const PriorityComponent = ({
   priorityOption,
   setPriorityVal,
 }: Props) => {
+  console.log("PriorityComponent")
+  console.log(priorityVal)
   return (
     <HStack style={{ justifyContent: "space-between" }} className="">
       <Text className="font-medium text-lg">Priority</Text>
@@ -21,8 +23,6 @@ const PriorityComponent = ({
         value={priorityVal}
         menuItems={priorityOption}
         onSelect={(key) => {
-          console.log(typeof key + "ShoppingListItemComponent");
-          console.log(priorityOption[Number(key)]);
           setPriorityVal(priorityOption[Number(key)]);
         }}
       />
