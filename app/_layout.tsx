@@ -60,49 +60,40 @@ function RootLayoutInner({ loading, setLoading, router }: RootLayoutInnerProps) 
     refetchShoppingItemIfEmpty();
   }, []);
 
-  useEffect(() => {
-    const refetchGuestUserIfEmpty = async() => {
-      if(!isLoggedIn && !isGuestHydrated){
-        const guest: guestUserType[] = await getGuestInfo(db); //Get user details from db
-        if (guest.length > 0) {
-          dispatch(setGuestUser({...guest[0]}));
-        }
-      } else {
-        dispatch(setGuestUserHydrated(true)); // empty but hydrated
-      }
-    }
-    refetchGuestUserIfEmpty();
-  }, []);
+  // useEffect(() => {
+  //   const refetchGuestUserIfEmpty = async() => {
+  //     if(!isLoggedIn && !isGuestHydrated){
+  //       const guest: guestUserType[] = await getGuestInfo(db); 
+  //       if (guest.length > 0) {
+  //         dispatch(setGuestUser({...guest[0]}));
+  //       }
+  //     } else {
+  //       dispatch(setGuestUserHydrated(true)); // empty but hydrated
+  //     }
+  //   }
+  //   refetchGuestUserIfEmpty();
+  // }, []);
 
-  useEffect(() => {
-    const restoreSession = async () => {
-      if (!state.isGuestHydrated) return; 
+  // useEffect(() => {
+  //   const restoreSession = async () => {
+  //     if (!state.isGuestHydrated) return; 
   
-      try {
-        if (guest && guest.id && guest.country) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/(auth)' as any);
-        }
-      } catch (error) {
-        console.error('Login failed:', error);
-        router.replace('/(auth)' as any);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     try {
+  //       if (guest && guest.id && guest.countryName) {
+  //         router.replace('/(tabs)');
+  //       } else {
+  //         router.replace('/(auth)' as any);
+  //       }
+  //     } catch (error) {
+  //       console.error('Login failed:', error);
+  //       router.replace('/(auth)' as any);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
   
-    restoreSession();
-  }, [state.isGuestHydrated, guest]);
-
-  // if (loading) {
-  //   return (
-  //     <HStack space="sm">
-  //     <Spinner />
-  //     <Text size="md">Please Wait</Text>
-  //   </HStack>
-  //   );
-  // }
+  //   restoreSession();
+  // }, [state.isGuestHydrated, guest]);
 
   return (
     <>

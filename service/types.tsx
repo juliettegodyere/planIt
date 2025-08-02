@@ -68,10 +68,19 @@ export interface guestUserType  {
   id: string,
   name: string,
   createdAt: string,
-  country: string,
+  countryName: string,
   currencyCode: string,
   currencySymbol: string,
 }
+
+export interface createUserType  {
+  // name: string,
+  // createdAt: string,
+  countryName: string,
+  currencyCode: string,
+  currencySymbol: string,
+}
+
 
 export interface FullCategoryItem {
   id: string;

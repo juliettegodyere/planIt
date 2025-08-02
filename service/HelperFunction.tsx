@@ -1,9 +1,6 @@
 import { shoppingData } from "../data/shoppingListData.js"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Android client ID: 718749830947-mi51a4ggbaopkvfk4g3pknt3bq3d5m6u.apps.googleusercontent.com
-// IOS Client ID: 718749830947-15fiuodcrenfveajk45uq0emn9fle5tl.apps.googleusercontent.com
-
   export const loadUserDefinedItems = async () => {
     try {
       const storedItems = await AsyncStorage.getItem("userDefinedItems");

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "planIt-frontend",
-    "slug": "planIt-frontend",
-    "version": "1.0.0",
+    "name": "planIt",
+    "slug": "planIt",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "planit",
@@ -10,6 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "buildNumber": "1.1.0",
       "bundleIdentifier": "com.queencoder.planIt",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -21,6 +22,9 @@
         "dark": "./assets/icons/ios-dark.png",
         "light": "./assets/icons/ios-light.png",
         "tinted": "./assets/icons/ios-tinted.png"
+      },
+      "config": {
+        "displayName": "planIt"
       }
     },
     "android": {
@@ -28,7 +32,13 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.queencoder.planIt"
+      "package": "com.queencoder.planIt",
+      "versionCode": 2,
+      "label": "planIt",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -93,7 +103,8 @@
             }
           }
         }
-      ]    ],
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },
@@ -102,7 +113,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "0ecff44a-3341-404b-a77e-6b35851ea094"
+        "projectId": "2674dce8-3142-45f4-b531-d1335e7bf913"
       }
     },
     "owner": "queencoder"

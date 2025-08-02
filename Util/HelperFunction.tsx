@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { format, isToday, isYesterday } from "date-fns";
 import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";

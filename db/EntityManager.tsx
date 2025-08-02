@@ -1,6 +1,6 @@
 // db/schema.ts or db/shoppingItems.ts
 
-import { CategoriesType, CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, FullCategoryItem, ShoppingItemTypes, guestUserType } from '../service/types';
+import { CategoriesType, CategoryItemResponseType, CategoryItemTypes, CreateShoppingItemTypes, FullCategoryItem, ShoppingItemTypes, createUserType, guestUserType } from '../service/types';
 import * as SQLite from 'expo-sqlite';
 import { generateSimpleUUID } from '@/Util/HelperFunction';
 import { shoppingData } from '@/data/shoppingListData';
@@ -272,25 +272,26 @@ export const getAllCatalogItems = async (db: SQLite.SQLiteDatabase): Promise<Cat
 };
 
 export const insertGuestUser = async (
-  db: SQLite.SQLiteDatabase
+  db: SQLite.SQLiteDatabase,
+  user: createUserType
 ): Promise<guestUserType> => {
   const guestUser: guestUserType = {
     id: `guest-${Date.now()}`,
     name: "Guest",
     createdAt: new Date().toISOString(),
-    country: "",
-    currencyCode: "",
-    currencySymbol: "",
+    countryName: user.countryName,
+    currencyCode: user.currencyCode,
+    currencySymbol: user.currencySymbol,
   };
 
   await db.runAsync(
-    `INSERT INTO guests (id, name, createdAt, country, currencyCode, currencySymbol)
+    `INSERT INTO guests (id, name, createdAt, countryName, currencyCode, currencySymbol)
      VALUES (?, ?, ?, ?, ?, ?)`,
     [
       guestUser.id,
       guestUser.name,
       guestUser.createdAt,
-      guestUser.country,
+      guestUser.countryName,
       guestUser.currencyCode,
       guestUser.currencySymbol,
     ]
@@ -313,9 +314,9 @@ export const updateGuestUserDB = async (
 
   await db.runAsync(
     `UPDATE guests
-     SET country = ?, currencyCode = ?, currencySymbol = ?
+     SET countryName = ?, currencyCode = ?, currencySymbol = ?
      WHERE id = ?`,
-    [guest.country ?? "", guest.currencyCode ?? "", guest.currencySymbol ?? "", guest.id]
+    [guest.countryName ?? "", guest.currencyCode ?? "", guest.currencySymbol ?? "", guest.id]
   );
 
   const updatedUser = await db.getFirstAsync<guestUserType>(
@@ -342,7 +343,7 @@ export const getGuestInfo = async (
     id: item.id,
     name: item.name,
     createdAt: item.createdAt,
-    country: item.country,
+    countryName: item.countryName,
     currencyCode: item.currencyCode,
     currencySymbol: item.currencySymbol,
   }));

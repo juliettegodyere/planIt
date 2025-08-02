@@ -1,6 +1,6 @@
 import { useShoppingListContext } from "@/service/store";
 import { useSQLiteContext } from "expo-sqlite";
-import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes, guestUserType } from "../service/types";
+import { CategoriesType, CreateShoppingItemTypes, ShoppingItemTypes, createUserType, guestUserType } from "../service/types";
 import { deleteGuestUserDB, deleteShoppingItem, getCategoryByValue, getShoppingItemById, insertCategory, insertCategoryItem, insertGuestUser, insertShoppingItem, updateGuestUserDB, updateShoppingItem } from "./EntityManager";
 import { addItem, addGuestUser, updateItem, updateGuestUser, removeGuestUser, removeItem } from "@/service/stateActions";
 import { generateSimpleUUID } from "@/Util/HelperFunction";
@@ -240,8 +240,12 @@ export const userTransactions = () => {
   const { state, dispatch } = useShoppingListContext();
   const db = useSQLiteContext();
 
-  const addNewGuestUserAndUpdateState = async () => {
-    const savedUser = await insertGuestUser(db);
+  const addNewGuestUserAndUpdateState = async (user: createUserType) => {
+    console.log("addNewGuestUserAndUpdateState - user")
+    console.log(user)
+    const savedUser = await insertGuestUser(db, user);
+    console.log("addNewGuestUserAndUpdateState - savedUser")
+    console.log(savedUser)
     dispatch(addGuestUser(savedUser));
     return savedUser;
   }

@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setGuestUser, setUser } from "./stateActions";
 import { ShoppingListAction } from "./store";
 import { Dispatch } from "react";
@@ -80,22 +79,22 @@ import { useRouter } from "expo-router";
 //   }
 // };
 
-const getUserInfo = async (
-  token: string,
-  dispatch: Dispatch<ShoppingListAction>
-) => {
-  if (!token) return;
+// const getUserInfo = async (
+//   token: string,
+//   dispatch: Dispatch<ShoppingListAction>
+// ) => {
+//   if (!token) return;
 
-  try {
-    const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+//   try {
+//     const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
 
-    const user = await res.json();
-    console.log(user);
-    await AsyncStorage.setItem("@user", JSON.stringify(user));
-    dispatch(setUser(user));
-  } catch (error) {
-    console.error("Failed to fetch user info:", error);
-  }
-};
+//     const user = await res.json();
+//     console.log(user);
+//     await AsyncStorage.setItem("@user", JSON.stringify(user));
+//     dispatch(setUser(user));
+//   } catch (error) {
+//     console.error("Failed to fetch user info:", error);
+//   }
+// };

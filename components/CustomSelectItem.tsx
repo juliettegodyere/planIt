@@ -35,11 +35,21 @@ const CustomSelectItem: React.FC<SelectItemProps> = ({
     <VStack space="lg">
       {/* Country */}
       <Pressable
+        // onPress={() => {
+        //   router.push({
+        //     pathname: "/select-country",
+        //     params: { page: page },
+        //   });
+        // }}
         onPress={() => {
-          router.push({
-            pathname: "/select-country",
-            params: { page: page },
-          });
+          if (page !== null && page !== undefined) {
+            router.push({
+              pathname: "/select-country",
+              params: { page: page },
+            });
+          } else {
+            console.log("Navigation prevented: 'page' is null or undefined.");
+          }
         }}
         className="mb-5"
       >

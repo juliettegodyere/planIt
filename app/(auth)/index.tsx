@@ -11,61 +11,75 @@ import CustomSelectItem from "@/components/CustomSelectItem";
 import { Card } from "@/components/ui/card";
 
 export default function Auth() {
-  const { addNewGuestUserAndUpdateState, updateGuestUserAndUpdateState } =
-    userTransactions();
   const { state, dispatch } = useShoppingListContext();
   const { guest } = state;
   const [isGuestLoggingIn, setGuestLoggingIn] = useState(false);
   // const isLoggedIn = guest && guest.id && !guest.country;
-  const needsLocationInfo = guest?.id && !guest.country;
+  const needsLocationInfo = guest?.id && !guest.countryName;
 
   const { selectedCountry, currencyCode, currencySymbol } =
     useLocalSearchParams();
 
   const router = useRouter();
 
+  // const handleGuestLogin = async () => {
+  //   console.log("I was clicked")
+  //   if (isGuestLoggingIn) return;
+  //   setGuestLoggingIn(true);
+  //   try {
+  //     const guestUser = await addNewGuestUserAndUpdateState();
+  //     if (guestUser) {
+  //       router.replace("/select-country");
+  //     }
+  //   } catch (error) {
+  //     console.error("Guest login failed:", error);
+  //   } finally {
+  //     setGuestLoggingIn(false);
+  //   }
+  // };
   const handleGuestLogin = async () => {
-    if (isGuestLoggingIn) return;
-    setGuestLoggingIn(true);
-    try {
-      const guestUser = await addNewGuestUserAndUpdateState();
-      if (guestUser) {
-        router.replace("/select-country");
-      }
-    } catch (error) {
-      console.error("Guest login failed:", error);
-    } finally {
-      setGuestLoggingIn(false);
-    }
+    // if (isGuestLoggingIn) return;
+    // setGuestLoggingIn(true);
+    router.replace("/select-country");
+    // try {
+    //   const guestUser = await addNewGuestUserAndUpdateState();
+    //   if (guestUser) {
+    //     router.replace("/select-country");
+    //   }
+    // } catch (error) {
+    //   console.error("Guest login failed:", error);
+    // } finally {
+    //   setGuestLoggingIn(false);
+    // }
   };
-  const handleGuestUserUpdate = async () => {
-    if (!guest?.id) {
-      console.warn("Guest ID is not available yet.");
-      return;
-    }
+  // const handleGuestUserUpdate = async () => {
+  //   if (!guest?.id) {
+  //     console.warn("Guest ID is not available yet.");
+  //     return;
+  //   }
 
-    if (!selectedCountry && !currencyCode && !currencySymbol) {
-      console.warn(
-        "selectedCountry, currencyCode, currencySymbol are not available yet."
-      );
-      return;
-    }
+  //   if (!selectedCountry && !currencyCode && !currencySymbol) {
+  //     console.warn(
+  //       "selectedCountry, currencyCode, currencySymbol are not available yet."
+  //     );
+  //     return;
+  //   }
 
-    try {
-      const guestUser = await updateGuestUserAndUpdateState({
-        id: guest.id,
-        country: selectedCountry.toString(),
-        currencyCode: currencyCode.toString(),
-        currencySymbol: currencySymbol.toString(),
-      });
+  //   try {
+  //     const guestUser = await updateGuestUserAndUpdateState({
+  //       id: guest.id,
+  //       countryName: selectedCountry.toString(),
+  //       currencyCode: currencyCode.toString(),
+  //       currencySymbol: currencySymbol.toString(),
+  //     });
 
-      if (guestUser) {
-        router.replace("/(tabs)");
-      }
-    } catch (error) {
-      console.error("Guest login failed:", error);
-    }
-  };
+  //     if (guestUser) {
+  //       router.replace("/(tabs)");
+  //     }
+  //   } catch (error) {
+  //     console.error("Guest login failed:", error);
+  //   }
+  // };
 
   return (
     <>
@@ -77,7 +91,7 @@ export default function Auth() {
           backgroundColor: "#F1F1F1",
         }}
       >
-        {needsLocationInfo ? (
+        {/* {needsLocationInfo ? (
           <Card className="w-full pb-10">
             <HStack space="md" className="justify-center items-center">
               <VStack className="flex-1">
@@ -96,10 +110,10 @@ export default function Auth() {
               page={"/(auth)"}
             />
           </Card>
-        ) : (
+        ) : ( */}
           <VStack space="md" style={{ alignItems: "center" }}>
             {/* Facebook Login */}
-            <Button
+            {/* <Button
               style={{
                 width: 250,
                 backgroundColor: "#3b5998",
@@ -109,10 +123,10 @@ export default function Auth() {
               <ButtonText style={{ color: "#fff", fontWeight: "600" }}>
                 Login with Facebook
               </ButtonText>
-            </Button>
+            </Button> */}
 
             {/* Google Login */}
-            <Button
+            {/* <Button
               style={{
                 width: 250,
                 backgroundColor: "#DB4437",
@@ -122,7 +136,7 @@ export default function Auth() {
               <ButtonText style={{ color: "#fff", fontWeight: "600" }}>
                 Login with Google
               </ButtonText>
-            </Button>
+            </Button> */}
 
             {/* Guest Login */}
             <Button
@@ -140,7 +154,7 @@ export default function Auth() {
               </ButtonText>
             </Button>
           </VStack>
-        )}
+        {/* )} */}
       </Box>
     </>
   );

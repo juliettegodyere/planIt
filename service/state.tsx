@@ -56,15 +56,15 @@ export interface UserInfo {
   name: string;
   email: string;
   role?: string;
-  country: string;
-  currency: string;
+  countryName: string;
+  currencyCode: string;
   createdDate: string;
 }
 
 export interface GuestUserInfo {
   name: string;
   sessionId: string;
-  country: string;
-  currency: string;
+  countryName: string;
+  currencyCode: string;
   createdAt: string;
 }

@@ -44,11 +44,12 @@ import { MaterialCommunityIcons, FontAwesome5, Ionicons, Entypo } from '@expo/ve
   ];
 
   export const countries = [
-    { name: "United Kingdom", currencyCode: "GBP", symbol: "£" },
-    { name: "Canada", currencyCode: "CAD", symbol: "C$" },
-    { name: "Nigeria", currencyCode: "NGN", symbol: "₦" },
-    { name: "Germany", currencyCode: "EUR", symbol: "€" },
-    { name: "Japan", currencyCode: "JPY", symbol: "¥" },
+    { countryName: "United Kingdom", currencyCode: "GBP", currencySymbol: "£" },
+    { countryName: "Canada", currencyCode: "CAD", currencySymbol: "C$" },
+    { countryName: "Nigeria", currencyCode: "NGN", currencySymbol: "₦" },
+    { countryName: "Germany", currencyCode: "EUR", currencySymbol: "€" },
+    { countryName: "Japan", currencyCode: "JPY", currencySymbol: "¥" },
+    { countryName: "United State", currencyCode: "USD", currencySymbol: "$" },
   ];
 
 

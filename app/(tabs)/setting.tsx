@@ -15,11 +15,7 @@ import { HStack } from "@/components/ui/hstack";
 import { useShoppingListContext } from "@/service/store";
 import CustomSelectItem from "@/components/CustomSelectItem";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
-import {
-  getCurrencyLabelByValue,
-  getCurrencyByCountry,
-} from "../../Util/HelperFunction";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
 import { userTransactions } from "@/db/Transactions";
 import { CloseIcon, Icon, RemoveIcon } from "@/components/ui/icon";
 import { removeGuestUser } from "@/service/stateActions";
@@ -29,8 +25,6 @@ import {
   ActionsheetContent,
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
-  ActionsheetItem,
-  ActionsheetItemText,
 } from "@/components/ui/actionsheet";
 
 interface ConfirmActionSheetProps {
@@ -44,15 +38,20 @@ interface ConfirmActionSheetProps {
 export default function Settings() {
   const { state, dispatch } = useShoppingListContext();
   const { guest } = state;
-  const isLoggedIn = guest && guest.id && !guest.country;
+  const isLoggedIn = guest && guest.id && !guest.countryName;
   const [confirmType, setConfirmType] = useState<"logout" | "delete" | null>(
     null
   );
   const { selectedCountry, currencyCode, currencySymbol } =
     useLocalSearchParams();
   const { deleteGuestUser, updateGuestUserAndUpdateState } = userTransactions();
+  const router = useRouter();
 
-  useEffect(() => {}, [getCurrencyLabelByValue, getCurrencyByCountry]);
+  useEffect(() => {
+    if(!guest){
+      router.push("/(auth)")
+    }
+  }, [state]);
 
   const handleGuestUserUpdate = async () => {
     if (!guest?.id) {
@@ -63,7 +62,7 @@ export default function Settings() {
     try {
       const guestUser = await updateGuestUserAndUpdateState({
         id: guest.id,
-        country: selectedCountry.toString(),
+        countryName: selectedCountry.toString(),
         currencyCode: currencyCode.toString(),
         currencySymbol: currencySymbol.toString(),
       });
@@ -126,7 +125,7 @@ export default function Settings() {
           <Heading>Location Details</Heading>
           <Card className="mt-2">
             <CustomSelectItem
-              name={(selectedCountry as string) ?? guest?.country ?? ""}
+              name={(selectedCountry as string) ?? guest?.countryName ?? ""}
               currencyCode={
                 (currencyCode as string) ?? guest?.currencyCode ?? ""
               }
@@ -173,26 +172,26 @@ export default function Settings() {
           </Card>
         </Card>
 
-        {/* <Card className="mt-2" style={{backgroundColor:"#F1F1F1"}}>
+        <Card className="mt-2" style={{backgroundColor:"#F1F1F1"}}>
         <Heading >App Information</Heading>
-          <Card className="mt-1">
+          <Card className="mt-2">
           <VStack space="xl">
               <Pressable>
                 <HStack className="justify-between">
                   <Text className="text-lg text-gray-900 font-bold">App Version</Text>
-                  <Text className="text-lg text-gray-900 font-normal">2025.12</Text>
+                  <Text className="text-lg text-gray-900 font-normal">1.0.0</Text>
                 </HStack>
               </Pressable>
 
               <Pressable>
                 <HStack  className="justify-between">
                   <Text  className="text-lg text-gray-900 font-bold">Build</Text>
-                  <Text className="text-lg text-gray-900 font-normal">20250611.150806</Text>
+                  <Text className="text-lg text-gray-900 font-normal">exposdk:53.0.0</Text>
                 </HStack>
               </Pressable>
             </VStack>
           </Card>
-        </Card> */}
+        </Card> 
       </VStack>
       <ConfirmActionSheet
         isOpen={confirmType !== null}
