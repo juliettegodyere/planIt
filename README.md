@@ -1,187 +1,146 @@
-# Welcome to your Expo app 👋
+# Welcome to planit 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+planIt is a smart shopping list app that helps users quickly create and manage shopping lists. Users can choose from millions of preloaded items or manually add custom entries. The app also tracks completed purchases, stores shopping history, and makes future shopping faster and more organized.
 
-## Get started
+## 🛠️ Tech Stack
 
-1. Install dependencies
+This project is built with the following technologies:
 
-   ```bash
-   npm install
-   ```
+1. **[Expo](https://expo.dev/)** – For building and deploying the React Native app seamlessly.  
+2. **[Gluestack](https://gluestack.io/)** – UI component library for fast and accessible design.  
+3. **[TypeScript](https://www.typescriptlang.org/)** – Ensures type safety and better developer experience.  
+4. **[EAS (Expo Application Services)](https://docs.expo.dev/eas/)** – Used for building, testing, and deploying the app to iOS/Android.  
+5. **[SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)** – Local persistent storage for offline-first functionality.  
 
-2. Start the app
+## 🚀 Getting Started
 
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-
-🛒 Shopping Cart App — Roadmap
-An offline-first shopping list app using React Native + SQLite with support for guest usage and optional cloud sync later.
-
-🧱 Phase 1: Core Setup
-✅ ## Completed
-✅ Project structure (frontend & backend)
-
-✅ Created Expo app with EAS build
-
-✅ App icon and splash screen
-
-✅ Expo Router (stack + tab navigation)
-
-✅ UI with Gluestack components
-
-✅ React Context for global state
-
-✅ Removed AsyncStorage (using SQLite instead)
-
-✅ Sample shopping list data displayed
-
-🚧 ## In Progress
-☐ Setup Spring Boot backend (for optional sync)
-
-☐ Guest login (UUID stored in SQLite)
-
-☐ Google & Facebook login (via Expo AuthSession)
-
-☐ Save items in SQLite for guests
-
-☐ Save items to backend for logged-in users
-
-🛍️ ## Phase 2: Inventory Management (SQLite)
-✅ Add items (FAB + ActionSheet)
-
-✅ Style item cards (checkbox, label)
-
-✅ On check: show Quantity, Price, Priority
-
-✅ "Mark as Bought" functionality
-
-✅ Filter by category
-
-✅ Sort by selection & alphabetically
-
-✅ Search items by query (real-time typing)
-
-✅ Merge user-defined & pre-defined items
-
-✅ Persist all items using SQLite
-
-📜 ## Phase 3: Purchase History
-✅ Group purchased items by date
-
-✅ Modal to view item history
-
-☐ Re-add items from history to list
-
-⚙️ ## Phase 4: Settings Page
-✅ Show user info (name, email, etc.)
-
-✅ Display joined date, country, currency
-
-☐ Notification preferences
-
-☐ App version and build info
-
-🌐 ## Phase 5: Cloud Sync (Optional)
-Enables syncing for logged-in users (Google/Facebook)
-
-☐ Set up Spring Boot backend
-
-☐ API to sync items and user info
-
-☐ Handle login (Google / Facebook)
-
-☐ Push/pull sync from SQLite
-
-☐ Handle offline-to-online sync
-
-🧪 ## Final Phase: Polish & Deploy
-☐ Full testing (guest & logged-in flows)
-
-☐ Deploy backend to AWS (Elastic Beanstalk / EC2)
-
-☐ Build Android & iOS with EAS
-
-☐ Publish to App Store & Google Play
-
-## Configure Development Build
+### 1. Install EAS CLI
 
 ```bash
  npm i -g eas-cli
 ```
+### 2. Log in to Expo
 
 ```bash
  eas login
 ```
+(If you are not already logged in, follow the prompts.)
 
-if you are not logged in
+### 3. Initialize EAS in your project
 
 ```bash
  eas init
 ```
+Follow the interactive setup to create or link your project.
 
-Follow the prompt to create a project
+### 4. Configure EAS build
 
 ```bash
  eas build:configure
 ```
-Choose the platform you want to configure. An eas.json should be created in your project
+Select your platform (iOS/Android). This creates an eas.json configuration file in your project.
+
+### 🛠 Development Build (Local Testing)
 
 ```bash
  eas build --profile development --platform ios
 ```
 
-is used to build your Expo app for iOS using EAS Build (Expo Application Services) with a custom build profile.
+- Installs expo-dev-client
+- Prompts for iOS bundle identifier
+- Asks for Apple Developer credentials
+- Lets you register your device for development builds
 
-The subsequent prompts will ask you to allow install of `expo-dev-client`, the `iOS bundle identifier` you want, enter your `Apple account`, Then you register a device
+Once built, run:
 
 ```bash
    npx expo start --dev-client
 ```
 
-This command starts the Metro bundler (your local development server) specifically for use with a development build of your app — aka the Expo Dev Client.
+This starts the Metro bundler for the Expo Dev Client.
 
+### 👀 Preview / Test Build
 
-TODOs
-1. Complete the guest login
-2. Implement the offline mode ✅
-3. On the right of the item in history, show how many times the item has been purchades
-3. Make the history details editable
-4. Make it possible for users to add notes on the history details page
-5. Add info on the profile page to inform users to sign up with social media login and the importance
-5. Add notification - Whe there is new upgrade
-6. Add app version in the profile page
+Preview builds are useful for sharing with testers before going to production.
+
+✅ Step 1: Add a `preview` profile to `eas.json`:
+
+```json
+{
+  "cli": {
+    "version": ">= 3.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "distribution": "store"
+    }
+  }
+}
+
+```
+
+✅ Step 2: Build for preview
+
+iOS:
+
+```bash
+eas build --profile preview --platform ios
+```
+Android:
+
+```bash
+eas build --profile preview --platform android
+```
+- Generates an .ipa file signed with your Apple credentials
+- Android → generates APK for internal testers or sideloading
+- You can install directly on registered devices or upload to TestFlight
+
+✅ Step 3: Install on device
+- iOS: Use .ipa or upload to TestFlight
+- Android: Install APK directly or upload to Google Play Internal Testing
+
+### 📦 Production Build (App Store / Play Store)
+
+When you’re ready to release:
+iOS:
+
+```bash
+eas build --profile production --platform ios
+```
+
+```bash
+eas submit --platform ios
+```
+- Generates App Store–ready .ipa
+- Upload via Transporter or EAS Submit
+- Sends build to App Store Connect for review
+
+Android:
+
+```bash
+eas build --profile production --platform android
+```
+- Generates an App Store–ready .ipa
+- Upload via Transporter (Mac) or directly through EAS
+
+```bash
+eas submit --platform android
+```
+- Generates AAB (Android App Bundle) for Google Play
+- Upload via EAS Submit or directly to Play Console
+- Can also generate APK for manual distribution if needed
+
+This sends the build to the App Store for review.
