@@ -41,8 +41,7 @@ export const ImageModalViewer = ({
   setShowDeleteWarning: (val: boolean) => void;
   onDelete: () => void;
 }) => {
-  console.log("imageUrls - ImageModalViewer")
-  console.log(imageUrls)
+
   return (
     <>
       <Modal

@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { Camera, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
-import MlkitOcr from 'react-native-mlkit-ocr';
+import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { HStack } from './ui/hstack';
 import { Pressable } from './ui/pressable';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { AttachmentParam } from './type';
 const { width, height } = Dimensions.get("window");
 type Prop = {
@@ -43,24 +41,20 @@ export default function ScanDocumentComponent({ onScan, onCancel }: Prop) {
           quality: 0.5,
           base64: false,
         });
-  
-        console.log("Captured photo:", photo);
-  
+    
         if (photo?.uri) {
-          console.log("Scan photouri:", photo.uri);
           const path = photo.uri.replace('file://', '');
-          console.log("Scan path:", path);
-          const result = await MlkitOcr.detectFromFile(path);
-          console.log("Scan result:", result);
-          const recognizedText = result.map(block => block.text).join('\n');
-          console.log("Final recognized text:", recognizedText);
-          setScannedText(recognizedText); 
+          // const result = await MlkitOcr.detectFromFile(path);
+          //console.log("Scan result:", result);
+         // const recognizedText = result.map(block => block.text).join('\n');
+          // console.log("Final recognized text:", recognizedText);
+          // setScannedText(recognizedText); 
   
           // Optionally process result here
           // const recognizedText = result.map(item => item.text).join('\n');
           // setScannedText(recognizedText);
          // onScan(recognizedText);
-          onScan({ type: 'text', data: recognizedText });
+          //onScan({ type: 'text', data: recognizedText });
         } else {
           console.warn("Photo is undefined or missing URI.");
         }

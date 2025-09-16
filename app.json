@@ -2,7 +2,7 @@
   "expo": {
     "name": "planIt",
     "slug": "planIt",
-    "version": "1.1.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "planit",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.1.0",
+      "buildNumber": "1.0.1",
       "bundleIdentifier": "com.queencoder.planIt",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -29,7 +29,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.queencoder.planIt",
@@ -89,6 +89,15 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icons/splash-icon-light.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
         }
       ],
       "expo-font",

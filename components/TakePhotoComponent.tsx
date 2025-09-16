@@ -4,13 +4,11 @@ import {
   Button,
   StyleSheet,
   Text,
-  TouchableOpacity,
   Dimensions,
 } from "react-native";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { HStack } from "./ui/hstack";
 import { Pressable } from "./ui/pressable";
-import { Icon } from "./ui/icon";
 import { Image } from "@/components/ui/image";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { AttachmentParam } from "./type";
@@ -22,16 +20,11 @@ type Prop = {
   onCapture: (attachment: AttachmentParam) => void;
 };
 export default function TakePhotoComponent({ onCapture, onCancel }: Prop) {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   const ref = useRef<CameraView>(null);
-
-  useEffect(() => {
-    console.log("TakePhotoComponent mounted");
-  }, []);
 
   if (!permission) {
     return <View />;
@@ -49,9 +42,7 @@ export default function TakePhotoComponent({ onCapture, onCancel }: Prop) {
     );
   }
   const takePicture = async () => {
-    console.log("I got here");
     const photo = await ref.current?.takePictureAsync({ quality: 0.5 });
-    console.log(photo);
     if (photo && photo?.uri) {
       //onCapture(photo?.uri);
       //onCapture({ type: 'image', data: photo?.uri });

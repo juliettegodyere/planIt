@@ -1,6 +1,5 @@
 import { ItemInformationSheetProps } from "./type";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Pressable, ScrollView, TouchableOpacity } from "react-native";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import CustomCheckbox from "@/components/CustomCheckbox";
@@ -13,25 +12,25 @@ import {
   ActionsheetBackdrop,
 } from "@/components/ui/actionsheet";
 import { VStack } from "./ui/vstack";
-import AllPurposeCustomMenu from "./AllPurposeCustomMenu";
-import CustomSwitch from "./CustomSwitch";
 import { HStack } from "./ui/hstack";
 import { Card } from "./ui/card";
 import CancelActionSheet from "./CancelActionsheet";
 import PriceComponent from "./PriceComponent";
-import QuantityComponent from "./QuantityComponent";
 import PriorityComponent from "./PriorityComponent";
 import ItemReminderComponent from "./ItemReminderCompoment";
 import { useEffect, useState } from "react";
 import AddCategorySheet from "./AddCategorySheet";
 import { useShoppingActions } from "@/db/Transactions";
-import { getShoppingItemById } from "@/db/EntityManager";
-import { ShoppingItemTypes } from "@/service/types";
-import { useSQLiteContext } from "expo-sqlite";
 import { Divider } from "./ui/divider";
 import { useShoppingListContext } from "@/service/store";
 import NoteInputSheet from "./NoteComponentV2";
 import AddAttachmentComponent from "./AddAttachmentActionsheet";
+import { ShoppingListStateTypes } from "@/service/state";
+import ShoppingListCheckboxRow from "./ShoppingListCheckboxRow";
+import { CategoryItemResponseType } from "@/service/types";
+import ShoppingButton from "./ShoppingButton";
+import QuantitySelector from "./QuantitySelector";
+import CustomMenu from "./CustomMenu";
 
 const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   isOpen,
@@ -79,32 +78,29 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   setIsReminderDateEnabled,
   earlyReminder,
   setEarlyReminder,
-  repeatReminder,
+  //repeatReminder,
   setRepeatReminder,
   guest,
 }) => {
-  const db = useSQLiteContext();
-  const [zoomedImageIndex, setZoomedImageIndex] = useState<number | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [showDeleteWarningActionSheet, setShowDeleteWarningActionSheet] =
-    useState(false);
+  const { state, dispatch } = useShoppingListContext();
   const [showAddCategoryActionsheet, setShowAddCategoryActionsheet] =
     useState(false);
-  const { updateShoppingItemCategory, getCategoryById, updateShoppingItemAndUpdateState } = useShoppingActions();
+  const { getCategoryById } = useShoppingActions();
   const [categoryLabel, setCategoryLabel] = useState<string | null>(null);
-  const [_selectedItem, set_SelectedItem] = useState<ShoppingItemTypes | null>(
-    null
-  );
-  const { state, dispatch } = useShoppingListContext();
+  const [_selectedItem, set_SelectedItem] =
+    useState<ShoppingListStateTypes>(selectedItem);
+  const [_shoppingList, set_ShoppingList] =
+    useState<CategoryItemResponseType>(shoppingList);
+  const { deleteShoppingItemAndReturn } = useShoppingActions();
 
   useEffect(() => {
-    set_SelectedItem(selectedItem ?? null);
+    set_SelectedItem(selectedItem);
 
-    if (!selectedItem) return;
+    if (!_selectedItem) return;
 
-    if (selectedItem?.attachments) {
+    if (_selectedItem?.attachments) {
       try {
-        const parsed = JSON.parse(selectedItem.attachments);
+        const parsed = JSON.parse(_selectedItem.attachments);
         if (Array.isArray(parsed)) {
           setAttachments(parsed);
         }
@@ -112,25 +108,6 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
         console.error("Failed to parse attachments:", error);
       }
     }
-    // Set enabled flags first
-    setIsReminderTimeEnabled(selectedItem.isReminderTimeEnabled ?? false);
-    setIsReminderDateEnabled(selectedItem.isReminderDateEnabled ?? false);
-
-    // Conditionally clear or set reminder values
-    if (
-      !selectedItem.isReminderDateEnabled &&
-      !selectedItem.isReminderTimeEnabled
-    ) {
-      setReminderDate("");
-      setReminderTime("");
-    } else {
-      setReminderDate(selectedItem.reminderDate || "");
-      setReminderTime(selectedItem.reminderTime || "");
-    }
-
-    // The rest
-    setEarlyReminder(selectedItem.earlyReminder ?? "None");
-    setRepeatReminder(selectedItem.repeatReminder ?? "Never");
   }, [selectedItem]);
 
   useEffect(() => {
@@ -153,23 +130,11 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
     fetchCategoryLabel();
   }, [_selectedItem]);
 
-
   const imageAttachments = attachments.filter((att) => att.type === "image");
 
-  const imageUrls = imageAttachments.map((att) => ({ url: att.data }));
- 
   return (
     <>
-      <Actionsheet
-        isOpen={isOpen}
-        onClose={onClose}
-        style={
-          {
-            //backgroundColor: "#F1F1F1",
-            //height: "75%", // take up 90% of screen height
-          }
-        }
-      >
+      <Actionsheet isOpen={isOpen} onClose={onClose}>
         <ActionsheetBackdrop />
         <ActionsheetContent
           className="px-5"
@@ -215,41 +180,65 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
             >
               <VStack space="lg">
                 <Card variant="elevated" className=" bg-white">
-                  <HStack className="justify-between items-start" style={{width:"100%"}}>
-                    <Box className="max-w-[50%]">
-                      <CustomCheckbox
-                        shoppingList={shoppingList}
-                        isChecked={isChecked}
-                        handleCheckboxChange={handleCheckboxChange}
-                        size="lg"
-                        onClose={onClose}
-                        
-                      />
-                      <Box className="my-3">
+                  <VStack>
+                    <ShoppingListCheckboxRow
+                      shoppingList={shoppingList}
+                      shoppingItem={selectedItem}
+                      isChecked={isChecked}
+                      shoppingItemLists={state.shoppingItemLists}
+                      dispatch={dispatch}
+                      deleteShoppingItemAndReturn={deleteShoppingItemAndReturn}
+                      // handleCheckboxChange={handleCheckboxChange}
+                    />
+                    <HStack className="justify-between">
+                      <Box className="mt-2">
                         {categoryLabel === "Uncategorized" ? (
-                          <Pressable
-                            onPress={() => setShowAddCategoryActionsheet(true)}
-                          >
-                            <Text size="md">Change category</Text>
-                          </Pressable>
+                          <TouchableOpacity
+                          onPress={() => setShowAddCategoryActionsheet(true)}
+                          style={{ backgroundColor: "#FF6347", borderRadius:12, padding:3}}
+                        >
+                          <Text size="md" className="text-white text-center font-medium">Change category</Text>
+                        </TouchableOpacity>
                         ) : (
                           <Text size="lg">{categoryLabel}</Text>
                         )}
                       </Box>
-                    </Box>
-                    <HStack space="md" className="items-end min-w-[30%] ">
-                      <Text size="lg" className="font-medium flex-wrap">
-                        Purchased
-                      </Text>
-                      <CustomSwitch
-                        value={itemPurchase}
-                        onToggle={handleMarkItemAsPurchased}
+                      {
+                        _selectedItem.selected && (
+                          <ShoppingButton
+                        label={
+                          itemPurchase ? "undo Purchase" : "Mark as purchased"
+                        }
+                        variant={itemPurchase ? "solid" : "outline"}
+                        size="md"
+                        color="#FF6347"
+                        onPress={() => handleMarkItemAsPurchased()}
                       />
+                        )
+                      }
                     </HStack>
-                  </HStack>
+                  </VStack>
                 </Card>
                 <Card>
-                  <VStack className="pb-2">
+                  <HStack space="lg">
+                    <QuantitySelector
+                      quantity={qtyVal}
+                      onIncrease={() => handleUpdateQuantity(shoppingList.value, 1)}
+                      onDecrease={() => handleUpdateQuantity(shoppingList.value, -1)}
+                      onDelete={() =>
+                        console.log("The min is 1 here")
+                      }
+                    />
+                    <CustomMenu
+                      value={qtyUnit}
+                      menuItems={qtyOptions}
+                      onSelect={(key) => {
+                        SetQtyUnit(qtyOptions[Number(key)]);
+                      }}
+                      text="Select Unit"
+                    />
+                  </HStack>
+                  <VStack style={{ marginTop: 25 }}>
                     <PriceComponent
                       priceInput={priceInput}
                       handleChange={handlePriceInputChange}
@@ -259,55 +248,24 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                     />
                   </VStack>
                 </Card>
+
                 <Card>
-                  <QuantityComponent
-                    qtyVal={
-                      _selectedItem && _selectedItem.quantity !== "1"
-                        ? _selectedItem.quantity
-                        : qtyVal
-                    }
-                    qtyUnit={
-                      _selectedItem && _selectedItem.qtyUnit !== "None"
-                        ? _selectedItem.qtyUnit
-                        : qtyUnit
-                    }
-                    handleUpdateQuantity={handleUpdateQuantity}
-                    SetQtyUnit={SetQtyUnit}
-                    shoppingList={shoppingList}
-                    qtyOptions={qtyOptions}
-                  />
-                  <Box className="mt-4">
-                    <PriorityComponent
-                      priorityVal={
-                        _selectedItem && _selectedItem.priority !== "None"
-                          ? _selectedItem.priority
-                          : priorityVal
-                      }
-                      priorityOption={priorityOption}
-                      setPriorityVal={setPriorityVal}
-                    />
-                  </Box>
-                </Card>
-                {/**This card is used for reminders and the implementation is relatively complete. It is 
-                 * disabled and will be used in V2 */}
-                {/* <Card>
                   <VStack className="w-full">
                     <ItemReminderComponent
                       reminderDate={reminderDate}
                       setReminderDate={setReminderDate}
                       reminderTime={reminderTime}
                       setReminderTime={setReminderTime}
-                      isReminderTimeEnabled={isReminderTimeEnabled}
+                      isReminderTimeEnabled={Boolean(isReminderTimeEnabled)}
                       setIsReminderTimeEnabled={setIsReminderTimeEnabled}
-                      isReminderDateEnabled={isReminderDateEnabled}
+                      isReminderDateEnabled={Boolean(isReminderDateEnabled)}
                       setIsReminderDateEnabled={setIsReminderDateEnabled}
                       earlyReminder={earlyReminder}
                       setEarlyReminder={setEarlyReminder}
-                      repeatReminder={repeatReminder}
                       setRepeatReminder={setRepeatReminder}
                     />
                   </VStack>
-                </Card> */}
+                </Card>
                 <Card>
                   <VStack space="md">
                     <NoteInputSheet
@@ -316,27 +274,40 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                           ? _selectedItem.note
                           : note
                       }
-                      placeholder = {selectedItem && selectedItem.note ? "View note" : "Add a note"}
+                      placeholder={
+                        selectedItem && selectedItem.note
+                          ? "View note"
+                          : "Add a note"
+                      }
                       onNoteChange={HandleSetNote}
                     />
-                    {/* <AllPurposeCustomMenu
-                      value={"Add Receipt"}
-                      menuItems={imageAttachmentOptions}
-                      onSelect={handleSelect}
-                    /> */}
-                    <Divider/>
-                    <AddAttachmentComponent 
-                    handleAttachment={handleAttachment}
-                    imageAttachments={imageAttachments} 
-                    setAttachments={setAttachments}
-                    />
-                    
+                    <Divider />
+                    <Box className="mb-4">
+                      <AddAttachmentComponent
+                        handleAttachment={handleAttachment}
+                        imageAttachments={imageAttachments}
+                        setAttachments={setAttachments}
+                      />
+                    </Box>
+                    <Divider />
+
+                    <Box className="mt-2">
+                      <PriorityComponent
+                        priorityVal={
+                          _selectedItem && _selectedItem.priority !== "None"
+                            ? _selectedItem.priority
+                            : priorityVal
+                        }
+                        priorityOption={priorityOption}
+                        setPriorityVal={setPriorityVal}
+                      />
+                    </Box>
                   </VStack>
                 </Card>
               </VStack>
-               {/**This component is used for showing similar purchased items and the implementation is relatively complete. It is 
-                 * disabled and will be used in V2 */}
-             {/* <ItemHistoryComponent 
+              {/**This component is used for showing similar purchased items and the implementation is relatively complete. It is
+               * disabled and will be used in V2 */}
+              {/* <ItemHistoryComponent 
                 state={state.shoppingItemLists} 
                 selectedItem={_selectedItem? _selectedItem:null}
                 // setZoomedImageIndex={setZoomedImageIndex}
@@ -364,13 +335,10 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
         isOpen={showAddCategoryActionsheet}
         onClose={() => setShowAddCategoryActionsheet(false)}
         selectedItem={_selectedItem}
+        dispatch={dispatch}
       />
     </>
   );
 };
 
 export default ItemInformationSheet;
-
-//TODOs - When a picture is takem, ask the user whetter they want to keep or discard
-// Make image smaller and give option to delete on the right
-// Make provision to also preview the scanned text.

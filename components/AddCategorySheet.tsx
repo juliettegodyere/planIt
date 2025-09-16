@@ -1,41 +1,31 @@
 import {
   Actionsheet,
   ActionsheetContent,
-  ActionsheetItem,
-  ActionsheetItemText,
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
   ActionsheetBackdrop,
 } from "@/components/ui/actionsheet";
 import { Button, ButtonText } from "@/components/ui/button";
 import { MainCategoryOptions, categoryOptions } from "@/data/dataStore";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, useEffect, useState } from "react";
 import { VStack } from "./ui/vstack";
 import { HStack } from "./ui/hstack";
 import { Text } from "./ui/text";
 import { Heading } from "./ui/heading";
 import { Pressable, View } from "react-native";
-import { Box } from "./ui/box";
-import { AddIcon, CloseIcon, Icon } from "./ui/icon";
-import {
-  AlertDialog,
-  AlertDialogBackdrop,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "./ui/alert-dialog";
+import { updateItem } from "@/service/stateActions";
 import { Input, InputField } from "./ui/input";
 import { useShoppingActions } from "@/db/Transactions";
-import { ShoppingItemTypes } from "@/service/types";
+import { ShoppingListStateTypes } from "@/service/state";
 
 export interface Props {
   isOpen: boolean;
   onClose: () => void;
-  selectedItem: ShoppingItemTypes|null;
+  selectedItem: ShoppingListStateTypes|null;
+  dispatch: React.Dispatch<any>,
 }
 
-const AddCategorySheet = ({ isOpen, onClose, selectedItem }: Props) => {
+const AddCategorySheet = ({ isOpen, onClose, selectedItem, dispatch}: Props) => {
   const [category, setCategory] = useState("");
   const [category_id, setCategoryId] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -43,7 +33,7 @@ const AddCategorySheet = ({ isOpen, onClose, selectedItem }: Props) => {
   const {
     addUserDefinedCategory,
     getCategoryByName,
-    updateShoppingItemAndUpdateState
+    updateShoppingItemAndReturn
   } = useShoppingActions();
 
   useEffect(() => {
@@ -55,9 +45,6 @@ const AddCategorySheet = ({ isOpen, onClose, selectedItem }: Props) => {
             if(cat){
               setCategoryId(cat?.id)
             }
-            console.log("category - AddCategorySheet")
-            console.log(cat)
-
           }
       } catch (error) {
         console.error("Failed to fetch category:", error);
@@ -68,25 +55,24 @@ const AddCategorySheet = ({ isOpen, onClose, selectedItem }: Props) => {
   }, [category, selectedItem]);
 
   const handleCreateCategory = async (newCategoryName: string)=>{
-      console.log(newCategoryName)
+      //console.log(newCategoryName)
       //await addUserDefinedCategory(newCategoryName);
   }
 
   const handleHandleShoppingItemCategory = async ()=>{
-    console.log(newCategoryName)
     if (!selectedItem) return;
   
-    const updatedItem: ShoppingItemTypes = {
+    const updatedItem: ShoppingListStateTypes = {
       ...selectedItem,
       category_item_id:category_id,
       modifiedDate: new Date().toISOString(),
-    };
-    console.log(updatedItem)
-  
-    await updateShoppingItemAndUpdateState(updatedItem);
+    };  
+    const updatedItem_ = await updateShoppingItemAndReturn(updatedItem);
+    if(updatedItem_){
+      dispatch(updateItem(updatedItem_.id, updatedItem_));
+    }
     onClose()
   }
-console.log(category)
   return (
     <>
       <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -172,7 +158,7 @@ console.log(category)
           </VStack>
         </ActionsheetContent>
       </Actionsheet>
-      <AlertDialog
+      {/* <AlertDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
       >
@@ -218,7 +204,7 @@ console.log(category)
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </>
   );
 };

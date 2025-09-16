@@ -35,8 +35,6 @@ const CustomCheckbox = ({
     useState<CategoryItemResponseType | null>(null);
 
     const onCheckboxPress = (item: CategoryItemResponseType) => {
-      // console.log("onCheckboxPress")
-      // console.log(isChecked(item.value))
       if (isChecked(item.value)) {
         setPendingItem(item);
         setShowUncheckDialog(true);

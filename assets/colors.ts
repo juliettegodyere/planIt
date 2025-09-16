@@ -31,8 +31,8 @@ export const theme = {
       backgroundSecondary: "#FFFFFF", // Pure white
       fontPrimary: "#333333", // Dark for readability
       fontSecondary: "#777777", // Softer gray
-      buttonPrimary: "#3498db", // Vibrant blue
-      buttonSecondary: "#5DADE2", // Slightly lighter blue
+      buttonPrimary: "#FF6347", //(Tomato Red): #FF6347
+      buttonSecondary: "#FFC0CB", // SSecondary Color (Pink)
       iconPrimary: "#E91E63", // Pink (complements blue)
       iconSecondary: "#F48FB1", // Lighter pink
     },
@@ -48,3 +48,14 @@ export const theme = {
       xLarge: 24,
     },
   };
+
+  // Suggested Color Palette
+// Primary Color (Tomato Red): #FF6347
+
+// Secondary Color (Pink): #FFC0CB
+
+// Accent Color (Deep Pink): #FF1493
+
+// Neutral Background: #FFFFFF (White)
+
+// Text Color: #333333 (Dark Gray)

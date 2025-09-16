@@ -6,15 +6,16 @@ import React, {
   Dispatch,
 } from "react";
 import { shoppingListReducer } from "./reducer";
-import { initialState,AllItemsInitialStateType, UserInfo, GuestUserInfo } from "./state";
+import { initialState,AllItemsInitialStateType, UserInfo, GuestUserInfo, ShoppingListStateTypes } from "./state";
 import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./types";
 
 export type ShoppingListAction =
-  | { type: "ADD_ITEM"; payload: ShoppingItemTypes }
-  | { type: "UPDATE_ITEM"; payload: {key: string, item: ShoppingItemTypes }}
+  | { type: "ADD_ITEM"; payload: ShoppingListStateTypes }
+  | { type: "UPDATE_ITEM"; payload: {id: string, updatedFields:  Partial<ShoppingListStateTypes> }}
   | { type: "DELETE_ITEM"; payload: string}
   | { type: 'SET_CATALOG_ITEMS'; payload: CategoryItemResponseType[] }
-  | {type: 'SET_SHOPPING_ITEMS'; payload: ShoppingItemTypes[]}
+  | { type: 'UPDATE_CATALOG_ITEMS'; payload: CategoryItemResponseType[] }
+  | {type: 'SET_SHOPPING_ITEMS'; payload: ShoppingListStateTypes[]}
   | { type: "SET_USER"; payload:  UserInfo  }
   | { type: "SET_GUEST_USER"; payload: guestUserType } 
   | { type: "ADD_GUEST_USER"; payload: guestUserType } 

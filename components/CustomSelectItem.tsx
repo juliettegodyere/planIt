@@ -7,32 +7,19 @@ import { Heading } from "./ui/heading";
 import { Pressable } from "./ui/pressable";
 import { Button, ButtonText } from "./ui/button";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-interface SelectOption {
-  name: string;
-  currencyCode: string;
-  symbol: string;
-}
+import { guestUserType } from "@/service/types";
 
 interface SelectItemProps {
-  name: string;
-  currencyCode: string;
-  symbol: string;
-  handleGuestUserUpdate: () => void;
-  page: string;
+  guestUser: guestUserType;
 }
 
 const CustomSelectItem: React.FC<SelectItemProps> = ({
-  name,
-  currencyCode,
-  symbol,
-  handleGuestUserUpdate,
-  page,
+  guestUser
 }) => {
   const router = useRouter();
 
   return (
-    <VStack space="lg">
+    <VStack space="sm">
       {/* Country */}
       <Pressable
         // onPress={() => {
@@ -42,25 +29,22 @@ const CustomSelectItem: React.FC<SelectItemProps> = ({
         //   });
         // }}
         onPress={() => {
-          if (page !== null && page !== undefined) {
-            router.push({
-              pathname: "/select-country",
-              params: { page: page },
-            });
-          } else {
-            console.log("Navigation prevented: 'page' is null or undefined.");
-          }
+          router.push({
+            pathname: "/select-country",
+            params: { page: "/setting", mode: "update", id:guestUser.id},
+          });
         }}
         className="mb-5"
       >
         <HStack className="justify-between items-center">
-          <Text className="text-lg text-gray-900 font-bold">Country</Text>
+          <Text size="lg" className="font-bold" style={{color:"#888888"}}>Country</Text>
           <HStack space="lg" className="items-center">
-            <Text text-lg text-gray-900 font-normal>{name ? name : "Never"}</Text>
+            <Text size="md" className="font-normal " style={{color:"#888888"}}>{guestUser ? guestUser.countryName : "Never"}</Text>
             <Icon
               as={ChevronRightIcon}
-              size="xl"
-              className="text-typography-500"
+              size="lg"
+              className="text-typography-100"
+              style={{color:"#888888"}}
             />
           </HStack>
         </HStack>
@@ -69,29 +53,30 @@ const CustomSelectItem: React.FC<SelectItemProps> = ({
       {/* Currency */}
       <Pressable className="mb-5">
         <HStack className="justify-between items-center">
-          <Text className="text-lg text-gray-900 font-bold">Currency</Text>
+          <Text size="lg" className="font-bold" style={{color:"#888888"}}>Currency</Text>
           <HStack space="lg" className="items-center">
-            <Text className="text-lg text-gray-900 font-normal">{name ? currencyCode : "Never"}</Text>
+            <Text size="md" className="font-normal " style={{color:"#888888"}}>{guestUser ? guestUser.currencyCode : "Never"}</Text>
             <Icon
               as={ChevronRightIcon}
-              size="xl"
-              className="text-typography-500"
+              size="lg"
+              className="text-typography-100"
+              style={{color:"#888888"}}
             />
           </HStack>
         </HStack>
       </Pressable>
 
       {/* Continue Button */}
-      <Button
-        size="md"
+      {/* <Button
+        size="sm"
         variant="outline"
         action={name ? "positive" : "negative"}
         onPress={handleGuestUserUpdate}
-       style={{borderColor:"#FF6347"}}
-        // disabled={selectedCountry ? true : false}
+        style={{borderColor:"#FF6347"}}
+        disabled={name && currencyCode ? true : false}
       >
-        <ButtonText>Continue</ButtonText>
-      </Button>
+        <ButtonText  style={{color:"#333333"}}>Continue</ButtonText>
+      </Button> */}
     </VStack>
   );
 };

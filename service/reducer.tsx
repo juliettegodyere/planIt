@@ -11,21 +11,27 @@ export const shoppingListReducer = (
         ...state,
         catalogItems: action.payload,
       };
+    case "UPDATE_CATALOG_ITEMS":
+      return {
+        ...state,
+        catalogItems: [...state.catalogItems, ...action.payload], // create a new array
+      };
     case "ADD_ITEM":
       return {
         ...state,
         shoppingItemLists: [...state.shoppingItemLists, action.payload],
       };
 
-    case "UPDATE_ITEM":
+      case "UPDATE_ITEM":
       return {
         ...state,
-        shoppingItemLists: state.shoppingItemLists.map((existingItem) =>
-          existingItem.id === action.payload.key
-            ? action.payload.item
-            : existingItem
+        shoppingItemLists: state.shoppingItemLists.map((item) =>
+          item.id === action.payload.id
+            ? { ...item, ...action.payload.updatedFields } // only new object for updated item
+            : item // untouched items keep same reference
         ),
       };
+
 
     case "DELETE_ITEM":
       return {

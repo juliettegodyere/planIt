@@ -63,7 +63,6 @@ const AddAttachmentComponent = ({handleAttachment, imageAttachments, setAttachme
     handleAttachment(attachment);
   };
   
-  
   return (
     <>
       <VStack>
@@ -79,7 +78,7 @@ const AddAttachmentComponent = ({handleAttachment, imageAttachments, setAttachme
           <HStack className="justify-between">
             <HStack space="sm" style={{ alignItems: "center" }}>
               <Icon as={LinkIcon} size="lg" />
-              <Text className="font-medium text-lg">{imageAttachments.length > 0 ? "View Receipts": "Add Receipt"}</Text>
+              <Text className="font-medium text-lg"  style={{color:"#888888"}}>{imageAttachments.length > 0 ? "View Receipts": "Add Receipt"}</Text>
             </HStack>
             {imageAttachments.length > 0 ? (
                <Image

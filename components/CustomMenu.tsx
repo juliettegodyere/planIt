@@ -11,6 +11,7 @@ import { Pressable } from "./ui/pressable";
 import { HStack } from "./ui/hstack";
 import { Text } from "./ui/text";
 import { Key } from "@react-types/shared";
+import { Button, ButtonIcon, ButtonText } from "./ui/button";
 
 type MenuOption = {
   key: string;
@@ -21,9 +22,10 @@ type CustomMenuProps = {
   value: string;
   menuItems: string[];
   onSelect: (key: string) => void;
+  text?: string
 };
 
-const CustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onSelect }: CustomMenuProps) => {
+const CustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onSelect, text }: CustomMenuProps) => {
     const [selected, setSelected] = React.useState<Set<Key>>(new Set([""]));
 
   return (
@@ -31,8 +33,8 @@ const CustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onSelect }: C
       placement="bottom left"
       selectionMode="single"
       selectedKeys={selected}
-      offset={5}
-      className="p-1.5"
+      offset={0}
+      //className="p-1.5"
       onSelectionChange={(keys) => {
         const selectedValue = Array.from(keys)[0] as string;
         setSelected(new Set(keys));
@@ -42,10 +44,25 @@ const CustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onSelect }: C
       trigger={({ ...triggerProps }) => {
         return (
           <Pressable {...triggerProps}>
-            <HStack space="sm" style={{alignItems:"center"}}>
-              <Text className="font-medium text-lg">{value}</Text>
-              <Icon as={ChevronsUpDownIcon} size="lg" />
-            </HStack>
+            {/* <HStack space="sm" style={{alignItems:"center"}}>
+              {text ? (
+                 <Button variant="outline" className="rounded-full mt-4" style={{borderColor:"#888888"}}>
+                 <ButtonText style={{color:"#888888"}}>{text}</ButtonText>
+                 <ButtonIcon as={ChevronsUpDownIcon} className="ml-2" style={{color:"#888888"}}/>
+               </Button>
+              ):(
+                <>
+                <Text className="font-medium text-lg">{value}</Text> 
+                <Icon as={ChevronsUpDownIcon} size="lg" /></>
+              )} */}
+              {/* <Text className="font-medium text-lg">{value}</Text> */}
+              {/* <Text className="font-medium text-lg">{text ? text : value}</Text>
+              <Icon as={ChevronsUpDownIcon} size="lg" /> */}
+            {/* </HStack> */}
+            <Button variant="outline" className="rounded-full" style={{borderColor:"#888888"}} {...triggerProps}>
+                 <ButtonText style={{color:"#888888"}}>{value ? value : text}</ButtonText>
+                 <ButtonIcon as={ChevronsUpDownIcon} className="ml-2" style={{color:"#888888"}}/>
+               </Button>
           </Pressable>
         );
         

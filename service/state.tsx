@@ -1,11 +1,16 @@
 // src/context/shoppingList/state.ts
 
-import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "./types";
+import { CategoryItemResponseType, ReminderItemType, ShoppingItemTypes, guestUserType } from "./types";
+
+//export type ShoppingListStateTypes = ShoppingItemTypes & Partial<Omit<ReminderItemType, 'item_id'>>;
+export type ShoppingListStateTypes = ShoppingItemTypes & {
+  reminder_id?: string; // store reminder ID separately
+} & Partial<Omit<ReminderItemType, 'item_id' | 'id'>>;
 
 export interface AllItemsInitialStateType {
   guest: guestUserType | null;
   user: Record<string, any>;
-  shoppingItemLists: ShoppingItemTypes[];
+  shoppingItemLists: ShoppingListStateTypes[];
   searchQuery: string;
   filterVisible: boolean;
   isToggled: boolean;
@@ -14,29 +19,6 @@ export interface AllItemsInitialStateType {
   isSelectedShoppingItemsHydrated:boolean;
   isGuestHydrated: boolean;
 }
-
-export type SelectedItemType = {
-  id:string;
-  key: string;
-  name: string;
-  quantity: string; 
-  qtyUnit: string;
-  price: string;
-  purchased: boolean;
-  selected: boolean;
-  createDate: string;
-  modifiedDate: string;
-  priority: string;
-  category: string;
-  note: string,
-  attachments:string;
-  reminderDate: string
-  reminderTime: string
-  isReminderTimeEnabled: boolean;
-  isReminderDateEnabled: boolean;
-  earlyReminder: string;
-  repeatReminder: string;
-};
 
 export const initialState: AllItemsInitialStateType = {
   guest: null,

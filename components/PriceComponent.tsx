@@ -1,8 +1,7 @@
-import { View, FlatList, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
-import { useShoppingListContext } from "@/service/store";
+import { Input, InputField, InputSlot } from "@/components/ui/input";
 import { guestUserType } from "@/service/types";
 
 type Props = {
@@ -24,7 +23,7 @@ const PriceComponent = ({ priceInput, handleChange, handleBlur,  handleFocus, gu
     >
       <Input size="md" variant="underlined" style={{ flex: 1 }}>
       <InputSlot className="pr-1" >
-          <Text className="font-medium text-2xl">{guest? guest.currencySymbol:'£'}</Text>
+          <Text className="font-medium text-2xl" style={{color:"#888888"}}>{guest? guest.currencySymbol:'£'}</Text>
         </InputSlot>
         <InputField
           placeholder=""
@@ -34,9 +33,10 @@ const PriceComponent = ({ priceInput, handleChange, handleBlur,  handleFocus, gu
           onFocus={handleFocus}
           onBlur={handleBlur}
           className="font-medium text-2xl"
+          style={{color:"#888888"}}
         />
          <InputSlot className="pr-3" >
-              <Text className="font-medium">{guest? guest.currencyCode:"GBP"}</Text>
+              <Text className="font-medium" style={{color:"#888888"}}>{guest? guest.currencyCode:"GBP"}</Text>
           </InputSlot>
       </Input>
     </HStack>

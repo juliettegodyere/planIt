@@ -15,12 +15,6 @@ export interface ShoppingItemTypes {
     category_item_id: string;
     note: string;
     attachments:string;
-    reminderDate: string
-    reminderTime: string
-    isReminderTimeEnabled: boolean;
-    isReminderDateEnabled: boolean;
-    earlyReminder: string;
-    repeatReminder: string;
   }
 
   export interface CreateShoppingItemTypes {
@@ -37,12 +31,34 @@ export interface ShoppingItemTypes {
     category_item_id: string;
     note: string;
     attachments:string;
-    reminderDate: string
-    reminderTime: string
-    isReminderTimeEnabled: boolean;
-    isReminderDateEnabled: boolean;
-    earlyReminder: string;
-    repeatReminder: string;
+    // reminderDate: string
+    // reminderTime: string
+    // isReminderTimeEnabled: boolean;
+    // isReminderDateEnabled: boolean;
+    // earlyReminder: string;
+    // repeatReminder: string;
+  }
+
+  export interface CreateShoppingItemTypes {
+    key: string;
+    name: string;
+    quantity: string;
+    qtyUnit: string;
+    price: string;
+    purchased: boolean;
+    selected: boolean;
+    createDate: string;
+    modifiedDate: string;
+    priority: string;
+    category_item_id: string;
+    note: string;
+    attachments:string;
+    // reminderDate: string
+    // reminderTime: string
+    // isReminderTimeEnabled: boolean;
+    // isReminderDateEnabled: boolean;
+    // earlyReminder: string;
+    // repeatReminder: string;
   }
 
 export type CategoriesType = {
@@ -89,6 +105,31 @@ export interface FullCategoryItem {
   categoryLabel: string;
 }
 
+// export type ReminderItemType = {
+//   id: string;
+//   title: string;
+//   body: string;
+//   date: string;
+//   time: string;
+//   repeat: string;
+//   notificationId: string;
+// };
+
+export type ReminderItemType = {
+  id?: string;
+  item_id: string;
+  title?: string;
+  body?: string | null;
+  date?: string | null; // ISO 8601 format (e.g., "2025-08-05")
+  time?: string | null; // e.g., "14:30"
+  //repeat?: string |  null;
+  earlyReminder?: string | null; // You can define this more strictly if you have rules
+  notificationId?: string | null;
+  isReminderTimeEnabled: boolean;
+  isReminderDateEnabled: boolean;
+  fired: boolean;
+  notified?: boolean;
+};
 
 
   

@@ -8,7 +8,6 @@ import {
   CalendarDaysIcon,
   ClockIcon,
   BellIcon,
-  RepeatIcon,
 } from "@/components/ui/icon";
 import { Heading } from "./ui/heading";
 import DatePickerUtil from "@/Util/DatePickerUtil";
@@ -17,7 +16,9 @@ import TimePickerUtil from "@/Util/TimePickerUtil";
 import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Divider } from "./ui/divider";
 import CustomMenu from "./CustomMenu";
-import { earlyReminderOptions, repeatReminderOptions } from "@/data/dataStore";
+import { earlyReminderOptions } from "@/data/dataStore";
+import { useNotification } from "@/db/context/NotificationProvider";
+import { ensureNotificationPermission } from "@/Util/HelperFunction";
 
 type Props = {
   reminderDate: string;
@@ -30,7 +31,7 @@ type Props = {
   setIsReminderDateEnabled: (flag: boolean) => void;
   earlyReminder: string;
   setEarlyReminder: (val: string) => void;
-  repeatReminder: string;
+  //repeatReminder: string;
   setRepeatReminder: (val: string) => void;
 };
 
@@ -45,51 +46,27 @@ const ItemReminderComponent = ({
   setIsReminderDateEnabled,
   earlyReminder,
   setEarlyReminder,
-  repeatReminder,
-  setRepeatReminder,
 }: Props) => {
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string>("");
   const [isDateOpen, setIsDateOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
-  const [isTimeEnabled, setIsTimeEnabled] = useState(true);
-  const [isDateEnabled, setIsDateEnabled] = useState(true);
+  const { requestPermission } = useNotification();
 
-  // const formatDate = (input: string | Date) => {
-  //   const date = typeof input === "string" ? new Date(input) : input;
-
-  //   if (isNaN(date.getTime())) return "Invalid date";
-
-  //   if (isToday(date)) return "Today";
-
-  //   if (isTomorrow(date)) return "Tomorrow";
-
-  //   if (isYesterday(date)) return "Yesterday";
-
-  //   return format(date, "EEEE, d MMM"); // e.g., "Friday, 30 Jun"
-  // };
 
   const formatDate = (input: string | Date) => {
-    console.log("formatDate - input")
-    console.log(input)
-    if (!input || input === 'undefined' || input === 'null') return "";
+    if (!input || input === "undefined" || input === "null") return "";
 
-   
-  
     const date = typeof input === "string" ? new Date(input) : input;
-  
+
     if (isNaN(date.getTime())) return "";
-  
+
     if (isToday(date)) return "Today";
     if (isTomorrow(date)) return "Tomorrow";
     if (isYesterday(date)) return "Yesterday";
-  
+
     return format(date, "EEEE, d MMM yyyy");
   };
-  
 
   const formatTime = (input: string | Date) => {
-    console.log("formatTime input:", input);
 
     if (!input) return "";
 
@@ -106,10 +83,27 @@ const ItemReminderComponent = ({
     });
   };
 
-  const handleToggleReminderTime = () => {
-    setIsReminderTimeEnabled(!isReminderTimeEnabled);
-    if(isReminderTimeEnabled){
-      setReminderTime("")
+  const handleToggleReminderTime = async () => {
+
+    const granted = await requestPermission(); 
+    if (!granted) {
+      setIsReminderTimeEnabled(false); 
+      return;
+    }
+
+    if (!reminderDate) return;
+
+    const newValue = !isReminderTimeEnabled;
+
+    if (!newValue && reminderDate) {
+      return;
+    }
+
+    setIsReminderTimeEnabled(newValue);
+    if (newValue) {
+      setIsTimeOpen(true);
+    } else {
+      setReminderTime("");
     }
   };
 
@@ -119,22 +113,31 @@ const ItemReminderComponent = ({
     }
   };
 
-  const handleToggleReminderDate = () => {
-    setIsReminderDateEnabled(!isReminderDateEnabled);
-    if(isReminderDateEnabled){
-      setReminderDate("")
+  const handleToggleReminderDate = async () => {
+    const granted = await requestPermission(); // centralised
+    if (!granted) {
+      setIsReminderTimeEnabled(false); // snap back if denied
+      return;
+    }
+
+    if (!isReminderDateEnabled) {
+      // Don't enable switch yet; just open the date picker
+      setIsDateOpen(true);
+    } else {
+      // If already enabled and toggled off
+      setIsReminderDateEnabled(false);
+      setReminderDate("");
+      setIsReminderTimeEnabled(false);
+      setReminderTime("");
     }
   };
-  
 
   const handleToggleReminderDateOpen = () => {
     if (isReminderDateEnabled) {
       setIsDateOpen(true);
     }
   };
-console.log("ItemReminderComponent - reminderDate")
-console.log(reminderDate)
-console.log(formatTime(reminderDate))
+
   return (
     <VStack>
       <Pressable onPress={handleToggleReminderDateOpen} className="mb-2">
@@ -153,11 +156,10 @@ console.log(formatTime(reminderDate))
           </HStack>
           <Switch
             value={isReminderDateEnabled}
-            //onValueChange={setIsReminderDateEnabled}
             onValueChange={handleToggleReminderDate}
             trackColor={{ false: "#D1D5DB", true: "#FF6347" }}
             thumbColor="#F1F1F1"
-            ios_backgroundColor="#D1D5DB" // fallback if you're not using Tailwind or colors.gray[300]
+            ios_backgroundColor="#D1D5DB"
           />
         </HStack>
       </Pressable>
@@ -178,71 +180,77 @@ console.log(formatTime(reminderDate))
           </HStack>
           <Switch
             value={isReminderTimeEnabled}
-           // onValueChange={setIsReminderTimeEnabled}
             onValueChange={handleToggleReminderTime}
             trackColor={{ false: "#D1D5DB", true: "#FF6347" }}
             thumbColor="#F1F1F1"
-            ios_backgroundColor="#D1D5DB" // fallback if you're not using Tailwind or colors.gray[300]
+            ios_backgroundColor="#D1D5DB"
           />
         </HStack>
       </Pressable>
-      <VStack>
-        <HStack
-          style={{ justifyContent: "space-between" }}
-          className="mt-4 mb-2"
-        >
-          <HStack space="lg">
-            <Icon
-              as={BellIcon}
-              className="text-typography-500 mt-2"
-              size="xl"
-              color="purple"
-            />
-            <Text className="font-medium text-lg">Early Reminder</Text>
-          </HStack>
-          <CustomMenu
-            value={earlyReminder}
-            menuItems={earlyReminderOptions}
-            onSelect={(key) => {
-              console.log(key);
-              setEarlyReminder(earlyReminderOptions[Number(key)]);
-            }}
-          />
-        </HStack>
-        {/* <Divider className="my-0.5" />
-        <HStack
-          style={{ justifyContent: "space-between" }}
-          className="mt-4 mb-2"
-        >
-          <HStack space="lg">
-            <Icon
-              as={RepeatIcon}
-              className="text-typography-500 mt-2"
-              size="xl"
-              color="gray"
-            />
-            <Text className="font-medium text-lg">Repeat</Text>
-          </HStack>
-          <CustomMenu
-            value={repeatReminder}
-            menuItems={repeatReminderOptions}
-            onSelect={(key) => {
-              console.log(key);
-              setRepeatReminder(repeatReminderOptions[Number(key)]);
-            }}
-          />
-        </HStack> */}
-      </VStack>
+      <>
+        {reminderDate && (
+          <VStack>
+            {/* Early Reminder */}
+            <HStack
+              style={{ justifyContent: "space-between" }}
+              className="mt-4 mb-2"
+            >
+              <HStack space="lg">
+                <Icon
+                  as={BellIcon}
+                  className="text-typography-500 mt-2"
+                  size="xl"
+                  color="purple"
+                />
+                <Text className="font-medium text-lg">Early Reminder</Text>
+              </HStack>
+              <CustomMenu
+                value={earlyReminder}
+                menuItems={earlyReminderOptions}
+                onSelect={(key) => {
+                  setEarlyReminder(earlyReminderOptions[Number(key)]);
+                }}
+              />
+            </HStack>
+            <Divider className="my-0.5" />
+
+            {/* Repeat */}
+            {/* <HStack
+              style={{ justifyContent: "space-between" }}
+              className="mt-4 mb-2"
+            >
+              <HStack space="lg">
+                <Icon
+                  as={RepeatIcon}
+                  className="text-typography-500 mt-2"
+                  size="xl"
+                  color="gray"
+                />
+                <Text className="font-medium text-lg">Repeat</Text>
+              </HStack>
+              <CustomMenu
+                value={repeatReminder}
+                menuItems={repeatReminderOptions}
+                onSelect={(key) => {
+                  console.log(key);
+                  setRepeatReminder(repeatReminderOptions[Number(key)]);
+                }}
+              />
+            </HStack> */}
+          </VStack>
+        )}
+      </>
       <DatePickerUtil
-        //value={reminderDate}
-        // value={
-        //   typeof reminderDate === "string"
-        //     ? new Date(reminderDate)
-        //     : reminderDate
-        // }
         value={reminderDate}
         //onChange={(newDate) => setReminderDate(newDate)}
-        onChange={(newDate) => setReminderDate(newDate)}
+        onChange={(newDate) => {
+          if (newDate) {
+            setReminderDate(newDate);
+            setIsReminderDateEnabled(true); // ✅ only enable switch if date is picked
+            setIsReminderTimeEnabled(true); // ✅ time is now required
+            setIsTimeOpen(true); // ✅ open time picker right after
+          }
+        }}
         open={isDateOpen}
         onOpenChange={setIsDateOpen}
         mode="date"
@@ -251,14 +259,11 @@ console.log(formatTime(reminderDate))
         theme="light"
       />
       <TimePickerUtil
-        //value={reminderTime}
         value={
           typeof reminderTime === "string"
             ? new Date(reminderTime)
             : reminderTime
         }
-        //value={safeParseDate(reminderTime)}
-        //onChange={setReminderTime}
         onChange={(newTime) => setReminderTime(newTime.toISOString())}
         open={isTimeOpen}
         onOpenChange={setIsTimeOpen}

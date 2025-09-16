@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 import { Box } from "@/components/ui/box";
 import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
@@ -9,16 +9,15 @@ import {
   Avatar,
   AvatarBadge,
   AvatarFallbackText,
-  AvatarImage,
 } from "@/components/ui/avatar";
 import { HStack } from "@/components/ui/hstack";
 import { useShoppingListContext } from "@/service/store";
 import CustomSelectItem from "@/components/CustomSelectItem";
 import AntDesignIcon from "@expo/vector-icons/AntDesign";
-import { router, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { userTransactions } from "@/db/Transactions";
-import { CloseIcon, Icon, RemoveIcon } from "@/components/ui/icon";
-import { removeGuestUser } from "@/service/stateActions";
+import { BellIcon, CloseIcon, Icon } from "@/components/ui/icon";
+import { removeGuestUser, setGuestUserHydrated } from "@/service/stateActions";
 import {
   Actionsheet,
   ActionsheetBackdrop,
@@ -26,6 +25,8 @@ import {
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
 } from "@/components/ui/actionsheet";
+import { Switch } from "@/components/ui/switch";
+import { useNotification } from "../../db/context/NotificationProvider";
 
 interface ConfirmActionSheetProps {
   isOpen: boolean;
@@ -38,54 +39,26 @@ interface ConfirmActionSheetProps {
 export default function Settings() {
   const { state, dispatch } = useShoppingListContext();
   const { guest } = state;
-  const isLoggedIn = guest && guest.id && !guest.countryName;
   const [confirmType, setConfirmType] = useState<"logout" | "delete" | null>(
     null
   );
   const { selectedCountry, currencyCode, currencySymbol } =
     useLocalSearchParams();
-  const { deleteGuestUser, updateGuestUserAndUpdateState } = userTransactions();
+  const { deleteGuestUser, updateGuestUserInDB } = userTransactions();
   const router = useRouter();
+  const {
+    notificationsEnabled,
+    setNotificationsEnabled,
+    reminders,
+    cancelReminder,
+    requestPermission,
+  } = useNotification();
 
   useEffect(() => {
-    if(!guest){
-      router.push("/(auth)")
+    if (!guest) {
+      router.push("/(auth)");
     }
   }, [state]);
-
-  const handleGuestUserUpdate = async () => {
-    if (!guest?.id) {
-      console.warn("Guest ID is not available yet.");
-      return; // or show a toast / error to user
-    }
-
-    try {
-      const guestUser = await updateGuestUserAndUpdateState({
-        id: guest.id,
-        countryName: selectedCountry.toString(),
-        currencyCode: currencyCode.toString(),
-        currencySymbol: currencySymbol.toString(),
-      });
-
-      if (guestUser) {
-        router.replace("/setting");
-      }
-    } catch (error) {
-      console.error("Guest login failed:", error);
-    }
-  };
-
-  // const handleGuestUserDelete = () => {
-  //   if (!guest?.id) {
-  //     console.warn("Guest ID is not available yet.");
-  //     return; // or show a toast / error to user
-  //   }
-  //   deleteGuestUser(guest.id)
-  // }
-
-  // const handleGuestUserLogout = () => {
-  //   dispatch(removeGuestUser());
-  // }
 
   const handleGuestUserDelete = () => {
     setConfirmType("delete");
@@ -98,6 +71,7 @@ export default function Settings() {
   const handleConfirm = async () => {
     if (confirmType === "logout") {
       dispatch(removeGuestUser());
+      dispatch(setGuestUserHydrated(false));
     } else if (confirmType === "delete" && guest?.id) {
       await deleteGuestUser(guest.id); // wrap in try/catch optionally
     }
@@ -107,37 +81,41 @@ export default function Settings() {
   return (
     <Box className="p-2">
       <VStack>
-        <Card size="md" variant="elevated" className="">
+        <Card size="md" variant="elevated" className="mb-3">
           <HStack space="md">
             <Avatar className="bg-indigo-600">
-              <AvatarFallbackText className="text-white">
+              <AvatarFallbackText className="text-white" size="xl">
                 {guest?.name}
               </AvatarFallbackText>
               <AvatarBadge />
             </Avatar>
-            <VStack>
-              <Heading size="lg">{guest?.name}</Heading>
-              <Text size="md">sessionId: {guest?.id}</Text>
+            <VStack space="md">
+              <Text
+                size="xl"
+                className="font-bold"
+                style={{ color: "#333333" }}
+              >
+                {guest?.name}
+              </Text>
+              <Text size="md" style={{ color: "#888888" }}>
+                sessionId: {guest?.id}
+              </Text>
             </VStack>
           </HStack>
         </Card>
-        <Card className="mt-2" style={{ backgroundColor: "#F1F1F1" }}>
-          <Heading>Location Details</Heading>
-          <Card className="mt-2">
-            <CustomSelectItem
-              name={(selectedCountry as string) ?? guest?.countryName ?? ""}
-              currencyCode={
-                (currencyCode as string) ?? guest?.currencyCode ?? ""
-              }
-              symbol={(currencySymbol as string) ?? guest?.currencySymbol ?? ""}
-              handleGuestUserUpdate={handleGuestUserUpdate}
-              page={"/setting"}
-            />
-          </Card>
+        <Card className="mb-3">
+          <VStack space="lg">
+            <Text size="xl" className="font-bold" style={{ color: "#333333" }}>
+              Update Location Details
+            </Text>
+            {guest && <CustomSelectItem guestUser={guest} />}
+          </VStack>
         </Card>
-        <Card className="mt-2" style={{ backgroundColor: "#F1F1F1" }}>
-          <Heading>Settings & Tools</Heading>
-          <Card className="mt-2">
+        <Card className="mb-3">
+          <VStack space="lg">
+            <Text size="xl" className="font-bold" style={{ color: "#333333" }}>
+              Settings & Tools
+            </Text>
             <VStack space="lg">
               <Pressable onPress={handleGuestUserDelete}>
                 <HStack space="lg">
@@ -168,30 +146,90 @@ export default function Settings() {
                   </Text>
                 </HStack>
               </Pressable>
+              <HStack className="justify-between">
+                <HStack space="md">
+                  <Icon as={BellIcon} className="text-typography-500 mt-1" />
+                  <Text
+                    className="font-bold text-lg"
+                    style={{ color: "#888888" }}
+                  >
+                    Push notifications
+                  </Text>
+                </HStack>
+                <Box>
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={async (value) => {
+                      if (value) {
+                        const ok = await requestPermission();
+                        if (!ok) {
+                          // snap back if denied
+                          setNotificationsEnabled(false);
+                        }
+                      } else {
+                        // Turn OFF: cancel scheduled reminders and stop new ones
+                        setNotificationsEnabled(false);
+                        for (const reminder of reminders) {
+                          if (reminder?.id) {
+                            await cancelReminder(reminder.id);
+                          }
+                        }
+                      }
+                    }}
+                    size="md"
+                    trackColor={{ false: "#D1D5DB", true: "#FF6347" }}
+                    thumbColor="#F1F1F1"
+                    ios_backgroundColor="#D1D5DB"
+                  />
+                </Box>
+              </HStack>
             </VStack>
-          </Card>
+          </VStack>
         </Card>
-
-        <Card className="mt-2" style={{backgroundColor:"#F1F1F1"}}>
-        <Heading >App Information</Heading>
-          <Card className="mt-2">
-          <VStack space="xl">
+        <Card>
+          <VStack space="lg">
+            <Text size="xl" className="font-bold" style={{ color: "#333333" }}>
+              App Information
+            </Text>
+            <VStack space="xl">
               <Pressable>
                 <HStack className="justify-between">
-                  <Text className="text-lg text-gray-900 font-bold">App Version</Text>
-                  <Text className="text-lg text-gray-900 font-normal">1.0.0</Text>
+                  <Text
+                    className="font-bold text-lg"
+                    style={{ color: "#888888" }}
+                  >
+                    App Version
+                  </Text>
+                  <Text
+                    size="md"
+                    className="font-normal "
+                    style={{ color: "#888888" }}
+                  >
+                    1.0.0
+                  </Text>
                 </HStack>
               </Pressable>
 
               <Pressable>
-                <HStack  className="justify-between">
-                  <Text  className="text-lg text-gray-900 font-bold">Build</Text>
-                  <Text className="text-lg text-gray-900 font-normal">exposdk:53.0.0</Text>
+                <HStack className="justify-between">
+                  <Text
+                    className="font-bold text-lg"
+                    style={{ color: "#888888" }}
+                  >
+                    Build
+                  </Text>
+                  <Text
+                    size="md"
+                    className="font-normal "
+                    style={{ color: "#888888" }}
+                  >
+                    exposdk:53.0.0
+                  </Text>
                 </HStack>
               </Pressable>
             </VStack>
-          </Card>
-        </Card> 
+          </VStack>
+        </Card>
       </VStack>
       <ConfirmActionSheet
         isOpen={confirmType !== null}

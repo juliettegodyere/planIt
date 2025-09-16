@@ -178,7 +178,7 @@ This command starts the Metro bundler (your local development server) specifical
 
 TODOs
 1. Complete the guest login
-2. Implement the offline mode
+2. Implement the offline mode ✅
 3. On the right of the item in history, show how many times the item has been purchades
 3. Make the history details editable
 4. Make it possible for users to add notes on the history details page

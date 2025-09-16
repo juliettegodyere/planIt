@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, useState } from "react";
 import { HStack } from "./ui/hstack";
 import {
   Checkbox,
@@ -7,116 +7,86 @@ import {
   CheckboxLabel,
 } from "./ui/checkbox";
 import { CheckIcon } from "./ui/icon";
-import AntDesignIcon from "@expo/vector-icons/AntDesign";
-import { CategoryItemResponseType, ShoppingItemTypes } from "@/service/types";
-import { Card } from "./ui/card";
-import { Text } from "./ui/text";
-import { formatReminderDateTime, isReminderDue } from "@/Util/HelperFunction";
+import { CategoryItemResponseType } from "@/service/types";
 import CustomInfoDialog from "./CustomInfoDialog";
+import { ShoppingListStateTypes } from "@/service/state";
+import { handleDeleteItem } from "@/Util/HelperFunction";
+import { useShoppingListContext } from "@/service/store";
+import { useShoppingActions } from "@/db/Transactions";
+
 
 interface ShoppingListCheckboxRowProps {
   shoppingList: CategoryItemResponseType;
-  isChecked: (value: string) => boolean;
-  handleCheckboxChange: (item: CategoryItemResponseType) => void;
-  selectedItem?: ShoppingItemTypes;
-  onShowInfo?: () => void;
-  sheetRef?: React.RefObject<any>; // add this
+  shoppingItem: ShoppingListStateTypes;
+  isChecked: (value: string, id:string) => boolean;
+  shoppingItemLists: ShoppingListStateTypes[],
+  dispatch: Dispatch<any>,
+  deleteShoppingItemAndReturn: (id: string) => Promise<ShoppingListStateTypes | undefined>
+  // handleCheckboxChange: (item: CategoryItemResponseType) => void;
+  sheetRef?: React.RefObject<any>;
 }
 
 const ShoppingListCheckboxRow: React.FC<ShoppingListCheckboxRowProps> = ({
   shoppingList,
+  shoppingItem,
   isChecked,
-  handleCheckboxChange,
-  selectedItem,
-  onShowInfo,
-  sheetRef
+  shoppingItemLists,
+  dispatch,
+  deleteShoppingItemAndReturn
 }) => {
   const [showUncheckDialog, setShowUncheckDialog] = useState(false);
-  const [pendingItem, setPendingItem] =
-    useState<CategoryItemResponseType | null>(null);
+  const [pendingItem, setPendingItem] = useState<CategoryItemResponseType | null>(null);
+    // const { state, dispatch } = useShoppingListContext();
+    //const { deleteShoppingItemAndReturn} = useShoppingActions();
+
 
   const onCheckboxPress = (item: CategoryItemResponseType) => {
-    if (isChecked(item.value)) {
-      setPendingItem(item);
+    if (isChecked(item.value, shoppingItem.id)) {
+      //setPendingItem(item);
+     
       setShowUncheckDialog(true);
     } else {
-      handleCheckboxChange(item);
+      console.log("It on checked")
+      //handleCheckboxChange(item);
     }
   };
 
   return (
     <>
-      <Card size="md" variant="elevated" className="m-1">
-        <HStack
-          space="4xl"
+      <Checkbox
+        value={shoppingList.value}
+        size="lg"
+        isChecked={isChecked(shoppingList.value, shoppingItem.id)}
+        onChange={() => onCheckboxPress(shoppingList)}
+        className="max-w-[70%]"
+      >
+        <CheckboxIndicator
           style={{
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
+            backgroundColor: isChecked(shoppingList.value, shoppingItem.id)
+              ? "#FF6347"
+              : "#FFFFFF",
+            borderColor: "#FF6347",
+            borderWidth: 1,
+            // borderRadius: 9999,
+            // width: 15,
+            // height: 15,
+
+            // justifyContent: "center",
+            // alignItems: "center",
+            padding: 10,
           }}
         >
-          <Checkbox
-            value={shoppingList.value}
+          <CheckboxIcon
+            color="#fff"
+            as={CheckIcon}
             size="lg"
-            isChecked={isChecked(shoppingList.value)}
-            //onChange={() => handleCheckboxChange(shoppingList)}
-            onChange={() => onCheckboxPress(shoppingList)}
-            className="max-w-[70%]"
-          >
-            <CheckboxIndicator
-              style={{
-                backgroundColor: isChecked(shoppingList.value)
-                  ? "#1c1616"
-                  : "transparent",
-                borderColor: "#000",
-                borderWidth: 1,
-                borderRadius: 9999,
-                width: 15,
-                height: 15,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <CheckboxIcon
-                color="#fff"
-                as={CheckIcon}
-                size="sm"
-                style={{ borderWidth: 2 }}
-              />
-            </CheckboxIndicator>
-            <CheckboxLabel className="text-xl ml-1 text-gray-900">
-              {shoppingList.label}
-            </CheckboxLabel>
-          </Checkbox>
-
-          {selectedItem && onShowInfo && (
-            <AntDesignIcon
-              size={16}
-              name="arrowsalt"
-              color="#888"
-              onPress={onShowInfo}
-              className="max-w-[20%]"
-            />
-          )}
-        </HStack>
-        {/**This card is used for reminders and the implementation is relatively complete. It is 
-                 * disabled and will be used in V2 */}
-        {/* {selectedItem &&
-          isReminderDue(
-            selectedItem.reminderDate,
-            selectedItem.reminderTime,
-            selectedItem.earlyReminder,
-            selectedItem.repeatReminder
-          ) && (
-            <Text className="text-red-600 font-semibold">
-              Reminders{" "}
-              {formatReminderDateTime(
-                selectedItem.reminderDate,
-                selectedItem.reminderTime
-              )}
-            </Text>
-          )} */}
-      </Card>
+            //style={{ borderWidth: 2 }}
+          />
+        </CheckboxIndicator>
+        <CheckboxLabel className="text-xl ml-1 font-bold" style={{color: "#333333"}}>
+          {shoppingList.label}
+        </CheckboxLabel>
+      </Checkbox>
       {/* Confirmation Dialog */}
       <CustomInfoDialog
         isOpen={showUncheckDialog}
@@ -125,14 +95,16 @@ const ShoppingListCheckboxRow: React.FC<ShoppingListCheckboxRowProps> = ({
           setPendingItem(null);
         }}
         onConfirm={() => {
-          if (pendingItem) handleCheckboxChange(pendingItem);
+          //if (pendingItem) handleCheckboxChange(pendingItem);
+          handleDeleteItem(shoppingItem.id, shoppingList, shoppingItemLists, dispatch, deleteShoppingItemAndReturn)
+
           setShowUncheckDialog(false);
           setPendingItem(null);
-          sheetRef?.current?.close();
+          //sheetRef?.current?.close();
         }}
-        title="Move from Cart?"
-        message="Are you sure you want to delete this item? Unchecking the item will remove all details as well."
-        confirmText="Remove"
+        title="Remove from Cart?"
+        message="Unchecking will remove this item from the list and cart. Do you want to continue?"
+        confirmText="Continue"
         cancelText="Cancel"
         confirmVariant="outline"
       />

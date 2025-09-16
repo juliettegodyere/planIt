@@ -1,16 +1,17 @@
-import * as SQLite from 'expo-sqlite';
-import {categoryOptions} from '../data/dataStore'
-import {generateSimpleUUID} from '../Util/HelperFunction'
+import * as SQLite from "expo-sqlite";
+import { categoryOptions } from "../data/dataStore";
+import { generateSimpleUUID } from "../Util/HelperFunction";
 
 export const createTables = async (db: SQLite.SQLiteDatabase) => {
   try {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
 
-      -- DROP TABLE IF EXISTS shopping_items; --
-       -- DROP TABLE IF EXISTS catalog_items; --
-       -- DROP TABLE IF EXISTS categories; --
-      -- DROP TABLE IF EXISTS guests;  --
+       -- DROP TABLE IF EXISTS shopping_items; --
+      -- DROP TABLE IF EXISTS catalog_items; -- 
+      -- DROP TABLE IF EXISTS categories; -- 
+       -- DROP TABLE IF EXISTS guests; -- 
+    -- DROP TABLE IF EXISTS reminders;  --
 
       CREATE TABLE IF NOT EXISTS guests (
         id TEXT PRIMARY KEY NOT NULL,
@@ -60,15 +61,26 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
         modifiedDate TEXT,
         priority TEXT,
         note TEXT,
-        reminderDate TEXT,
-        reminderTime TEXT,
-        isReminderTimeEnabled INTEGER DEFAULT 0,
-        isReminderDateEnabled INTEGER DEFAULT 0,
-        earlyReminder TEXT,
-        repeatReminder TEXT,
         attachments TEXT, -- JSON stringified array of AttachmentParam
         FOREIGN KEY (category_item_id) REFERENCES category_items(id)
-      );      
+      );  
+      
+      CREATE TABLE IF NOT EXISTS reminders (
+      id TEXT PRIMARY KEY NOT NULL,
+      item_id TEXT NOT NULL UNIQUE, -- ensures one reminder per item
+      title TEXT,
+      body TEXT,
+      date TEXT, -- ISO format recommended
+      time TEXT, -- 24-hour format or combined as datetime
+      repeat TEXT, -- e.g., 'none', 'daily', 'weekly'
+      earlyReminder TEXT,
+      notificationId TEXT,
+      isReminderTimeEnabled INTEGER DEFAULT 0,
+      isReminderDateEnabled INTEGER DEFAULT 0,
+      fired INTEGER DEFAULT 0,
+      notified INTEGER DEFAULT 0,
+      FOREIGN KEY (item_id) REFERENCES shopping_items(id)
+    );
     `);
 
     // Seed categories
@@ -90,11 +102,10 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       }
     }
 
-    console.log('Tables initialized successfully');
+    console.log("Tables initialized successfully");
   } catch (error) {
-    console.error('Failed to initialize tables:', error);
+    console.error("Failed to initialize tables:", error);
   }
 };
-
 
 // Next is to handle update

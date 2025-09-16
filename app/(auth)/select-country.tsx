@@ -1,47 +1,44 @@
-import { FlatList, Pressable, TouchableOpacity } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { FlatList, TouchableOpacity } from "react-native";
+import { Href, useLocalSearchParams, useRouter } from "expo-router";
+import { useShoppingListContext } from "@/service/store";
 import { VStack } from "@/components/ui/vstack";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import { countries } from "@/data/dataStore";
 import { Heading } from "@/components/ui/heading";
-import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { userTransactions } from "@/db/Transactions";
 import { createUserType } from "@/service/types";
-
-type CountryItem = {
-  name: string;
-  currencyCode: string;
-  symbol: string;
-};
-type KnownRoutes = "/(auth)" | "/setting";
+import { updateGuestUser, setGuestUserHydrated, addItem, addGuestUser } from "@/service/stateActions";
 
 export default function SelectCountryScreen() {
   const router = useRouter();
-  const rawPage = useLocalSearchParams().page;
-  const page = Array.isArray(rawPage) ? rawPage[0] : rawPage;
-  const { addNewGuestUserAndUpdateState, updateGuestUserAndUpdateState } =
-  userTransactions();
+  const { dispatch } = useShoppingListContext();
+  const { addNewGuestUserToDB, updateGuestUserInDB} = userTransactions();
+  const { page, mode, id } = useLocalSearchParams<{ page?: string; mode?: "create" | "update", id?:string }>();
 
   const handleSelect = async (country: createUserType) => {
-    // if (!page || !["/(auth)", "/setting"].includes(page)) return;
-
-    // router.push({
-    //   pathname: page as KnownRoutes,
-    //   params: {
-    //     selectedCountry: country.name,
-    //     currencyCode: country.currencyCode,
-    //     currencySymbol: country.symbol,
-    //   },
-    // });
-    // console.log("The country");
-    // console.log(country);
-    const updatedItem = await addNewGuestUserAndUpdateState(country);
-    // console.log(updatedItem);
-    if(updatedItem){
-      router.push("/(tabs)")
+    if (mode === "create") {
+      const newUser = await addNewGuestUserToDB(country);
+      if(newUser){
+        dispatch(addGuestUser(newUser));
+      }
+     
+    } else if (mode === "update") {
+      if (!id) {
+        throw new Error("Guest user id is required for update");
+      }
+      
+      const updatedUser = await updateGuestUserInDB({
+        id: id,        
+        ...country     
+      });
+     if(updatedUser){
+      dispatch(updateGuestUser(updatedUser));
+     }
     }
+    dispatch(setGuestUserHydrated(true))
+    if (page) router.push(page as Href);
   };
 
   return (

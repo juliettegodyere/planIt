@@ -10,24 +10,23 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   Icon,
-  MenuIcon,
   ThreeDotsIcon,
 } from "@/components/ui/icon";
 import {Text} from "@/components/ui/text";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Key } from "@react-types/shared";
 import { categoryOptions } from "@/data/dataStore";
 import React from "react";
-import { Heading } from "@/components/ui/heading";
 import { VStack } from "./ui/vstack";
+import { Box } from "./ui/box";
 
 type CustomMenuProps = {
     onFilterBySelect: (key: string) => void;
-    onSortBySelect: (key: string) => void;
+    // onSortBySelect: (key: string) => void;
     onGroupBySelect: (key: boolean) => void;
   };
 
-export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGroupBySelect}: CustomMenuProps) {
+export default function ThreeDotIconMenu({onFilterBySelect, onGroupBySelect}: CustomMenuProps) {
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [selected, setSelected] = useState<Set<Key>>(new Set([""]));
@@ -38,7 +37,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
 
   return (
     <Menu
-      offset={5}
+      offset={0}
       selectionMode="single"
       selectedKeys={selected}
       onSelectionChange={(keys) => {
@@ -47,13 +46,14 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
         setSelectedValue(selectedValue)
       }}
       trigger={({ ...triggerProps }) => (
-        <Button {...triggerProps}  className="bg-transparent">
-          <ButtonIcon
+        <Box className="rounded-full" style={{borderColor:"#888888", borderWidth:1, padding:3}}>
+          <Icon
+          {...triggerProps} 
             as={ThreeDotsIcon}
-            size="xl"
             style={{ color: "#FF6347" }}
+            className="text-typography-950 m-2 w-6 h-6"
           />
-        </Button>
+        </Box>
       )}
     >
       {/* Group By */}
@@ -72,7 +72,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
       <MenuSeparator />
 
       {/* Sort By */}
-      <MenuItem
+      {/* <MenuItem
         key="Sort By"
         textValue="Sort By"
         className="p-2 justify-between"
@@ -92,7 +92,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
           as={showSortOptions ? ChevronUpIcon : ChevronDownIcon}
           className="text-typography-500 m-2 w-5 h-5"
         />
-      </MenuItem>
+      </MenuItem> */}
 
       {showSortOptions && (
         <>
@@ -103,7 +103,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
                 className="pl-5"
                 onPress={() => {
                 setSortValue(val);
-                onSortBySelect(val)
+                // onSortBySelect(val)
                 }}
             >
                 {sortValue === val && <Icon as={CheckIcon} size="xl" className="font-medium"/>}
@@ -123,7 +123,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGr
         closeOnSelect={false}
         onPress={() => {
           setShowFilterOptions((prev) => !prev);
-          setShowSortOptions(showSortOptions && false);
+         // setShowSortOptions(showSortOptions && false);
         }}
       >
         <MenuItemLabel size="md">

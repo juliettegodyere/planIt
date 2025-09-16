@@ -6,5 +6,7 @@ export const DEFAULTS = {
     IS_REMINDER_ENABLED: false,
     IS_SELECTED: false,
     IS_PURCHASED: false,
-    REPEAT_NEVER: "Never"
+    REPEAT_NEVER: "Never",
+    QTY_UNIT: "Bag (s)",
+    PRIORITY: "Low"
   };

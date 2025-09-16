@@ -1,3 +1,4 @@
+import { ShoppingListStateTypes } from "@/service/state";
 import { CategoryItemResponseType, ShoppingItemTypes, guestUserType } from "@/service/types";
 
 //export type ActionType = 'none' | 'camera' | 'scan' | 'library';
@@ -20,8 +21,8 @@ export interface ItemInformationSheetProps {
     onClose: () => void;
     onDone: () => void;
     shoppingList: CategoryItemResponseType;
-    selectedItem: ShoppingItemTypes | null;
-    isChecked: (value: string) => boolean;
+    selectedItem: ShoppingListStateTypes;
+    isChecked: (value: string, id:string) => boolean;
     handleCheckboxChange: (item: CategoryItemResponseType) => void;
     itemPurchase: boolean;
     handleMarkItemAsPurchased: () => void;
@@ -61,7 +62,7 @@ export interface ItemInformationSheetProps {
     setIsReminderDateEnabled: (flag: boolean) => void
     earlyReminder: string;
     setEarlyReminder: (val: string) => void;
-    repeatReminder: string;
+   // repeatReminder: string;
     setRepeatReminder: (val: string) => void;
     guest:guestUserType | null
   }

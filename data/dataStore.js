@@ -32,10 +32,10 @@ import { MaterialCommunityIcons, FontAwesome5, Ionicons, Entypo } from '@expo/ve
     { label: "Everyday Essentials", value: "essentials" },
   ];
 
-  export const qtyOptions = ["None","Bag", "Packet", "Satchet", "Carton", "Box", "Bottle"]
-  export const priorityOption = ["None", "Low", "Medium", "High"]
-  export const earlyReminderOptions = ["None", "5 minutes before", "I5 minutes before", "30 minutes before", "I hour before", "I day before", "2 days before", "1 week before", "2 weeks before", "I month before","6 months before", "Custom"]
-  export const repeatReminderOptions = ["Never","Daily", "Weekdays", "Weekends", "Weekly", "Fortnightly", "Monthly", "Every 3 Months", "Every 6 Months", "Yearly", "Custom"]
+  export const qtyOptions = ["Bag (s)", "Packet (s)", "Satchet (s)", "Carton (s)", "Box (s)", "Bottle (s)"]
+  export const priorityOption = ["Low", "Medium", "High"]
+  export const earlyReminderOptions = ["None", "5 minutes before", "I5 minutes before", "30 minutes before", "I hour before", "I day before", "2 days before", "1 week before", "2 weeks before", "I month before","6 months before"]
+  export const repeatReminderOptions = ["Never", "Minutely",  "hourly","Daily", "Weekly","Monthly"]
 
   export const imageAttachmentOptions = [
     { label: "Take Photo", icon: CameraIcon},

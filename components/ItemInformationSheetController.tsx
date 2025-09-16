@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import ItemInformationSheet from "./ItemInformationSheet";
-import { CategoryItemResponseType, ShoppingItemTypes } from "@/service/types";
+import { CategoryItemResponseType, ReminderItemType, ShoppingItemTypes } from "@/service/types";
 import { checkboxControlActions } from "@/hooks/checkboxControlActions";
 import { useSQLiteContext } from "expo-sqlite";
 import { useShoppingActions } from "@/db/Transactions";
@@ -17,28 +17,32 @@ import { ActionType, AttachmentParam } from "./type";
 import { priorityOption, qtyOptions } from "@/data/dataStore";
 import { useToast } from "./ui/toast";
 import { showToast } from "@/Util/toastUtils";
-import { generateSimpleUUID } from "@/Util/HelperFunction";
+import { extractReminderFromItem, generateSimpleUUID } from "@/Util/HelperFunction";
 import { DEFAULTS } from "@/Util/constants/defaults";
+import { ShoppingListStateTypes } from "@/service/state";
+import { saveReminder } from "@/db/EntityManager";
+import { updateItem } from "@/service/stateActions";
 
 export type ItemInformationSheetHandle = {
   close: () => void;
   open: (
-    item: ShoppingItemTypes,
-    catalogItem: CategoryItemResponseType
+    item: ShoppingListStateTypes,
+    catalogItem: CategoryItemResponseType,
   ) => void;
 };
 
+type ReminderItemCreateType = Omit<ReminderItemType, 'id'>;
+
 const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
   (_, ref) => {
-    const now = new Date();
     const [isOpen, setIsOpen] = useState(false);
     const [shoppingList, setShoppingList] =
       useState<CategoryItemResponseType | null>(null);
     const [priceInput, setPriceInput] = useState(DEFAULTS.PRICE);
     const [itemPurchase, setItemPurchase] = useState(DEFAULTS.IS_PURCHASED);
     const [qtyVal, SetQtyVal] = useState(DEFAULTS.QUANTITY);
-    const [qtyUnit, SetQtyUnit] = useState(DEFAULTS.NONE);
-    const [priorityVal, setPriorityVal] = useState(DEFAULTS.NONE);
+    const [qtyUnit, SetQtyUnit] = useState(DEFAULTS.QTY_UNIT);
+    const [priorityVal, setPriorityVal] = useState(DEFAULTS.PRIORITY);
     const [note, setNote] = useState(DEFAULTS.EMPTY);
     const [reminderDate, setReminderDate] = useState(DEFAULTS.EMPTY);
     const [reminderTime, setReminderTime] = useState(DEFAULTS.EMPTY);
@@ -52,27 +56,25 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
     const [actionType, setActionType] = useState<ActionType | null>("none");
     const [showActionsheet, setShowActionsheet] = useState(false);
     const toast = useToast();
-    const [showDiscardConfirmation, setShowDiscardConfirmation] =
-      useState(false);
-    const [selectedItem, setSelectedItem] = useState<ShoppingItemTypes | null>(
-      null
-    );
+    const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<ShoppingListStateTypes>();
+    const [selectedItemReminder, setSelectedItemReminder] = useState<ReminderItemType>();
 
     const db = useSQLiteContext();
     const {
-      addNewItemToShoppingItemsAndUpdateState,
-      updateShoppingItemAndUpdateState,
-      deleteShoppingItemAndUpdateState,
+      addNewItemToShoppingItems,
+      deleteShoppingItemAndReturn,
+      updateShoppingItemAndReturn
     } = useShoppingActions();
     const { state, dispatch } = useShoppingListContext();
     const { isChecked, handleCheckboxChange } = checkboxControlActions(
       db,
       state,
       dispatch,
-      addNewItemToShoppingItemsAndUpdateState,
-      updateShoppingItemAndUpdateState,
-      deleteShoppingItemAndUpdateState
+      addNewItemToShoppingItems,
+      deleteShoppingItemAndReturn
     );
+    
 
     useImperativeHandle(ref, () => ({
       open: (item, catalogItem) => {
@@ -97,7 +99,7 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
           isReminderTimeEnabled,
           isReminderDateEnabled,
           earlyReminder,
-          repeatReminder,
+          //repeatReminder,
         };
 
         setIsOpen(true);
@@ -118,7 +120,7 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
       isReminderTimeEnabled,
       isReminderDateEnabled,
       earlyReminder,
-      repeatReminder,
+      //repeatReminder,
     });
 
     useEffect(() => {
@@ -142,7 +144,7 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
           isReminderTimeEnabled,
           isReminderDateEnabled,
           earlyReminder,
-          repeatReminder,
+          //repeatReminder,
         };
       }
     }, [isOpen]);
@@ -155,12 +157,14 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
       );
       if (updatedItem) {
         setSelectedItem(updatedItem);
+        setSelectedItemReminder(extractReminderFromItem(selectedItem))
       }
     }, [state.shoppingItemLists, selectedItem]);
 
-    const applySelectedItemValues = (item: ShoppingItemTypes) => {
-      const {price,purchased,quantity,qtyUnit,priority,note,reminderDate,reminderTime,isReminderTimeEnabled,isReminderDateEnabled,earlyReminder,repeatReminder,attachments
-      } = item;
+
+    const applySelectedItemValues = (item: ShoppingListStateTypes) => {
+      const {price,purchased,quantity,qtyUnit,priority,note, attachments, date,time,isReminderTimeEnabled,isReminderDateEnabled,earlyReminder} = item;
+
       setPriceInput(price);
       setItemPurchase(purchased); 
       SetQtyVal(quantity);
@@ -168,24 +172,25 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
       setPriorityVal(priority);
       setNote(note || DEFAULTS.EMPTY);
       setAttachments(attachments ? JSON.parse(item.attachments) : []);
-      setReminderTime(reminderTime || DEFAULTS.EMPTY);
-      setReminderDate(reminderDate || DEFAULTS.EMPTY);
-      setIsReminderTimeEnabled(isReminderTimeEnabled);
-      setIsReminderDateEnabled(isReminderDateEnabled);
-      setEarlyReminder(earlyReminder);
-      setRepeatReminder(repeatReminder);
+      setReminderTime(time || DEFAULTS.EMPTY);
+      setReminderDate(date || DEFAULTS.EMPTY);
+      //setRepeatReminder(repeat || DEFAULTS.REPEAT_NEVER);
+      setIsReminderTimeEnabled(isReminderTimeEnabled || DEFAULTS.IS_REMINDER_ENABLED);
+      setIsReminderDateEnabled(isReminderDateEnabled || DEFAULTS.IS_REMINDER_ENABLED);
+      setEarlyReminder(earlyReminder || DEFAULTS.NONE);
     };    
 
     const handleMarkItemAsPurchased = () => {
       if (selectedItem?.selected) {
         setItemPurchase((prev) => !prev);
-      } else {
-        showToast(toast, {
-          title: "Selection Required",
-          description: "Please select the item before marking it as purchased.",
-          action: "error",
-        });
-      }
+      } 
+      // else {
+      //   showToast(toast, {
+      //     title: "Selection Required",
+      //     description: "Please select the item before marking it as purchased.",
+      //     action: "error",
+      //   });
+      // }
     };
 
     const handlePriceInputFocus = () => {
@@ -214,7 +219,6 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
     };
 
     const handleSelect = (key: string) => {
-      console.log("key = " + key);
       if (key === "0") setActionType("camera");
       // else if (key === "1") setActionType("scan");
       else if (key === "1") setActionType("library");
@@ -245,10 +249,8 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
         console.error("Cannot update item: ID is missing");
         return;
       }
-
       const item_update: ShoppingItemTypes = {
         ...selectedItem,
-        // selected: itemPurchase ? !selectedItem.selected : selectedItem.selected,
         selected: itemPurchase ? false : selectedItem.selected,
         purchased: itemPurchase,
         modifiedDate: now,
@@ -263,44 +265,65 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
           attachments:
           attachments.length > 0
             ? JSON.stringify(attachments)
-            : selectedItem.attachments,
-        reminderDate: isReminderDateEnabled ? reminderDate : DEFAULTS.EMPTY,
-        reminderTime: isReminderTimeEnabled ? reminderTime: DEFAULTS.EMPTY,
-        isReminderDateEnabled:isReminderDateEnabled,
-        isReminderTimeEnabled:isReminderTimeEnabled,
-        earlyReminder:earlyReminder
-        //repeatReminder: repeatReminder,
+            : selectedItem.attachments
       };
 
-      await updateShoppingItemAndUpdateState(item_update);
-      const updated = state.shoppingItemLists.find(
-        (i) => i.id === selectedItem.id
-      );
-      if (updated) {
-        setSelectedItem(updated);
+      const reminder_update: ReminderItemCreateType | ReminderItemType = {
+        ...selectedItemReminder,
+        id: selectedItem.reminder_id,
+        item_id: selectedItemReminder?.item_id ?? selectedItem.id,
+        date: reminderDate ?? selectedItemReminder?.date ?? null,
+        time: reminderTime ?? selectedItemReminder?.time ?? null,
+        isReminderDateEnabled: itemPurchase 
+        ? false 
+        : (isReminderDateEnabled ?? selectedItemReminder?.isReminderDateEnabled ?? false),
+        isReminderTimeEnabled: itemPurchase 
+        ? false 
+        : (isReminderTimeEnabled ?? selectedItemReminder?.isReminderTimeEnabled ?? false),
+        title: "Shopping list reminder",
+        body: "Remind me to buy " + selectedItem.name,
+        earlyReminder: earlyReminder ?? selectedItemReminder?.earlyReminder ?? null,
+        //repeat: repeatReminder ?? selectedItemReminder?.repeat ?? null,
+        fired: itemPurchase ? false : (selectedItemReminder?.fired ?? false),
+notified: itemPurchase ? false : (selectedItemReminder?.notified ?? false),
+      };      
+
+      const updatedItem_ = await updateShoppingItemAndReturn(item_update);
+      const updatedReminder_ = await saveReminder(db, reminder_update)
+
+      const itemToDispatch: ShoppingListStateTypes = {
+        ...updatedItem_,
+        reminder_id: updatedReminder_.id,  
+        ...updatedReminder_,
+        id: updatedItem_.id                
+      };
+
+      if (updatedItem_) {
+        setSelectedItem(itemToDispatch);
+        dispatch(updateItem(selectedItem.id, itemToDispatch));
       }
+
+      
 
       setIsOpen(false);
       if (itemPurchase) {
         setPriceInput(DEFAULTS.PRICE);
         setItemPurchase(false);
         SetQtyVal(DEFAULTS.QUANTITY);
-        SetQtyUnit(DEFAULTS.NONE);
-        setPriorityVal(DEFAULTS.NONE);
+        SetQtyUnit(DEFAULTS.QTY_UNIT);
+        setPriorityVal(DEFAULTS.PRIORITY);
         setNote(DEFAULTS.EMPTY);
         setReminderDate(DEFAULTS.EMPTY);
         setReminderTime(DEFAULTS.EMPTY);
         setIsReminderTimeEnabled(DEFAULTS.IS_REMINDER_ENABLED);
         setIsReminderDateEnabled(DEFAULTS.IS_REMINDER_ENABLED);
         setEarlyReminder(DEFAULTS.NONE);
-        setRepeatReminder(DEFAULTS.REPEAT_NEVER);
+       // setRepeatReminder(DEFAULTS.REPEAT_NEVER);
         setAttachments([]);
       }
     };
 
     const hasChanges = () => {
-      console.log("initialValuesRef.current");
-      console.log(initialValuesRef.current);
       const initial = initialValuesRef.current;
       return (
         priceInput !== initial.priceInput ||
@@ -314,15 +337,12 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
         isReminderTimeEnabled !== initial.isReminderTimeEnabled ||
         isReminderDateEnabled !== initial.isReminderDateEnabled ||
         earlyReminder !== initial.earlyReminder ||
-        repeatReminder !== initial.repeatReminder ||
+        //repeatReminder !== initial.repeatReminder ||
         JSON.stringify(attachments) !== JSON.stringify(initial.attachments)
       );
     };
 
     const handleItemInformationActionsheetClose = () => {
-      console.log(
-        "handleItemInformationActionsheetClose - closing the actionsheet"
-      );
       if (hasChanges()) {
         setShowDiscardConfirmation(true);
       } else {
@@ -330,12 +350,9 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
       }
     };
 
-    // ✅ Now it's safe to return null conditionally
     if (!shoppingList) return null;
-    console.log("ItemInformationSheetController - reminderDate");
-    console.log(reminderDate);
-    console.log(reminderTime);
-    //console.log(formatTime(reminderDate))
+    if (!selectedItem) return null;
+    
     return (
       <ItemInformationSheet
         isOpen={isOpen}
@@ -384,7 +401,7 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
         setIsReminderDateEnabled={setIsReminderDateEnabled}
         earlyReminder={earlyReminder}
         setEarlyReminder={setEarlyReminder}
-        repeatReminder={repeatReminder}
+       // repeatReminder={repeatReminder}
         setRepeatReminder={setRepeatReminder}
         guest={state.guest}
       />

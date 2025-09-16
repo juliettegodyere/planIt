@@ -4,7 +4,6 @@ import {
   AccordionHeader,
   AccordionTrigger,
   AccordionTitleText,
-  AccordionContentText,
   AccordionIcon,
   AccordionContent,
 } from "@/components/ui/accordion";
@@ -26,10 +25,8 @@ import {
   format,
 } from "date-fns";
 import { Pressable } from "react-native";
-import ImageDisplayComponent from "./ImageDisplayComponent";
 import { AttachmentParam } from "./type";
 import { useState } from "react";
-import { useShoppingActions } from "@/db/Transactions";
 import { useImageViewer } from "@/hooks/useImageViewer";
 import { Image } from "@/components/ui/image";
 import AddImageActionSheet from "./AddImageActionSheet";
@@ -43,7 +40,7 @@ type Props = {
   setSelectedItem: React.Dispatch<
     React.SetStateAction<ShoppingItemTypes | null>
   >;
-  updateShoppingItemAndUpdateState: (entry: ShoppingItemTypes) => void;
+  updateShoppingItemAndUpdateState: (entry: ShoppingItemTypes) => ShoppingItemTypes;
   imageAttachments: AttachmentParam[];
   setAttachments: React.Dispatch<React.SetStateAction<AttachmentParam[]>>;
 };
@@ -51,7 +48,6 @@ type Props = {
 const ItemHistoryComponent = ({
   state,
   selectedItem,
-  handleAttachment,
   setSelectedItem,
   updateShoppingItemAndUpdateState,
   imageAttachments,
@@ -65,7 +61,6 @@ const ItemHistoryComponent = ({
     showDeleteWarning,
     setShowDeleteWarning,
     setZoomedImageIndex,
-    imageUrls,
     openModalAtIndex,
     handleDelete,
   } = useImageViewer(imageAttachments, setAttachments);
@@ -78,39 +73,6 @@ const ItemHistoryComponent = ({
   const openSheet = () => {
     setShowActionsheet(true);
   };
-
-  // const {
-  //   updateShoppingItemAndUpdateState,
-  // } = useShoppingActions();
-
- 
-  //Write your own setAttachement to update images for an existing item
-  // const handleAttachmentTest = async (newAttachment: AttachmentParam) => {
-  //   const now = new Date().toISOString();
-  //   if (!selectedItem?.id) {
-  //     console.error("Cannot update item: ID is missing");
-  //     return;
-  //   }
-    // Ensure attachments are parsed correctly
-  //   const currentAttachments: AttachmentParam[] = selectedItem.attachments
-  //     ? JSON.parse(selectedItem.attachments)
-  //     : [];
-
-  //   const updatedAttachments = [...currentAttachments, newAttachment];
-
-  //   const item_update: ShoppingItemTypes = {
-  //     ...selectedItem,
-  //     modifiedDate: now,
-  //     attachments: JSON.stringify(updatedAttachments),
-  //   };
-
-  //   await updateShoppingItemAndUpdateState(item_update);
-  //   const updated = state.find((i) => i.id === selectedItem.id);
-  //   if (updated) {
-  //     setSelectedItem(updated);
-  //   }
-  //   setAttachments(updatedAttachments);
-  // };
 
   const handleAttachmentWithItem = async (
     existingItem: ShoppingItemTypes,
@@ -134,45 +96,11 @@ const ItemHistoryComponent = ({
       attachments: JSON.stringify(updatedAttachments),
     };
   
-    await updateShoppingItemAndUpdateState(item_update);
-    // const updated = state.find((i) => i.id === existingItem.id);
-    // if (updated) {
-    //   setSelectedItem(updated);
-    // }
-    setAttachments(updatedAttachments);
-  };
-
-  const handleDeleteAttachment = async (
-    existingItem: ShoppingItemTypes,
-    attachmentToDelete: AttachmentParam
-  ) => {
-    const now = new Date().toISOString();
-  
-    if (!existingItem?.id) {
-      console.error("Cannot update item: ID is missing");
-      return;
+    const updatedItem_ = await updateShoppingItemAndUpdateState(item_update);
+    if (updatedItem_) {
+      setSelectedItem(updatedItem_);
     }
-  
-    // Step 1: Parse current attachments
-    const currentAttachments: AttachmentParam[] = existingItem.attachments
-      ? JSON.parse(existingItem.attachments)
-      : [];
-  
-    // Step 2: Filter out the one to delete
-    const updatedAttachments = currentAttachments.filter(
-      (att) => att.data !== attachmentToDelete.data
-    );
-  
-    // Step 3: Build update payload
-    const item_update: ShoppingItemTypes = {
-      ...existingItem,
-      modifiedDate: now,
-      attachments: JSON.stringify(updatedAttachments),
-    };
-  
-    // Step 4: Persist the update
-    await updateShoppingItemAndUpdateState(item_update);
-
+    setAttachments(updatedAttachments);
   };
 
   const shoppingItemLists = state
@@ -228,8 +156,7 @@ const ItemHistoryComponent = ({
     }
     return [];
   });
-  console.log("shoppingItemLists-ItemHistoryComponent")
-  console.log(shoppingItemLists)
+
   return (
     <>
       {shoppingItemLists.length > 0 && (
@@ -316,21 +243,7 @@ const ItemHistoryComponent = ({
                         </VStack>
                       )}
                       <VStack>
-                        {/* {item?.attachments ? (
-                          <ImageDisplayComponent
-                            imageAttachments={
-                              Array.isArray(JSON.parse(item.attachments))
-                              ? JSON.parse(item.attachments).filter(
-                                  (att: AttachmentParam | null) =>
-                                    att !== null && att.type === "image"
-                                )
-                              : []
-                            }
-                            handleAttachment={(newAttachment) => handleAttachmentWithItem(item, newAttachment)}
-                            handleAttachmentWithItem={handleDeleteAttachment}
-                            existingItem={item}
-                          />
-                        ) : null} */}
+                        
                         <Pressable
                             onPress={() => {
                               openModalAtIndex(0);
@@ -398,4 +311,3 @@ const ItemHistoryComponent = ({
 
 export default ItemHistoryComponent;
 
-//Fails when attempted to add new images to existing items
