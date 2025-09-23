@@ -76,17 +76,9 @@ export default function History() {
     addNewItemToShoppingItems,
     deleteShoppingItemAndReturn
   );
-  const prevFilteredItems = useRef<ShoppingListStateTypes[]>([]);
 
   const [filteredItems, setFilteredItems] = useState<ShoppingListStateTypes[]>(
     []
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      setActiveTab("Selected");
-      setActiveIndex(0);
-    }, [])
   );
 
   const selectedItemsAndPurchased = shoppingItemLists.filter(
@@ -96,27 +88,21 @@ export default function History() {
     (item) => item.selected && !item.purchased
   );
 
-  // useEffect(() => {
-  //   if (activeTab === "Selected") {
-  //     setFilteredItems(selectedItemsAndNotPurchased);
-  //   } else {
-  //     setFilteredItems(selectedItemsAndPurchased);
-  //   }
-  // }, [shoppingItemLists, activeTab]);
+  useFocusEffect(
+    useCallback(() => {
+      setActiveTab("Selected");
+      setActiveIndex(0);
+      setFilteredItems(selectedItemsAndNotPurchased)
+    }, [])
+  );
 
   useEffect(() => {
-    const updatedItems =
-      activeTab === "Selected"
-        ? selectedItemsAndNotPurchased
-        : selectedItemsAndPurchased;
-
-    // Keep previous items until new ones are ready
-    if (updatedItems.length > 0) {
-      prevFilteredItems.current = updatedItems;
+    if (activeTab === "Selected") {
+      setFilteredItems(selectedItemsAndNotPurchased);
+    } else {
+      setFilteredItems(selectedItemsAndPurchased);
     }
-
-    setFilteredItems(prevFilteredItems.current);
-  }, [activeTab, shoppingItemLists]);
+  }, [shoppingItemLists, activeTab]);
 
   const filteredItemsResult = catalogItems;
 
@@ -268,9 +254,10 @@ export default function History() {
     });
   }, [filteredItems]);
 
-  const handleOnPress = (index: number, name: string, tab: string) => {
+  const handleOnPress = (index: number, tab: string, selectedItems: ShoppingListStateTypes[]) => {
     setActiveIndex(index);
     setActiveTab(tab);
+    setFilteredItems(selectedItems)
   };
 
   const handleProcessedItemOnPress = (id: string | number) => {
@@ -293,11 +280,6 @@ export default function History() {
     }
   };
 
-  const currentTab =
-    activeTab === "Selected"
-      ? selectedItemsAndPurchased
-      : selectedItemsAndNotPurchased;
-
   // const handleSearch = (query: string) => {
   //   if (!query) {
   //     setFilteredItems(currentTab); // reset to all
@@ -311,15 +293,15 @@ export default function History() {
   // };
 
   const fuse = new Fuse(shoppingItemLists, {
-    keys: ["label", "value"],
+    keys: ["name", "key"],
     threshold: 0.2, // lower = stricter, higher = fuzzier
     includeScore: true,
     ignoreLocation: true,
   });
 
   const handleSearch = (query: string) => {
-    if (!query) {
-      setFilteredItems(currentTab); // reset to all
+    if (!query || query === "") {
+      setFilteredItems(shoppingItemLists); // reset to all
       return;
     }
     // setFilteredItems(
@@ -330,7 +312,6 @@ export default function History() {
 
      // Use Fuse for fuzzy searching
     const results = fuse.search(query);
-
     // Map results back to items
     const matchedItems = results.map(r => r.item);
     setFilteredItems(matchedItems);
@@ -437,7 +418,7 @@ export default function History() {
                   borderColor: activeIndex === index ? "#FF6347" : "#888888", // active outline
                   borderWidth: 2,
                 }}
-                onPress={() => handleOnPress(index, item.name, item.name)}
+                onPress={() => handleOnPress(index, item.name, item.selectedItems)}
               >
                 <ButtonText
                   size="sm"
