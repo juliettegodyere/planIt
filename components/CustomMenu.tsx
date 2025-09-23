@@ -60,7 +60,7 @@ const CustomMenu: React.FC<CustomMenuProps> = ({ value, menuItems, onSelect, tex
               <Icon as={ChevronsUpDownIcon} size="lg" /> */}
             {/* </HStack> */}
             <Button variant="outline" className="rounded-full" style={{borderColor:"#888888"}} {...triggerProps}>
-                 <ButtonText style={{color:"#888888"}}>{value ? value : text}</ButtonText>
+                 <ButtonText style={{color:"#888888"}} >{value ? value : text}</ButtonText>
                  <ButtonIcon as={ChevronsUpDownIcon} className="ml-2" style={{color:"#888888"}}/>
                </Button>
           </Pressable>

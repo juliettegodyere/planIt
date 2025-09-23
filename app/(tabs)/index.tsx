@@ -51,6 +51,7 @@ export default function Index() {
 
   const [filterByValue, setFilterByValue] = useState<string>("All");
   const [groupByCategory, setGroupByCategory] = useState<boolean>(false);
+  const [sortByValue, setSortByValue] = useState<string>("Marked Items");
   const { createOrToggleShoppingItem, isCreating } = useShoppingItemActions(db);
 
   const fetchItems = useCallback(async () => {
@@ -82,6 +83,7 @@ export default function Index() {
       setFilteredItems(catalogItems);
     }
   }, [catalogItems, loading]);
+  
 
   const handleSearch = (query: string) => {
     if (!query) {
@@ -95,24 +97,47 @@ export default function Index() {
     );
   };
 
-  const filteredAndSortedItems = useMemo(() => {
-    const selectedKeys = state.shoppingItemLists
-      .filter((item) => item.selected)
-      .map((item) => item.key);
+const filteredAndSortedItems = useMemo(() => {
+  const selectedKeys = state.shoppingItemLists
+    .filter((item) => item.selected)
+    .map((item) => item.key); // ✅ use value consistently
 
-    //let result = [...catalogItems];
-    let result = [...filteredItems];
+  let result = [...filteredItems];
 
+  if (sortByValue === "Alphabet") {
+    // sort everything alphabetically
     result.sort((a, b) => a.label.localeCompare(b.label));
+  } else if (sortByValue === "Marked Items") {
+    // split into selected vs unselected
+    const selectedItems = result.filter((item) =>
+      selectedKeys.includes(item.value)
+    );
+    const unselectedItems = result.filter(
+      (item) => !selectedKeys.includes(item.value)
+    );
 
-    if (filterByValue.toLowerCase() !== "all") {
-      result = result.filter(
-        (item) => item.category.toLowerCase() === filterByValue.toLowerCase()
-      );
-    }
+    // ✅ keep selected items in their original order (as added)
+    // ✅ but sort unselected alphabetically
+    unselectedItems.sort((a, b) => a.label.localeCompare(b.label));
 
-    return result;
-  }, [catalogItems, filterByValue, filteredItems]);
+    result = [...selectedItems, ...unselectedItems];
+  }
+
+  if (filterByValue.toLowerCase() !== "all") {
+    result = result.filter(
+      (item) => item.category.toLowerCase() === filterByValue.toLowerCase()
+    );
+  }
+
+  return result;
+}, [
+  catalogItems,
+  filterByValue,
+  filteredItems,
+  state.shoppingItemLists,
+  sortByValue,
+]);
+
 
   const groupedCatalogItems = useMemo(() => {
     if (!groupByCategory) return [];
@@ -136,19 +161,20 @@ export default function Index() {
       </HStack>
     );
   }
-
   return (
       <SafeAreaView style={{ flex: 1}}>
+        <View >
         <SearchItems
             showAddButton={true}
             placeholder="Search or add an item"
             onSearch={handleSearch}
-            filteredItems={filteredItems}
+            filteredCatelogItems={filteredItems}
             catalogItems={catalogItems}
-            setFilteredItems={setFilteredItems}
+            setFilteredCatelogItems={setFilteredItems}
             dataType="catalogItem"
             setLoading={setLoading}
           />
+        </View>
         <View style={{ flex: 1, padding: 15 }}>
         <HStack space="md" className="justify-between bottom-1">
           <Heading size="xl" style={{ color: "#333333" }}>
@@ -158,9 +184,9 @@ export default function Index() {
             onFilterBySelect={(key) => {
               setFilterByValue(key);
             }}
-            // onSortBySelect={(key) => {
-            //   setSortByValue(key);
-            // }}
+            onSortBySelect={(key) => {
+              setSortByValue(key);
+            }}
             onGroupBySelect={(key) => {
               setGroupByCategory(key);
             }}

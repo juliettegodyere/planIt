@@ -29,14 +29,15 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
         borderColor,
         borderWidth: 1,
         width,
-        padding: 5,
+        padding: 4,
+       // marginTop:4
       }}
     >
-      <HStack space="xs" className="justify-evenly items-center">
+      <HStack space="xs" className="justify-around">
         {Number(quantity) === 1 && onDelete ? (
           <TouchableOpacity onPress={onDelete}>
             <Box>
-              <AntDesignIcon size={16} name="delete" color="#333333" />
+              <AntDesignIcon size={16} name="delete" color="#333333" className="mt-1"/>
             </Box>
           </TouchableOpacity>
         ) : (

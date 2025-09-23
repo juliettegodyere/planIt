@@ -2,8 +2,12 @@ import { Keyboard } from "react-native";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { SearchIcon, CloseCircleIcon } from "@/components/ui/icon";
 import { useShoppingListContext } from "../service/store";
-import { useRef, useState } from "react";
-import { addItem, setCatalogItems, setShoppingItemsState } from "@/service/stateActions";
+import { useEffect, useRef, useState } from "react";
+import {
+  addItem,
+  setCatalogItems,
+  setShoppingItemsState,
+} from "@/service/stateActions";
 import { useSQLiteContext } from "expo-sqlite";
 import { getAllCatalogItems, getAllShoppingItems } from "@/db/EntityManager";
 import { HStack } from "./ui/hstack";
@@ -14,14 +18,21 @@ import { CategoryItemResponseType } from "@/service/types";
 import { useShoppingActions } from "@/db/Transactions";
 import { ShoppingListStateTypes } from "@/service/state";
 export type SearchDataType = "catalog" | "shoppingList";
+import { Alert, AlertText, AlertIcon } from "@/components/ui/alert"
+import { InfoIcon } from "@/components/ui/icon"
+
+type CategoryItemWithNewFlag = CategoryItemResponseType & { isNew?: boolean };
 
 type SearchItemsProps = {
   showAddButton?: boolean; // control Add button visibility
   placeholder?: string; // custom placeholder text
   onSearch: (query: string) => void;
-  filteredItems?: CategoryItemResponseType[];
+  filteredCatelogItems?: CategoryItemResponseType[];
   catalogItems?: CategoryItemResponseType[];
-  setFilteredItems?: (data: CategoryItemResponseType[]) => void;
+  setFilteredCatelogItems?: (data: CategoryItemResponseType[]) => void;
+  filteredShoppingItems?: ShoppingListStateTypes[];
+  shoppingItemLists?: ShoppingListStateTypes[];
+  setFilteredShoppingItems?: (data: ShoppingListStateTypes[]) => void;
   dataType?: string;
   setLoading: (loading: boolean) => void;
 };
@@ -30,9 +41,12 @@ export default function SearchItems({
   showAddButton = true,
   placeholder = "Search...",
   onSearch,
-  filteredItems,
+  filteredCatelogItems,
   catalogItems,
-  setFilteredItems,
+  setFilteredCatelogItems,
+  filteredShoppingItems,
+  shoppingItemLists,
+  setFilteredShoppingItems,
   dataType,
   setLoading,
 }: SearchItemsProps) {
@@ -44,24 +58,28 @@ export default function SearchItems({
   const { addUserDefinedItem } = useShoppingActions();
 
   const showCancel = isFocused || searchQuery.length > 0;
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertAction, setAlertAction] = useState<"muted" | "info" | "success" | "warning" | "error">("info");
 
-  const handleClear = async() => {
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => setAlertMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage]);
+
+  const handleClear = () => {
     setLoading(true);
     setSearchQuery("");
-    inputRef.current?.focus();
     onSearch("");
+    Keyboard.dismiss(); // ✅ just dismiss, don’t re-focus
 
-   try {
-    if(dataType === "catalogItem"){
-      const updatedCatalog = await getAllCatalogItems(db);
-      dispatch(setCatalogItems(updatedCatalog));
-    }else{
-      const updateShoopingItem = await getAllShoppingItems(db);
-      dispatch(setShoppingItemsState(updateShoopingItem))
+    if (dataType === "catalogItem") {
+      setFilteredCatelogItems?.(catalogItems ?? []);
+    } else {
+      setFilteredShoppingItems?.(shoppingItemLists ?? []);
     }
-   } finally {
     setLoading(false);
-   }
   };
 
   const handleCancel = async () => {
@@ -70,44 +88,106 @@ export default function SearchItems({
     setIsFocused(false);
     onSearch("");
     inputRef.current?.blur();
+    Keyboard.dismiss();
 
-   try {
-    if(dataType === "catalogItem"){
-      const updatedCatalog = await getAllCatalogItems(db);
-      dispatch(setCatalogItems(updatedCatalog));
-    }else{
-      const updateShoopingItem = await getAllShoppingItems(db);
-      dispatch(setShoppingItemsState(updateShoopingItem))
+    try {
+      if (dataType === "catalogItem") {
+        setFilteredCatelogItems?.(catalogItems ?? []);
+      } else {
+        setFilteredShoppingItems?.(shoppingItemLists ?? []);
+      }
+    } finally {
+      setLoading(false);
     }
-   } finally {
-    setLoading(false);
-   }
   };
 
   const handleAddNewItem = async (itemLabel: string, category: string) => {
-
-    const addedItem = await addUserDefinedItem(itemLabel, category);
-
-    if (addedItem != null) {
+    try {
+      // 1) create the DB + app item
+      const addedItem = await addUserDefinedItem(itemLabel, category);
+      if (!addedItem) return;
+  
+      // 2) add to shopping items (if required)
       dispatch(addItem(addedItem.shoppingItem));
-
-      const query = itemLabel.trim();
-      setSearchQuery(query);
-
-      // const updatedList = [...catalogItems, addedItem.categoryItem].filter((item) =>
-      // item.label.toLowerCase().includes(query.toLowerCase()));
-      const updatedList = [...(catalogItems ?? []), addedItem.categoryItem].filter((item) =>
-      item.label.toLowerCase().includes(query.toLowerCase())
-    );
-
-      setFilteredItems?.(updatedList);
+  
+      // 3) update catalog with the new item at the top
+      const updatedCatalog = [addedItem.categoryItem, ...(catalogItems ?? [])];
+      dispatch(setCatalogItems(updatedCatalog));
+  
+      // 4) update filtered results:
+      const filteredResults = [
+        addedItem.categoryItem,
+        ...updatedCatalog.filter(
+          (it) =>
+            it.value !== addedItem.categoryItem.value &&
+            it.label.toLowerCase().includes(itemLabel.toLowerCase())
+        ),
+      ];
+      setFilteredCatelogItems?.(filteredResults);
+  
+      // 5) Keep the input showing the new item's label
+      setSearchQuery(addedItem.categoryItem.label);
+  
+      // 6) Keep focus so the user can continue (optional)
+      setIsFocused(true);
+      inputRef.current?.focus();
+    } catch (error: any) {
+      setAlertAction("error");
+      setAlertMessage(error.message || "Item already exists in this category");
     }
+  };
+  
+
+  const normalizeWord = (word: string) => {
+    let lower = word.toLowerCase().trim();
     
-    setIsFocused(false);
-    inputRef.current?.blur();
-    Keyboard.dismiss();
+    if (lower.endsWith("ies")) {
+      // berries → berry
+      lower = lower.slice(0, -3) + "y";
+    } else if (
+      lower.endsWith("ches") ||
+      lower.endsWith("shes") ||
+      lower.endsWith("xes") ||
+      lower.endsWith("zes") ||
+      lower.endsWith("ses")
+    ) {
+      // matches plural forms like boxes → box, matches → match
+      lower = lower.slice(0, -2);
+    } else if (lower.endsWith("s") && lower.length > 1) {
+      // apples → apple
+      lower = lower.slice(0, -1);
+    }
+  
+    if (lower.endsWith("ed") && lower.length > 2) {
+      // cooked → cook
+      lower = lower.slice(0, -2);
+    }
+  
+    return lower;
   };
 
+  const matchesExistingItem = (
+    query: string,
+    items: { label: string }[] | undefined
+  ) => {
+    if (!query || !items) return false;
+  
+    const normalizedQuery = normalizeWord(query);
+    //console.log("normalizedQuery", normalizedQuery)
+    console.log("query", query.toLowerCase())
+  
+    return items.some((item) => {
+      const normalizedItem = normalizeWord(item.label);
+      console.log("item.label", item.label.toLowerCase())
+
+      //console.log("normalizedItem", normalizedItem)
+     
+      return (
+        item.label.toLowerCase() !== query.toLowerCase() || // exact match
+        normalizedItem === normalizedQuery // plural/past tense match
+      );
+    });
+  };
   return (
     <HStack
       style={{
@@ -117,6 +197,13 @@ export default function SearchItems({
         alignItems: "center",
       }}
     >
+      {/* ✅ Alert goes here */}
+    {alertMessage && (
+      <Alert action={alertAction} variant="solid" className="mb-3">
+        <AlertIcon as={InfoIcon} />
+        <AlertText>{alertMessage}</AlertText>
+      </Alert>
+    )}
       <Input
         ref={inputRef}
         size="xl"
@@ -166,7 +253,10 @@ export default function SearchItems({
         )}
       </Input>
 
-      {showAddButton && searchQuery.length > 0 && filteredItems?.length === 0 ? (
+      {/* {showAddButton && searchQuery.length > 0 && (
+        (dataType === "catalogItem" && filteredCatelogItems?.length === 0) ||
+        (dataType === "shoppingItem" && filteredShoppingItems?.length === 0)
+      ) ? (
         <Button
           size="md"
           variant="solid"
@@ -175,6 +265,38 @@ export default function SearchItems({
             handleAddNewItem(searchQuery, "Uncategorized");
             handleCancel();
             Keyboard.dismiss(); // ✅ explicitly dismiss after add
+          }}
+          style={{ backgroundColor: "#FF6347" }}
+        >
+          <ButtonText>Add</ButtonText>
+        </Button>
+      ) : showCancel ? (
+        <Button
+          size="md"
+          variant="solid"
+          action="primary"
+          onPress={() => {
+            handleCancel();
+            Keyboard.dismiss();
+          }}
+          style={{ backgroundColor: "#888888", marginLeft: 5 }}
+        >
+          <ButtonText>Clear</ButtonText>
+        </Button>
+      ) : null} */}
+      {showAddButton &&
+      searchQuery.length > 0 &&
+      dataType === "catalogItem" &&
+      filteredCatelogItems?.length === 0 &&
+      !matchesExistingItem(searchQuery, catalogItems) ? (
+        <Button
+          size="md"
+          variant="solid"
+          action="primary"
+          onPress={() => {
+            handleAddNewItem(searchQuery, "Uncategorized");
+           // handleCancel();
+            Keyboard.dismiss();
           }}
           style={{ backgroundColor: "#FF6347" }}
         >

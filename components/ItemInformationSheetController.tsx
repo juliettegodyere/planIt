@@ -22,6 +22,7 @@ import { DEFAULTS } from "@/Util/constants/defaults";
 import { ShoppingListStateTypes } from "@/service/state";
 import { saveReminder } from "@/db/EntityManager";
 import { updateItem } from "@/service/stateActions";
+import { useNotification } from "@/db/context/NotificationProvider";
 
 export type ItemInformationSheetHandle = {
   close: () => void;
@@ -59,6 +60,7 @@ const ItemInformationSheetController = forwardRef<ItemInformationSheetHandle>(
     const [showDiscardConfirmation, setShowDiscardConfirmation] = useState(false);
     const [selectedItem, setSelectedItem] = useState<ShoppingListStateTypes>();
     const [selectedItemReminder, setSelectedItemReminder] = useState<ReminderItemType>();
+    const { requestPermission } = useNotification();
 
     const db = useSQLiteContext();
     const {
@@ -404,6 +406,7 @@ notified: itemPurchase ? false : (selectedItemReminder?.notified ?? false),
        // repeatReminder={repeatReminder}
         setRepeatReminder={setRepeatReminder}
         guest={state.guest}
+        requestPermission={requestPermission}
       />
     );
   }

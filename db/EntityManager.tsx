@@ -156,19 +156,93 @@ export const getAllCategory = async (db: SQLite.SQLiteDatabase) => {
   return categories;
 };
 
+// export const insertCategoryItem = async (
+//   db: SQLite.SQLiteDatabase,
+//   label: string,
+//   value: string,
+//   categoryId: string
+// ): Promise<CategoryItemResponseType> => {
+//   const id = await generateSimpleUUID();
+
+//   await db.runAsync(
+//     `
+//     INSERT INTO category_items (id, label, value, category_id)
+//     VALUES (?, ?, ?, ?);
+//   `,
+//     [id, label, value, categoryId]
+//   );
+
+//   const result = await db.getFirstAsync<{
+//     id: string;
+//     label: string;
+//     value: string;
+//     category_id: string;
+//   }>(
+//     `SELECT id, label, value, category_id FROM category_items WHERE id = ?;`,
+//     [id]
+//   );
+
+//   if (!result) {
+//     throw new Error("Failed to insert category item");
+//   }
+
+//   return {
+//     //id: result.id,
+//     label: result.label,
+//     value: result.value,
+//     category: result.category_id, // ✅ mapped to camelCase
+//   };
+// };
+
 export const insertCategoryItem = async (
   db: SQLite.SQLiteDatabase,
   label: string,
   value: string,
   categoryId: string
 ): Promise<CategoryItemResponseType> => {
-  const id = await generateSimpleUUID();
+  // 🔎 1. Check if item already exists with same label + category
+  const existingLabel = await db.getFirstAsync<{
+    id: string;
+    label: string;
+    value: string;
+    category_id: string;
+  }>(
+    `SELECT id, label, value, category_id 
+     FROM category_items 
+     WHERE LOWER(label) = LOWER(?) AND category_id = ?;`,
+    [label, categoryId]
+  );
 
+  if (existingLabel) {
+    throw new Error(
+      `Item "${label}" already exists in this category.`
+    );
+  }
+
+  // 🔎 2. Check if item already exists with same value + category
+  const existingValue = await db.getFirstAsync<{
+    id: string;
+    label: string;
+    value: string;
+    category_id: string;
+  }>(
+    `SELECT id, label, value, category_id 
+     FROM category_items 
+     WHERE LOWER(value) = LOWER(?) AND category_id = ?;`,
+    [value, categoryId]
+  );
+
+  if (existingValue) {
+    throw new Error(
+      `An item with value "${value}" already exists in this category.`
+    );
+  }
+
+  // ✅ 3. Safe to insert
+  const id = await generateSimpleUUID();
   await db.runAsync(
-    `
-    INSERT INTO category_items (id, label, value, category_id)
-    VALUES (?, ?, ?, ?);
-  `,
+    `INSERT INTO category_items (id, label, value, category_id) 
+     VALUES (?, ?, ?, ?);`,
     [id, label, value, categoryId]
   );
 
@@ -178,7 +252,9 @@ export const insertCategoryItem = async (
     value: string;
     category_id: string;
   }>(
-    `SELECT id, label, value, category_id FROM category_items WHERE id = ?;`,
+    `SELECT id, label, value, category_id 
+     FROM category_items 
+     WHERE id = ?;`,
     [id]
   );
 
@@ -187,10 +263,9 @@ export const insertCategoryItem = async (
   }
 
   return {
-    //id: result.id,
     label: result.label,
     value: result.value,
-    category: result.category_id, // ✅ mapped to camelCase
+    category: result.category_id,
   };
 };
 

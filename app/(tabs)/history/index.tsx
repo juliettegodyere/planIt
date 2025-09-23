@@ -75,9 +75,12 @@ export default function History() {
     addNewItemToShoppingItems,
     deleteShoppingItemAndReturn
   );
+  const prevFilteredItems = useRef<ShoppingListStateTypes[]>([]);
+
   const [filteredItems, setFilteredItems] = useState<ShoppingListStateTypes[]>(
     []
   );
+
   useFocusEffect(
     useCallback(() => {
       setActiveTab("Selected");
@@ -92,19 +95,27 @@ export default function History() {
     (item) => item.selected && !item.purchased
   );
 
-  useEffect(() => {
-    // if (!shoppingItemLists || shoppingItemLists.length === 0) {
-    //   setLoading(true);
-    //   return;
-    // }
+  // useEffect(() => {
+  //   if (activeTab === "Selected") {
+  //     setFilteredItems(selectedItemsAndNotPurchased);
+  //   } else {
+  //     setFilteredItems(selectedItemsAndPurchased);
+  //   }
+  // }, [shoppingItemLists, activeTab]);
 
-    // setLoading(false);
-    if (activeTab === "Selected") {
-      setFilteredItems(selectedItemsAndNotPurchased);
-    } else {
-      setFilteredItems(selectedItemsAndPurchased);
+  useEffect(() => {
+    const updatedItems =
+      activeTab === "Selected"
+        ? selectedItemsAndNotPurchased
+        : selectedItemsAndPurchased;
+
+    // Keep previous items until new ones are ready
+    if (updatedItems.length > 0) {
+      prevFilteredItems.current = updatedItems;
     }
-  }, [shoppingItemLists, activeTab]);
+
+    setFilteredItems(prevFilteredItems.current);
+  }, [activeTab, shoppingItemLists]);
 
   const filteredItemsResult = catalogItems;
 
@@ -112,7 +123,6 @@ export default function History() {
     item: ShoppingListStateTypes
   ): CategoryItemResponseType | undefined => {
     //if (!item.selected || item.purchased) return undefined;
-
     const result = filteredItemsResult.find((it) => it.value === item.key);
     if (!result) {
       console.warn(`No match found for key: ${item.key}`);
@@ -152,32 +162,52 @@ export default function History() {
   ];
 
   const selectedGroupedItems = useMemo(() => {
-    return (filteredItems ?? [])
-      .filter((item) => !item.purchased)
-      .reduce((acc, item) => {
-        const sectionTitle = formatDate(new Date(item.modifiedDate));
-
-        const existingSection = acc.find(
-          (section) => section.title === sectionTitle
-        );
-
-        if (existingSection) {
-          existingSection.data.push(item);
-        } else {
-          acc.push({
-            title: sectionTitle,
-            data: [item],
-          });
-        }
-
-        return acc;
-      }, [] as { title: string; data: ShoppingListStateTypes[] }[]);
-  }, [filteredItems]); // only recalculates when filteredItems changes
+    if (!filteredItems) return [];
+  
+    // 🚀 Pre-filter only once
+    const notPurchased = filteredItems.filter((item) => !item.purchased);
+  
+    if (notPurchased.length === 0) return [];
+  
+    // 🚀 Use a Map for grouping (faster than acc.find)
+    const groupedMap = new Map<string, ShoppingListStateTypes[]>();
+  
+    notPurchased.forEach((item) => {
+      const sectionTitle = formatDate(new Date(item.modifiedDate));
+      if (!groupedMap.has(sectionTitle)) {
+        groupedMap.set(sectionTitle, []);
+      }
+      groupedMap.get(sectionTitle)!.push(item);
+    });
+  
+    // 🚀 Convert map back to array
+    const grouped = Array.from(groupedMap.entries()).map(([title, data]) => ({
+      title,
+      data,
+    }));
+  
+    // 🚀 Sort each section’s items (newest → oldest)
+    grouped.forEach((section) => {
+      section.data.sort(
+        (a, b) =>
+          new Date(b.modifiedDate).getTime() -
+          new Date(a.modifiedDate).getTime()
+      );
+    });
+  
+    // 🚀 Sort sections by most recent modifiedDate
+    return grouped.sort((a, b) => {
+      const aDate = Math.max(...a.data.map((i) => new Date(i.modifiedDate).getTime()));
+      const bDate = Math.max(...b.data.map((i) => new Date(i.modifiedDate).getTime()));
+      return bDate - aDate; // newest first
+    });
+  }, [filteredItems]);
+  
 
   const purchasedGroupedItems = useMemo(() => {
     if (!filteredItems) return [];
 
-    // Step 2: Keep only the most recent per name
+    // Step 1: Keep only the most recent per name
     const uniquePurchasedItemsMap = new Map<string, ShoppingListStateTypes>();
 
     filteredItems.forEach((item) => {
@@ -192,12 +222,13 @@ export default function History() {
       }
     });
 
-    // Step 3: Convert map back to array
+    // Step 2: Convert map back to array
     const uniquePurchasedItems = Array.from(uniquePurchasedItemsMap.values());
 
-    // Step 4: Group by modifiedDate
-    return uniquePurchasedItems.reduce((acc, item) => {
+    // Step 3: Group by formatted date
+    const grouped = uniquePurchasedItems.reduce((acc, item) => {
       const sectionTitle = formatDate(new Date(item.modifiedDate));
+
       const existingSection = acc.find(
         (section) => section.title === sectionTitle
       );
@@ -210,6 +241,30 @@ export default function History() {
 
       return acc;
     }, [] as { title: string; data: ShoppingListStateTypes[] }[]);
+
+    // Step 4: Sort items inside each group (newest → oldest)
+    grouped.forEach((section) => {
+      section.data.sort(
+        (a, b) =>
+          new Date(b.modifiedDate).getTime() -
+          new Date(a.modifiedDate).getTime()
+      );
+    });
+    // Step 5: Remove empty sections
+    const nonEmptySections = grouped.filter(
+      (section) => section.data.length > 0
+    );
+
+    // Step 6: Sort sections by most recent modifiedDate
+    return nonEmptySections.sort((a, b) => {
+      const aDate = Math.max(
+        ...a.data.map((i) => new Date(i.modifiedDate).getTime())
+      );
+      const bDate = Math.max(
+        ...b.data.map((i) => new Date(i.modifiedDate).getTime())
+      );
+      return bDate - aDate; // newest first
+    });
   }, [filteredItems]);
 
   const handleOnPress = (index: number, name: string, tab: string) => {
@@ -230,7 +285,11 @@ export default function History() {
     selectedItem: ShoppingListStateTypes,
     catalogItem: CategoryItemResponseType
   ) => {
-    sheetRef.current?.open(selectedItem, catalogItem); // ✅ opens the sheet from anywhere
+    try {
+      sheetRef.current?.open(selectedItem, catalogItem);
+    } catch (error) {
+      console.error("An error occured while opening Actionsheet", error);
+    }
   };
 
   const currentTab =
@@ -250,19 +309,73 @@ export default function History() {
     );
   };
 
+  // 🔹 Common renderer for both tabs
+  function RenderGroupedSectionList({
+    loading,
+    groupedItems,
+    renderItem,
+  }: {
+    loading: boolean;
+    groupedItems: { title: string; data: ShoppingListStateTypes[] }[];
+    renderItem: ({
+      item,
+    }: {
+      item: ShoppingListStateTypes;
+    }) => JSX.Element | null;
+  }) {
+    if (loading) {
+      return (
+        <Center style={{ marginTop: 150 }}>
+          <Spinner />
+        </Center>
+      );
+    }
+
+    if (groupedItems.length === 0) {
+      return (
+        <Center style={{ marginTop: 150 }}>
+          <Image
+            source={require("assets/images/undraw_empty-cart_574u.png")}
+            alt="empty cart"
+            size="2xl"
+            resizeMode="contain"
+            className="rounded-md"
+          />
+        </Center>
+      );
+    }
+
+    return (
+      <SectionList
+        sections={groupedItems}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 150 }}
+        renderSectionHeader={({ section: { title } }) => (
+          <VStack className="p-3">
+            <Heading size="xl" style={{ color: "#333333" }}>
+              {title}
+            </Heading>
+          </VStack>
+        )}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  }
+
   if (loading) {
     return (
-      <SafeAreaView style={{flex:1}}>
-        <Center >
-        <HStack space="sm">
-        <Spinner size="large" color={colors.fuchsia[600]} />
-        <Text size="md">Please Wait</Text>
-      </HStack>
+      <SafeAreaView style={{ flex: 1 }}>
+        <Center>
+          <HStack space="sm">
+            <Spinner size="large" color={colors.fuchsia[600]} />
+            <Text size="md">Please Wait</Text>
+          </HStack>
         </Center>
       </SafeAreaView>
     );
   }
-
+  //console.log("state.shoppingItemLists", state.shoppingItemLists)
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -273,6 +386,9 @@ export default function History() {
           showAddButton={false}
           placeholder="Search..."
           onSearch={handleSearch}
+          filteredShoppingItems={filteredItems}
+          shoppingItemLists={shoppingItemLists}
+          setFilteredShoppingItems={setFilteredItems}
           dataType="shoppingItem"
           setLoading={setLoading}
         />
@@ -316,146 +432,107 @@ export default function History() {
               </Button>
             ))}
           </Box>
-          {activeTab === "Selected" ? (
-            loading ? (
-              <Center style={{ marginTop: 150 }}>
-                <Spinner />
-                {/* You can replace with your custom loader */}
-              </Center>
-            ) : selectedGroupedItems.length > 0 ? (
-              <SectionList
-                sections={selectedGroupedItems}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => {
-                  const selectedItem = handleSetSelectedItem(item);
+          {activeTab === "Selected" && (
+            <RenderGroupedSectionList
+              loading={loading}
+              groupedItems={selectedGroupedItems}
+              renderItem={({ item }) => {
+                const selectedItem = handleSetSelectedItem(item);
+                if (!selectedItem) return null;
 
-                  if (!selectedItem) return null;
-                  return (
-                    <Card size="md" variant="elevated" className="m-1">
-                      <VStack space="xl">
-                        <HStack
-                          space="4xl"
-                          style={{
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            width: "100%",
-                          }}
-                        >
-                          <ShoppingListCheckboxRow
-                            shoppingList={selectedItem}
-                            shoppingItem={item}
-                            isChecked={isChecked}
-                            shoppingItemLists={shoppingItemLists}
-                            dispatch={dispatch}
-                            deleteShoppingItemAndReturn={
+                return (
+                  <Card size="md" variant="elevated" className="m-1">
+                    <VStack space="xl">
+                      <HStack
+                        space="4xl"
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          width: "100%",
+                        }}
+                      >
+                        <ShoppingListCheckboxRow
+                          shoppingList={selectedItem}
+                          shoppingItem={item}
+                          isChecked={isChecked}
+                          shoppingItemLists={shoppingItemLists}
+                          dispatch={dispatch}
+                          deleteShoppingItemAndReturn={
+                            deleteShoppingItemAndReturn
+                          }
+                        />
+                        <AntDesignIcon
+                          size={20}
+                          name="arrowsalt"
+                          color="#888"
+                          onPress={() =>
+                            handleActionSheetPress(item, selectedItem)
+                          }
+                          className="max-w-[20%]"
+                        />
+                      </HStack>
+
+                      <HStack space="2xl" className="mb-3">
+                        <QuantitySelector
+                          quantity={item.quantity}
+                          onIncrease={() =>
+                            handleUpdateQuantity(
+                              1,
+                              item,
+                              dispatch,
+                              updateShoppingItemAndReturn
+                            )
+                          }
+                          onDecrease={() =>
+                            handleUpdateQuantity(
+                              -1,
+                              item,
+                              dispatch,
+                              updateShoppingItemAndReturn
+                            )
+                          }
+                          onDelete={() =>
+                            handleDeleteItem(
+                              item.id,
+                              selectedItem,
+                              shoppingItemLists,
+                              dispatch,
                               deleteShoppingItemAndReturn
+                            )
+                          }
+                        />
+                        <Box>
+                          <ShoppingButton
+                            label={
+                              item.purchased ? "Purchased" : "Mark as purchased"
                             }
-                            //handleCheckboxChange={handleCheckboxChange}
-                          />
-                          <AntDesignIcon
-                            size={20}
-                            name="arrowsalt"
-                            color="#888"
+                            variant={item.purchased ? "solid" : "outline"}
+                            size="md"
+                            color="#FF6347"
                             onPress={() =>
-                              handleActionSheetPress(item, selectedItem)
-                            }
-                            className="max-w-[20%]"
-                          />
-                        </HStack>
-
-                        <HStack space="2xl" className="mb-3">
-                          <QuantitySelector
-                            quantity={item.quantity}
-                            onIncrease={() =>
-                              handleUpdateQuantity(
-                                1,
+                              togglePurchased(
                                 item,
                                 dispatch,
-                                updateShoppingItemAndReturn
-                              )
-                            }
-                            onDecrease={() =>
-                              handleUpdateQuantity(
-                                -1,
-                                item,
-                                dispatch,
-                                updateShoppingItemAndReturn
-                              )
-                            }
-                            onDelete={() =>
-                              handleDeleteItem(
-                                item.id,
-                                selectedItem,
-                                shoppingItemLists,
-                                dispatch,
-                                deleteShoppingItemAndReturn
+                                updateShoppingItemAndReturn,
+                                db,
+                                getReminderByItemId,
+                                updateReminderFields,
+                                true
                               )
                             }
                           />
-                          <Box>
-                            <ShoppingButton
-                              label={
-                                item.purchased
-                                  ? "Purchased"
-                                  : "Mark as purchased"
-                              }
-                              variant={item.purchased ? "solid" : "outline"}
-                              size="md"
-                              color="#FF6347"
-                              onPress={() =>
-                                togglePurchased(
-                                  item,
-                                  dispatch,
-                                  updateShoppingItemAndReturn,
-                                  db,
-                                  getReminderByItemId,
-                                  updateReminderFields,
-                                  true
-                                )
-                              }
-                            />
-                          </Box>
-                        </HStack>
-                      </VStack>
-                    </Card>
-                  );
-                }}
-                contentContainerStyle={{ paddingBottom: 150 }}
-                renderSectionHeader={({ section: { title } }) => (
-                  <VStack className="p-3">
-                    <Heading size="xl" style={{ color: "#333333" }}>
-                      {title}
-                    </Heading>
-                  </VStack>
-                )}
-                showsVerticalScrollIndicator={false}
-              />
-            ) : (
-              <Center
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginTop: 150,
-                }}
-              >
-                <Image
-                  source={require("assets/images/undraw_empty-cart_574u.png")}
-                  alt="empty cart"
-                  size="2xl"
-                  resizeMode="contain"
-                  className="rounded-md"
-                />
-              </Center>
-            )
-          ) : loading ? (
-            <Center style={{ marginTop: 150 }}>
-              <Spinner />
-              {/* You can replace with your custom loader */}
-            </Center>
-          ) : purchasedGroupedItems.length > 0 ? (
-            <SectionList
-              sections={purchasedGroupedItems}
-              keyExtractor={(_, index) => index.toString()}
+                        </Box>
+                      </HStack>
+                    </VStack>
+                  </Card>
+                );
+              }}
+            />
+          )}
+          {activeTab === "Purchased" && (
+            <RenderGroupedSectionList
+              loading={loading}
+              groupedItems={purchasedGroupedItems}
               renderItem={({ item }) => {
                 const isPurchased = handlePurchasedItem(item);
                 const isAlreadyInCart = state.shoppingItemLists.some(
@@ -464,9 +541,10 @@ export default function History() {
                 const itemByName: ShoppingListStateTypes[] =
                   shoppingItemLists.filter(
                     (entry: ShoppingListStateTypes) =>
-                      entry.name === isPurchased?.label
+                      entry.name === isPurchased?.label && entry.purchased
                   );
                 if (!isPurchased) return null;
+
                 return (
                   <Card size="md" variant="elevated" className="m-1">
                     <HStack className="justify-between">
@@ -532,32 +610,9 @@ export default function History() {
                   </Card>
                 );
               }}
-              contentContainerStyle={{ paddingBottom: 150 }}
-              renderSectionHeader={({ section: { title } }) => (
-                <VStack className="p-3">
-                  <Heading size="xl" style={{ color: "#333333" }}>
-                    {title}
-                  </Heading>
-                </VStack>
-              )}
             />
-          ) : (
-            <Center
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 150,
-              }}
-            >
-              <Image
-                source={require("assets/images/undraw_empty-cart_574u.png")}
-                alt="empty cart"
-                size="2xl"
-                resizeMode="contain"
-                className="rounded-md"
-              />
-            </Center>
           )}
+
           <ItemInformationSheetController ref={sheetRef} />
         </VStack>
       </SafeAreaView>

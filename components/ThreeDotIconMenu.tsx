@@ -22,11 +22,11 @@ import { Box } from "./ui/box";
 
 type CustomMenuProps = {
     onFilterBySelect: (key: string) => void;
-    // onSortBySelect: (key: string) => void;
+    onSortBySelect: (key: string) => void;
     onGroupBySelect: (key: boolean) => void;
   };
 
-export default function ThreeDotIconMenu({onFilterBySelect, onGroupBySelect}: CustomMenuProps) {
+export default function ThreeDotIconMenu({onFilterBySelect, onSortBySelect, onGroupBySelect}: CustomMenuProps) {
   const [showSortOptions, setShowSortOptions] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [selected, setSelected] = useState<Set<Key>>(new Set([""]));
@@ -72,7 +72,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onGroupBySelect}: Cu
       <MenuSeparator />
 
       {/* Sort By */}
-      {/* <MenuItem
+      <MenuItem
         key="Sort By"
         textValue="Sort By"
         className="p-2 justify-between"
@@ -92,7 +92,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onGroupBySelect}: Cu
           as={showSortOptions ? ChevronUpIcon : ChevronDownIcon}
           className="text-typography-500 m-2 w-5 h-5"
         />
-      </MenuItem> */}
+      </MenuItem>
 
       {showSortOptions && (
         <>
@@ -103,7 +103,7 @@ export default function ThreeDotIconMenu({onFilterBySelect, onGroupBySelect}: Cu
                 className="pl-5"
                 onPress={() => {
                 setSortValue(val);
-                // onSortBySelect(val)
+                onSortBySelect(val)
                 }}
             >
                 {sortValue === val && <Icon as={CheckIcon} size="xl" className="font-medium"/>}

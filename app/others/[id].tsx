@@ -46,8 +46,7 @@ import PriceComponent from "@/components/PriceComponent";
 import QuantitySelector from "@/components/QuantitySelector";
 import CustomMenu from "@/components/CustomMenu";
 import { priorityOption, qtyOptions } from "@/data/dataStore";
-import PriorityComponent from "@/components/PriorityComponent";
-import { Input, InputField } from "@/components/ui/input";
+import { Input, InputField, InputSlot } from "@/components/ui/input";
 import AddCategorySheet from "@/components/AddCategorySheet";
 
 const ItemDetails = () => {
@@ -81,7 +80,7 @@ const ItemDetails = () => {
 
   useEffect(() => {
     const item = shoppingItemLists.find(
-      (entry: ShoppingListStateTypes) => entry.id === id
+      (entry: ShoppingListStateTypes) => entry.id === id && entry.purchased
     );
     if (item) {
       setSelectedItem(item);
@@ -107,15 +106,15 @@ const ItemDetails = () => {
   useEffect(() => {
     if (selectedItem) {
       const itemByName: ShoppingListStateTypes[] = shoppingItemLists
-        .filter(
-          (entry: ShoppingListStateTypes) => entry.name === selectedItem.name
-        )
-        .sort(
-          (a, b) =>
-            new Date(b.modifiedDate).getTime() -
-            new Date(a.modifiedDate).getTime()
-        );
-      // 🟢 sort DESC (most recent first)
+    .filter(
+      (entry: ShoppingListStateTypes) =>
+        entry.name === selectedItem.name && entry.purchased === true
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.modifiedDate).getTime() -
+        new Date(a.modifiedDate).getTime()
+    );
 
       if (itemByName.length > 0) {
         setFilteredByItems(itemByName);
@@ -142,7 +141,7 @@ const ItemDetails = () => {
     //If an input is undefined, null, or same as before, keep the old value
     const itemToDispatch: ShoppingListStateTypes = {
       ...selectedItemToEdit,
-      price: priceInput !== undefined && priceInput !== selectedItemToEdit.price 
+      price: priceInput ?? selectedItemToEdit.price 
         ? priceInput 
         : selectedItemToEdit.price,
       quantity: qtyVal ?? selectedItemToEdit.quantity,
@@ -199,7 +198,7 @@ const ItemDetails = () => {
 
     SetQtyVal(String(newQty));
   };
-
+  console.log("priceInput", priceInput)
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -338,7 +337,7 @@ const ItemDetails = () => {
                             style={{ color: "#888888" }}
                           >
                             {guest?.currencySymbol ?? "£"}
-                            {selectedItem.price}
+                            {item.price}
                           </Text>
                         </HStack>
                         <HStack className="justify-between">
@@ -517,13 +516,38 @@ const ItemDetails = () => {
                   <Card>
                     <VStack space="xl" className="mb-3">
                       <Text className="font-medium text-lg"  style={{color:"#888888"}}>Update Price: </Text>
-                      <PriceComponent
+                      {/* <PriceComponent
                         priceInput={priceInput}
                         handleChange={setPriceInput}
                         handleBlur={handlePriceInputBlur}
                         handleFocus={handlePriceInputFocus}
                         guest={guest}
-                      />
+                      /> */}
+                       <HStack
+                        space="sm"
+                        style={{
+                          alignItems: "center",
+                        }}
+                      >
+                        <Input size="md" variant="underlined" style={{ flex: 1 }}>
+                        <InputSlot className="pr-1" >
+                            <Text className="font-medium text-2xl" style={{color:"#888888"}}>{guest? guest.currencySymbol:'£'}</Text>
+                          </InputSlot>
+                          <InputField
+                            placeholder=""
+                            value={priceInput}
+                            keyboardType="numeric"
+                            onChangeText={setPriceInput}
+                            onFocus={handlePriceInputBlur}
+                            onBlur={handlePriceInputFocus}
+                            className="font-medium text-2xl"
+                            style={{color:"#888888"}}
+                          />
+                          <InputSlot className="pr-3" >
+                                <Text className="font-medium" style={{color:"#888888"}}>{guest? guest.currencyCode:"GBP"}</Text>
+                            </InputSlot>
+                        </Input>
+                      </HStack>
                     </VStack>
                   </Card>
                   <Card>
@@ -568,11 +592,27 @@ const ItemDetails = () => {
                   </Card>
                   <Card>
                  <VStack className="m-3">
-                    <PriorityComponent
-                      priorityVal={priorityVal}
-                      priorityOption={priorityOption}
-                      setPriorityVal={setPriorityVal}
-                    />
+                 <HStack
+                        style={{ justifyContent: "space-between" }}
+                        className=""
+                      >
+                        <Box>
+                          <Text
+                            className="font-medium text-lg mt-2"
+                            style={{ color: "#888888" }}
+                          >
+                            Priority
+                          </Text>
+                        </Box>
+                        <CustomMenu
+                          value={priorityVal}
+                          menuItems={priorityOption}
+                          onSelect={(key) => {
+                            setPriorityVal(priorityOption[Number(key)]);
+                          }}
+                          text="Select Priority"
+                        />
+                      </HStack>
                   </VStack>
                  </Card>
                  <Card>

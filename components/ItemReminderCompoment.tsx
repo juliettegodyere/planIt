@@ -18,7 +18,6 @@ import { Divider } from "./ui/divider";
 import CustomMenu from "./CustomMenu";
 import { earlyReminderOptions } from "@/data/dataStore";
 import { useNotification } from "@/db/context/NotificationProvider";
-import { ensureNotificationPermission } from "@/Util/HelperFunction";
 
 type Props = {
   reminderDate: string;
@@ -33,6 +32,7 @@ type Props = {
   setEarlyReminder: (val: string) => void;
   //repeatReminder: string;
   setRepeatReminder: (val: string) => void;
+  requestPermission:() => Promise<boolean>;
 };
 
 const ItemReminderComponent = ({
@@ -46,10 +46,10 @@ const ItemReminderComponent = ({
   setIsReminderDateEnabled,
   earlyReminder,
   setEarlyReminder,
+  requestPermission
 }: Props) => {
   const [isDateOpen, setIsDateOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
-  const { requestPermission } = useNotification();
 
 
   const formatDate = (input: string | Date) => {
@@ -116,7 +116,7 @@ const ItemReminderComponent = ({
   const handleToggleReminderDate = async () => {
     const granted = await requestPermission(); // centralised
     if (!granted) {
-      setIsReminderTimeEnabled(false); // snap back if denied
+      setIsReminderDateEnabled(false); // snap back if denied
       return;
     }
 
@@ -198,11 +198,11 @@ const ItemReminderComponent = ({
               <HStack space="lg">
                 <Icon
                   as={BellIcon}
-                  className="text-typography-500 mt-2"
+                  className="text-typography-500 mt-3"
                   size="xl"
                   color="purple"
                 />
-                <Text className="font-medium text-lg">Early Reminder</Text>
+                <Text className="font-medium text-lg mt-2">Early Reminder</Text>
               </HStack>
               <CustomMenu
                 value={earlyReminder}
@@ -212,7 +212,7 @@ const ItemReminderComponent = ({
                 }}
               />
             </HStack>
-            <Divider className="my-0.5" />
+            {/* <Divider className="my-0.5" /> */}
 
             {/* Repeat */}
             {/* <HStack

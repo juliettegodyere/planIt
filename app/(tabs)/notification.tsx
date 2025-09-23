@@ -69,6 +69,10 @@ export default function Notification() {
     const shoppingItem = shoppingItemLists.find((si) => si.id === item.item_id);
     const catalogItem = catalogItems.find((ca) => ca.label == shoppingItem?.name);
 
+    if (!item.isReminderDateEnabled && !item.isReminderTimeEnabled) {
+      return null; // skip rendering
+    }
+
     if (!shoppingItem || shoppingItem.purchased) {
       return null; // skip rendering
     }

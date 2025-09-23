@@ -150,16 +150,45 @@ function RootLayoutInner({
     refetchShoppingItemIfEmpty();
   }, [db, state.shoppingItemLists]);
 
+  // useEffect(() => {
+  //   const refetchGuestUserIfEmpty = async () => {
+  //     if (!isGuestHydrated) {
+  //       const guest: guestUserType[] = await getGuestInfo(db);
+  //       if (guest.length > 0) {
+  //         dispatch(setGuestUser({ ...guest[0] }));
+  //       }
+  //     }
+  //     dispatch(setGuestUserHydrated(true));
+  //     router.replace("/(tabs)"); // navigate after hydration
+  //   };
+  
+  //   refetchGuestUserIfEmpty();
+  // }, []);
+
   useEffect(() => {
     const refetchGuestUserIfEmpty = async () => {
-      if (!isGuestHydrated) {
-        const guest: guestUserType[] = await getGuestInfo(db);
-        if (guest.length > 0) {
-          dispatch(setGuestUser({ ...guest[0] }));
+      try {
+        if (!isGuestHydrated) {
+          const guest: guestUserType[] = await getGuestInfo(db);
+  
+          if (guest.length > 0) {
+            dispatch(setGuestUser({ ...guest[0] }));
+            dispatch(setGuestUserHydrated(true));
+            router.replace("/(tabs)"); // Guest exists → go to main tabs
+          } else {
+            // No guest info → user needs to login
+            dispatch(setGuestUserHydrated(false)); // optional
+            router.replace("/(auth)"); // redirect to login page
+          }
+        } else {
+          // Already hydrated → safe to navigate
+          router.replace("/(tabs)");
         }
+      } catch (error) {
+        console.error("Error fetching guest user:", error);
+        // Optionally navigate to login on error
+        router.replace("/(auth)");
       }
-      dispatch(setGuestUserHydrated(true));
-      router.replace("/(tabs)"); // navigate after hydration
     };
   
     refetchGuestUserIfEmpty();

@@ -64,5 +64,6 @@ export interface ItemInformationSheetProps {
     setEarlyReminder: (val: string) => void;
    // repeatReminder: string;
     setRepeatReminder: (val: string) => void;
-    guest:guestUserType | null
+    guest:guestUserType | null;
+    requestPermission:() => Promise<boolean>;
   }

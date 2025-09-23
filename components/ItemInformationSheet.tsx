@@ -16,7 +16,6 @@ import { HStack } from "./ui/hstack";
 import { Card } from "./ui/card";
 import CancelActionSheet from "./CancelActionsheet";
 import PriceComponent from "./PriceComponent";
-import PriorityComponent from "./PriorityComponent";
 import ItemReminderComponent from "./ItemReminderCompoment";
 import { useEffect, useState } from "react";
 import AddCategorySheet from "./AddCategorySheet";
@@ -81,6 +80,7 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   //repeatReminder,
   setRepeatReminder,
   guest,
+  requestPermission,
 }) => {
   const { state, dispatch } = useShoppingListContext();
   const [showAddCategoryActionsheet, setShowAddCategoryActionsheet] =
@@ -194,41 +194,53 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                       <Box className="mt-2">
                         {categoryLabel === "Uncategorized" ? (
                           <TouchableOpacity
-                          onPress={() => setShowAddCategoryActionsheet(true)}
-                          style={{ backgroundColor: "#FF6347", borderRadius:12, padding:3}}
-                        >
-                          <Text size="md" className="text-white text-center font-medium">Change category</Text>
-                        </TouchableOpacity>
+                            onPress={() => setShowAddCategoryActionsheet(true)}
+                            style={{
+                              backgroundColor: "#FF6347",
+                              borderRadius: 12,
+                              padding: 3,
+                            }}
+                          >
+                            <Text
+                              size="md"
+                              className="text-white text-center font-medium"
+                            >
+                              Change category
+                            </Text>
+                          </TouchableOpacity>
                         ) : (
                           <Text size="lg">{categoryLabel}</Text>
                         )}
                       </Box>
-                      {
-                        _selectedItem.selected && (
-                          <ShoppingButton
-                        label={
-                          itemPurchase ? "undo Purchase" : "Mark as purchased"
-                        }
-                        variant={itemPurchase ? "solid" : "outline"}
-                        size="md"
-                        color="#FF6347"
-                        onPress={() => handleMarkItemAsPurchased()}
-                      />
-                        )
-                      }
+                      {_selectedItem.selected && (
+                        <ShoppingButton
+                          label={
+                            itemPurchase ? "undo Purchase" : "Mark as purchased"
+                          }
+                          variant={itemPurchase ? "solid" : "outline"}
+                          size="md"
+                          color="#FF6347"
+                          onPress={() => handleMarkItemAsPurchased()}
+                        />
+                      )}
                     </HStack>
                   </VStack>
                 </Card>
                 <Card>
+                  <VStack space="sm" className="mb-3">
+                  <Text className="font-medium text-lg"  style={{color:"#888888"}}>Update Quantity: </Text>
                   <HStack space="lg">
                     <QuantitySelector
                       quantity={qtyVal}
-                      onIncrease={() => handleUpdateQuantity(shoppingList.value, 1)}
-                      onDecrease={() => handleUpdateQuantity(shoppingList.value, -1)}
-                      onDelete={() =>
-                        console.log("The min is 1 here")
+                      onIncrease={() =>
+                        handleUpdateQuantity(shoppingList.value, 1)
                       }
+                      onDecrease={() =>
+                        handleUpdateQuantity(shoppingList.value, -1)
+                      }
+                      onDelete={() => console.log("The min is 1 here")}
                     />
+                    <Box className="mt-2">
                     <CustomMenu
                       value={qtyUnit}
                       menuItems={qtyOptions}
@@ -237,8 +249,13 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                       }}
                       text="Select Unit"
                     />
+                    </Box>
                   </HStack>
-                  <VStack style={{ marginTop: 25 }}>
+                  </VStack>
+                </Card>
+                <Card>
+                  <VStack space="sm" className="mb-3">
+                  <Text className="font-medium text-lg"  style={{color:"#888888"}}>Update Price: </Text>
                     <PriceComponent
                       priceInput={priceInput}
                       handleChange={handlePriceInputChange}
@@ -250,7 +267,8 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                 </Card>
 
                 <Card>
-                  <VStack className="w-full">
+                  <VStack space="sm">
+                  <Text className="font-medium text-lg"  style={{color:"#888888"}}>Set Reminders: </Text>
                     <ItemReminderComponent
                       reminderDate={reminderDate}
                       setReminderDate={setReminderDate}
@@ -263,8 +281,32 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                       earlyReminder={earlyReminder}
                       setEarlyReminder={setEarlyReminder}
                       setRepeatReminder={setRepeatReminder}
+                      requestPermission={requestPermission}
                     />
                   </VStack>
+                </Card>
+                <Card>
+                <HStack
+                      style={{ justifyContent: "space-between" }}
+                      className=""
+                    >
+                      <Box>
+                        <Text
+                          className="font-medium text-lg mt-2"
+                          style={{ color: "#888888" }}
+                        >
+                          Add Priority
+                        </Text>
+                      </Box>
+                      <CustomMenu
+                        value={priorityVal}
+                        menuItems={priorityOption}
+                        onSelect={(key) => {
+                          setPriorityVal(priorityOption[Number(key)]);
+                        }}
+                        text="Select Priority"
+                      />
+                    </HStack>
                 </Card>
                 <Card>
                   <VStack space="md">
@@ -287,19 +329,6 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                         handleAttachment={handleAttachment}
                         imageAttachments={imageAttachments}
                         setAttachments={setAttachments}
-                      />
-                    </Box>
-                    <Divider />
-
-                    <Box className="mt-2">
-                      <PriorityComponent
-                        priorityVal={
-                          _selectedItem && _selectedItem.priority !== "None"
-                            ? _selectedItem.priority
-                            : priorityVal
-                        }
-                        priorityOption={priorityOption}
-                        setPriorityVal={setPriorityVal}
                       />
                     </Box>
                   </VStack>
