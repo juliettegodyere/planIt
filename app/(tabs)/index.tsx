@@ -34,6 +34,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { useShoppingItemActions } from "@/hooks/useShoppingItemActions";
 import SearchItems from "@/components/SearchItem";
 import colors from "tailwindcss/colors"
+import Fuse from "fuse.js";
 
 export default function Index() {
   const { state, dispatch } = useShoppingListContext();
@@ -83,18 +84,31 @@ export default function Index() {
       setFilteredItems(catalogItems);
     }
   }, [catalogItems, loading]);
-  
+
+  const fuse = new Fuse(catalogItems, {
+    keys: ["label", "value"],
+    threshold: 0.2, // lower = stricter, higher = fuzzier
+    includeScore: true,
+    ignoreLocation: true,
+  });
 
   const handleSearch = (query: string) => {
     if (!query) {
       setFilteredItems(catalogItems); // reset to all
       return;
     }
-    setFilteredItems(
-      catalogItems.filter((item) =>
-        item.label.toLowerCase().includes(query.toLowerCase())
-      )
-    );
+    // setFilteredItems(
+    //   catalogItems.filter((item) =>
+    //     item.label.toLowerCase().includes(query.toLowerCase())
+    //   )
+    // );
+
+     // Use Fuse for fuzzy searching
+    const results = fuse.search(query);
+
+    // Map results back to items
+    const matchedItems = results.map(r => r.item);
+    setFilteredItems(matchedItems);
   };
 
 const filteredAndSortedItems = useMemo(() => {

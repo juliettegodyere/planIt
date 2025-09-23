@@ -44,6 +44,7 @@ import { setShoppingItemsState } from "@/service/stateActions";
 import { useShoppingItemActions } from "@/hooks/useShoppingItemActions";
 import { Spinner } from "@/components/ui/spinner";
 import colors from "tailwindcss/colors";
+import Fuse from "fuse.js";
 
 type AntDesignIconName = keyof typeof AntDesignIcon.glyphMap;
 
@@ -297,16 +298,42 @@ export default function History() {
       ? selectedItemsAndPurchased
       : selectedItemsAndNotPurchased;
 
+  // const handleSearch = (query: string) => {
+  //   if (!query) {
+  //     setFilteredItems(currentTab); // reset to all
+  //     return;
+  //   }
+  //   setFilteredItems(
+  //     shoppingItemLists.filter((item) =>
+  //       item.name.toLowerCase().includes(query.toLowerCase())
+  //     )
+  //   );
+  // };
+
+  const fuse = new Fuse(shoppingItemLists, {
+    keys: ["label", "value"],
+    threshold: 0.2, // lower = stricter, higher = fuzzier
+    includeScore: true,
+    ignoreLocation: true,
+  });
+
   const handleSearch = (query: string) => {
     if (!query) {
       setFilteredItems(currentTab); // reset to all
       return;
     }
-    setFilteredItems(
-      shoppingItemLists.filter((item) =>
-        item.name.toLowerCase().includes(query.toLowerCase())
-      )
-    );
+    // setFilteredItems(
+    //   shoppingItemLists.filter((item) =>
+    //     item.label.toLowerCase().includes(query.toLowerCase())
+    //   )
+    // );
+
+     // Use Fuse for fuzzy searching
+    const results = fuse.search(query);
+
+    // Map results back to items
+    const matchedItems = results.map(r => r.item);
+    setFilteredItems(matchedItems);
   };
 
   // 🔹 Common renderer for both tabs

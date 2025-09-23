@@ -137,57 +137,6 @@ export default function SearchItems({
     }
   };
   
-
-  const normalizeWord = (word: string) => {
-    let lower = word.toLowerCase().trim();
-    
-    if (lower.endsWith("ies")) {
-      // berries → berry
-      lower = lower.slice(0, -3) + "y";
-    } else if (
-      lower.endsWith("ches") ||
-      lower.endsWith("shes") ||
-      lower.endsWith("xes") ||
-      lower.endsWith("zes") ||
-      lower.endsWith("ses")
-    ) {
-      // matches plural forms like boxes → box, matches → match
-      lower = lower.slice(0, -2);
-    } else if (lower.endsWith("s") && lower.length > 1) {
-      // apples → apple
-      lower = lower.slice(0, -1);
-    }
-  
-    if (lower.endsWith("ed") && lower.length > 2) {
-      // cooked → cook
-      lower = lower.slice(0, -2);
-    }
-  
-    return lower;
-  };
-
-  const matchesExistingItem = (
-    query: string,
-    items: { label: string }[] | undefined
-  ) => {
-    if (!query || !items) return false;
-  
-    const normalizedQuery = normalizeWord(query);
-    //console.log("normalizedQuery", normalizedQuery)
-    console.log("query", query.toLowerCase())
-  
-    return items.some((item) => {
-      const normalizedItem = normalizeWord(item.label);
-      console.log("item.label", item.label.toLowerCase())
-
-      //console.log("normalizedItem", normalizedItem)
-     
-      return (
-        item.label.toLowerCase() !== query.toLowerCase() || // exact match
-        normalizedItem === normalizedQuery // plural/past tense match
-      );
-    });
-  };
   return (
     <HStack
       style={{
@@ -287,8 +236,7 @@ export default function SearchItems({
       {showAddButton &&
       searchQuery.length > 0 &&
       dataType === "catalogItem" &&
-      filteredCatelogItems?.length === 0 &&
-      !matchesExistingItem(searchQuery, catalogItems) ? (
+      filteredCatelogItems?.length === 0  ? (
         <Button
           size="md"
           variant="solid"
