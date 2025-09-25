@@ -4,192 +4,170 @@ export const shoppingData = {
       "label": "Grocery",
       "value": "grocery",
       "items": [
-        { "label": "Apple", "value": "item-01" },
-        { "label": "Banana", "value": "item-02" },
-        { "label": "Carrot", "value": "item-03" },
-        { "label": "Chicken Breast", "value": "item-04" },
-        { "label": "Salmon", "value": "item-05" },
-        { "label": "Milk", "value": "item-06" },
-        { "label": "Eggs", "value": "item-07" },
-        { "label": "Bread", "value": "item-08" },
-        { "label": "Cheese", "value": "item-09" },
-        { "label": "Yogurt", "value": "item-010" }
+        // Fruits
+        { label: "Apple", value: "item-01" },
+        { label: "Banana", value: "item-02" },
+        { label: "Orange", value: "item-03" },
+        { label: "Grapes", value: "item-04" },
+        { label: "Mango", value: "item-05" },
+        { label: "Pineapple", value: "item-06" },
+        { label: "Strawberry", value: "item-07" },
+        // Vegetables
+        { label: "Carrot", value: "item-08" },
+        { label: "Tomato", value: "item-09" },
+        { label: "Onion", value: "item-10" },
+        { label: "Potato", value: "item-11" },
+        { label: "Spinach", value: "item-12" },
+        { label: "Cabbage", value: "item-13" },
+        { label: "Cucumber", value: "item-14" },
+        { label: "Green Pepper", value: "item-15" },
+        // Dairy & Eggs
+        { label: "Milk", value: "item-16" },
+        { label: "Cheese", value: "item-17" },
+        { label: "Yogurt", value: "item-18" },
+        { label: "Butter", value: "item-19" },
+        { label: "Eggs", value: "item-20" },
+        // Meat & Fish
+        { label: "Chicken", value: "item-21" },
+        { label: "Beef", value: "item-22" },
+        { label: "Pork", value: "item-23" },
+        { label: "Salmon", value: "item-24" },
+        { label: "Tuna", value: "item-25" },
+        // Bakery
+        { label: "Bread", value: "item-26" },
+        { label: "Croissant", value: "item-27" },
+        { label: "Muffin", value: "item-28" },
+        { label: "Bagel", value: "item-29" },
+        { label: "Bun", value: "item-30" },
+        // Pantry
+        { label: "Rice", value: "item-31" },
+        { label: "Pasta", value: "item-32" },
+        { label: "Noodles", value: "item-33" },
+        { label: "Lentils", value: "item-34" },
+        { label: "Beans", value: "item-35" },
+        { label: "Flour", value: "item-36" },
+        { label: "Sugar", value: "item-37" },
+        { label: "Salt", value: "item-38" },
+        { label: "Cooking Oil", value: "item-39" },
+        { label: "Spices Mix", value: "item-40" },
+        // Breverages
+        { label: "Orange Juice", value: "item-41" },
+        { label: "Apple Juice", value: "item-42" },
+        { label: "Coca-Cola", value: "item-43" },
+        { label: "Pepsi", value: "item-44" },
+        { label: "Sprite", value: "item-45" },
+        { label: "Coffee", value: "item-46" },
+        { label: "Tea", value: "item-47" },
+        { label: "Green Tea", value: "item-48" },
+        { label: "Hot Chocolate", value: "item-49" },
+        { label: "Mineral Water", value: "item-50" }
       ]
     },
     {
       "label": "African",
       "value": "african_food",
       "items": [
-        { "label": "Fonio", "value": "item-011" },
-        { "label": "Millet", "value": "item-012" },
-        { "label": "Suya Spice", "value": "item-013" },
-        { "label": "Jollof Rice Spice", "value": "item-014" },
-        { "label": "Egusi", "value": "item-015" },
-        { "label": "Ogbono", "value": "item-016" },
-        { "label": "Palm Oil", "value": "item-017" },
-        { "label": "Stockfish", "value": "item-018" },
-        { "label": "Dried Crayfish", "value": "item-019" },
-        { "label": "Yam Flour", "value": "item-020" }
+        { label: "Egusi", value: "item-71" },
+        { label: "Ogbono", value: "item-72" },
+        { label: "Palm Oil", value: "item-73" },
+        { label: "Stockfish", value: "item-74" },
+        { label: "Yam", value: "item-75" },
+        { label: "Yam Flour", value: "item-76" },
+        { label: "Cassava Flour (Garri)", value: "item-77" },
+        { label: "Plantain", value: "item-78" },
+        { label: "Suya Spice", value: "item-79" },
+        { label: "Dried Fish", value: "item-80" }
       ]
     },
     {
       "label": "Chinese",
       "value": "chinese",
       "items": [
-        { "label": "Fafan", "value": "item-021" },
-        { "label": "Guoguo hjjk", "value": "item-022" },
-        { "label": "Deel Dell", "value": "item-023" },
-        { "label": "Gdeyl Hju", "value": "item-0244" },
-        { "label": "Tofu", "value": "item-025" },
-        { "label": "Soy Sauce", "value": "item-026" },
-        { "label": "Rice Noodles", "value": "item-027" },
-        { "label": "Hoisin Sauce", "value": "item-028" },
-        { "label": "Five-Spice Powder", "value": "item-029" },
-        { "label": "Bok Choy", "value": "item-030" }
-      ]
-    },
-    {
-      "label": "Bakery",
-      "value": "bakery",
-      "items": [
-        { "label": "Croissant", "value": "item-031" },
-        { "label": "Baguette", "value": "item-032" },
-        { "label": "Muffin", "value": "item-033" },
-        { "label": "Bagel", "value": "item-034" },
-        { "label": "Donut", "value": "item-035" }
-      ]
-    },
-    {
-      "label": "Beverages",
-      "value": "beverages",
-      "items": [
-        { "label": "Orange Juice", "value": "item-036" },
-        { "label": "Coffee", "value": "item-037" },
-        { "label": "Green Tea", "value": "item-038" },
-        { "label": "Mineral Water", "value": "item-039" },
-        { "label": "Soft Drink", "value": "item-040" }
+        { label: "Tofu", value: "item-81" },
+        { label: "Soy Sauce", value: "item-82" },
+        { label: "Rice Noodles", value: "item-83" },
+        { label: "Bok Choy", value: "item-84" },
+        { label: "Spring Onion", value: "item-85" },
+        { label: "Dumplings", value: "item-86" },
+        { label: "Chili Sauce", value: "item-87" },
+        { label: "Sesame Oil", value: "item-88" },
+        { label: "Five Spice Powder", value: "item-89" },
+        { label: "Fortune Cookies", value: "item-90" }
       ]
     },
     {
       "label": "Household",
       "value": "household",
       "items": [
-        { "label": "Toilet Paper", "value": "item-041" },
-        { "label": "Laundry Detergent", "value": "item-042" },
-        { "label": "Dish Soap", "value": "item-043" },
-        { "label": "Garbage Bags", "value": "item-044" },
-        { "label": "Cleaning Spray", "value": "item-045" }
+        { label: "Toilet Paper", value: "item-51" },
+        { label: "Laundry Detergent", value: "item-52" },
+        { label: "Dish Soap", value: "item-53" },
+        { label: "Garbage Bags", value: "item-54" },
+        { label: "Cleaning Spray", value: "item-55" },
+        { label: "Hand Sanitizer", value: "item-56" },
+        { label: "Paper Towels", value: "item-57" },
+        { label: "Sponges", value: "item-58" },
+        { label: "Light Bulbs", value: "item-59" },
+        { label: "Batteries", value: "item-60" }
       ]
     },
     {
-      "label": "Grains & Flours",
-      "value": "grains_flours",
+      "label": "Asian",
+      "value": "asian",
       "items": [
-        { "label": "Basmati Rice", "value": "item-001" },
-        { "label": "Brown Basmati Rice", "value": "item-002" },
-        { "label": "Rava (Cream of Wheat, Sooji)", "value": "item-003" },
-        { "label": "Whole-Wheat Durum Flour or Atta Flour", "value": "item-004" },
-        { "label": "Cracked Wheat", "value": "item-005" },
-        { "label": "Flattened Rice (Poha)", "value": "item-006" },
-        { "label": "Puffed Rice (Kurmura)", "value": "item-007" },
-        { "label": "Millet Flour", "value": "item-008" },
-        { "label": "Besan or Chickpea Flour", "value": "item-009" }
+         // Sauces & Condiments
+    { label: "Soy Sauce", value: "asian-001" },
+    { label: "Oyster Sauce", value: "asian-002" },
+    { label: "Fish Sauce", value: "asian-003" },
+    { label: "Chili Paste", value: "asian-004" },
+    { label: "Curry Paste", value: "asian-005" },
+    { label: "Hoisin Sauce", value: "asian-006" },
+    { label: "Sesame Oil", value: "asian-007" },
+
+    // Noodles & Rice
+    { label: "Rice Noodles", value: "asian-008" },
+    { label: "Ramen Noodles", value: "asian-009" },
+    { label: "Soba Noodles", value: "asian-010" },
+    { label: "Basmati Rice", value: "asian-011" },
+    { label: "Jasmine Rice", value: "asian-012" },
+    { label: "Sticky Rice", value: "asian-013" },
+
+    // Vegetables & Add-ons
+    { label: "Bok Choy", value: "asian-014" },
+    { label: "Bean Sprouts", value: "asian-015" },
+    { label: "Spring Onion", value: "asian-016" },
+    { label: "Ginger", value: "asian-017" },
+    { label: "Garlic", value: "asian-018" },
+
+    // Proteins
+    { label: "Tofu", value: "asian-019" },
+    { label: "Edamame", value: "asian-020" },
+    { label: "Prawns", value: "asian-021" },
+    { label: "Duck", value: "asian-022" },
+
+    // Snacks & Extras
+    { label: "Seaweed Snacks", value: "asian-023" },
+    { label: "Wasabi", value: "asian-024" },
+    { label: "Miso Paste", value: "asian-025" },
+    { label: "Kimchi", value: "asian-026" },
+    { label: "Pickled Radish", value: "asian-027" },
+    { label: "Fortune Cookies", value: "asian-028" }
       ]
     },
     {
-      "label": "Legumes & Pulses",
-      "value": "legumes_pulses",
+      "label": "Personal Care",
+      "value": "personal-care",
       "items": [
-        { "label": "Toor Dal (Pigeon Peas)", "value": "item-0010" },
-        { "label": "Masoor Dal (Pink Lentils)", "value": "item-0011" },
-        { "label": "Rajma (Red Kidney Beans)", "value": "item-0012" },
-        { "label": "Chickpeas or Chole or Garbanzo Beans (Chana)", "value": "item-0013" },
-        { "label": "Peanuts", "value": "item-0014" },
-        { "label": "Chana Dal", "value": "item-0015" },
-        { "label": "Urad Dal", "value": "item-0016" },
-        { "label": "Moong Dal", "value": "item-0017" },
-        { "label": "Moth or Matki Beans", "value": "item-0018" },
-        { "label": "Whole Mung Beans", "value": "item-0019" },
-        { "label": "Black-eyed Peas or Chavli Beans", "value": "item-0020" },
-        { "label": "Whole Masoor Vaal Dal (Field Beans)", "value": "item-0021" }
-      ]
-    },
-    {
-      "label": "Whole Spices",
-      "value": "whole_spices",
-      "items": [
-        { "label": "Black Mustard Seeds (Rai)", "value": "item-0022" },
-        { "label": "Cumin Seeds (Jeera)", "value": "item-0023" },
-        { "label": "Coriander Seeds", "value": "item-0024" },
-        { "label": "Green Cardamom Pods (Hari Elaichi)", "value": "item-0025" },
-        { "label": "Cloves (Laung)", "value": "item-0026" },
-        { "label": "Cinnamon Bark (Dalchini)", "value": "item-0027" },
-        { "label": "Nutmeg (Jaiphal)", "value": "item-0028" },
-        { "label": "Mace (Javitri)", "value": "item-0029" },
-        { "label": "Whole Black Peppercorns", "value": "item-0030" },
-        { "label": "Bay Leaves (Tej Patta)", "value": "item-0031" },
-        { "label": "Whole Dry Red Chilies", "value": "item-0032" },
-        { "label": "Asafoetida (Hing)", "value": "item-0033" },
-        { "label": "Black Cardamom Pods (Kali Elaichi)", "value": "item-0034" },
-        { "label": "Fennel Seeds (Saunf)", "value": "item-0035" },
-        { "label": "Carom Seeds (Ajwain)", "value": "item-0036" },
-        { "label": "Onion Seeds (Kalonji)", "value": "item-0037" },
-        { "label": "White Poppy Seeds (Khus Khus)", "value": "item-0038" },
-        { "label": "Fenugreek Seeds (Methi)", "value": "item-0039" },
-        { "label": "White Sesame Seeds (Til)", "value": "item-0040" },
-        { "label": "Saffron (Kesar)", "value": "item-0041" }
-      ]
-    },
-    {
-      "label": "Powdered Spices",
-      "value": "powdered_spices",
-      "items": [
-        { "label": "Kashmiri Red Chili Powder", "value": "item-0042" },
-        { "label": "Turmeric", "value": "item-0043" },
-        { "label": "Ground Coriander", "value": "item-0044" },
-        { "label": "Ground Cumin", "value": "item-0045" },
-        { "label": "Garam Masala", "value": "item-0046" },
-        { "label": "Curry Powder", "value": "item-0047" },
-        { "label": "Biryani Masala", "value": "item-0048" },
-        { "label": "Pav Bhaji Masala", "value": "item-0049" },
-        { "label": "Chana Masala Powder", "value": "item-0050" },
-        { "label": "Amchur (Mango Powder)", "value": "item-0051" }
-      ]
-    },
-    {
-      "label": "Oils",
-      "value": "oils",
-      "items": [
-        { "label": "Avocado Oil or unflavored oil (Canola, Peanut)", "value": "item-0052" },
-        { "label": "Coconut Oil (for South Indian dishes)", "value": "item-0053" },
-        { "label": "Sesame Oil", "value": "item-0054" },
-        { "label": "Mustard Oil", "value": "item-0055" }
-      ]
-    },
-    {
-      "label": "Fresh & Frozen Items",
-      "value": "fresh_frozen",
-      "items": [
-        { "label": "Curry Leaves", "value": "item-0056" },
-        { "label": "Coriander Leaves", "value": "item-0057" },
-        { "label": "Mint Leaves", "value": "item-0058" },
-        { "label": "Shredded Coconut", "value": "item-0059" },
-        { "label": "Green Chillies", "value": "item-0060" }
-      ]
-    },
-    {
-      "label": "Miscellaneous",
-      "value": "miscellaneous",
-      "items": [
-        { "label": "Jaggery", "value": "item-0061" },
-        { "label": "Tamarind (pulp or pods)", "value": "item-0062" },
-        { "label": "Coconut Milk", "value": "item-0063" },
-        { "label": "Kasoori Methi (dry methi leaves)", "value": "item-0064" },
-        { "label": "Poppadums or Papads", "value": "item-0065" },
-        { "label": "Golden Raisins", "value": "item-0066" },
-        { "label": "Cashews", "value": "item-0067" },
-        { "label": "Pistachios", "value": "item-0068" },
-        { "label": "Alphonso Mango Pulp (canned)", "value": "item-0069" }
+        { label: "Shampoo", value: "item-61" },
+        { label: "Conditioner", value: "item-62" },
+        { label: "Soap", value: "item-63" },
+        { label: "Toothpaste", value: "item-64" },
+        { label: "Toothbrush", value: "item-65" },
+        { label: "Deodorant", value: "item-66" },
+        { label: "Body Lotion", value: "item-67" },
+        { label: "Face Wash", value: "item-68" },
+        { label: "Razor", value: "item-69" },
+        { label: "Sanitary Pads", value: "item-70" }
       ]
     }
   ]

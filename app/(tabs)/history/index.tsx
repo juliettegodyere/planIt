@@ -93,7 +93,7 @@ export default function History() {
       setActiveTab("Selected");
       setActiveIndex(0);
       setFilteredItems(selectedItemsAndNotPurchased)
-    }, [])
+    }, [shoppingItemLists])
   );
 
   useEffect(() => {
@@ -383,7 +383,7 @@ export default function History() {
       </SafeAreaView>
     );
   }
-  //console.log("state.shoppingItemLists", state.shoppingItemLists)
+  
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

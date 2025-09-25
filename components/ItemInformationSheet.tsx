@@ -30,6 +30,7 @@ import { CategoryItemResponseType } from "@/service/types";
 import ShoppingButton from "./ShoppingButton";
 import QuantitySelector from "./QuantitySelector";
 import CustomMenu from "./CustomMenu";
+import { Button, ButtonText } from "./ui/button";
 
 const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
   isOpen,
@@ -191,27 +192,38 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                       // handleCheckboxChange={handleCheckboxChange}
                     />
                     <HStack className="justify-between">
-                      <Box className="mt-2">
+                      <Box className="mt-3">
                         {categoryLabel === "Uncategorized" ? (
-                          <TouchableOpacity
-                            onPress={() => setShowAddCategoryActionsheet(true)}
-                            style={{
-                              backgroundColor: "#FF6347",
-                              borderRadius: 12,
-                              padding: 3,
-                            }}
-                          >
-                            <Text
-                              size="md"
-                              className="text-white text-center font-medium"
-                            >
-                              Change category
-                            </Text>
-                          </TouchableOpacity>
+                          // <TouchableOpacity
+                          //   onPress={() => setShowAddCategoryActionsheet(true)}
+                          //   style={{
+                          //     backgroundColor: "#FF6347",
+                          //     borderRadius: 12,
+                          //     padding: 8,
+                          //   }}
+                          // >
+                          //   <Text
+                          //     size="md"
+                          //     className="text-white text-center font-medium"
+                          //   >
+                          //     Change category
+                          //   </Text>
+                          // </TouchableOpacity>
+                          <Button
+                          size="md"
+                          variant="solid"
+                          action="primary"
+                          className="rounded-full"
+                          style={{ backgroundColor: "#FF6347" }}
+                          onPress={() => setShowAddCategoryActionsheet(true)}
+                        >
+                          <ButtonText>Change category</ButtonText>
+                        </Button>
                         ) : (
                           <Text size="lg">{categoryLabel}</Text>
                         )}
                       </Box>
+                      <Box className="mt-3">
                       {_selectedItem.selected && (
                         <ShoppingButton
                           label={
@@ -223,13 +235,14 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                           onPress={() => handleMarkItemAsPurchased()}
                         />
                       )}
+                      </Box>
                     </HStack>
                   </VStack>
                 </Card>
                 <Card>
                   <VStack space="sm" className="mb-3">
                   <Text className="font-medium text-lg"  style={{color:"#888888"}}>Update Quantity: </Text>
-                  <HStack space="lg">
+                  <HStack space="2xl">
                     <QuantitySelector
                       quantity={qtyVal}
                       onIncrease={() =>
@@ -240,7 +253,7 @@ const ItemInformationSheet: React.FC<ItemInformationSheetProps> = ({
                       }
                       onDelete={() => console.log("The min is 1 here")}
                     />
-                    <Box className="mt-2">
+                    <Box >
                     <CustomMenu
                       value={qtyUnit}
                       menuItems={qtyOptions}

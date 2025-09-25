@@ -1,28 +1,39 @@
 import { CameraIcon, FileIcon, FileUpIcon, ScanBarcodeIcon, ScanTextIcon, UploadCloud, VideoIcon } from "lucide-react-native";
-import { MaterialCommunityIcons, FontAwesome5, Ionicons, Entypo } from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome5, Ionicons, Entypo, MaterialDesignIcons, MaterialIcons } from '@expo/vector-icons';
+
+  // export const categoryOptions = [
+  //   { label: "All", value: "all" },
+  //   { label: "Grocery", value: "grocery" },
+  //   { label: "African", value: "african" },
+  //   { label: "Chinese", value: "chinese" },
+  //   { label: "Vegetables", value: "vegetables" },
+  //   { label: "Fruits", value: "fruits" },
+  //   { label: "Drinks", value: "drinks" },
+  //   { label: "Snacks", value: "snacks" },
+  //   { label: "Dairy", value: "dairy" },
+  //   { label: "Meat", value: "meat" },
+  //   { label: "Household", value: "household" },
+  //   { label: "Bakery", value: "bakery" },
+  //   { label: "Beverages", value: "beverages" },
+  //   { label: "Grains & Flours", value: "grains_flours" },
+  //   { label: "Legumes & Pulses", value: "legumes_pulses" },
+  //   { label: "Whole Spices", value: "whole_spices" },
+  //   { label: "Powdered Spices", value: "powdered_spices" },
+  //   { label: "Oils", value: "oils" },
+  //   { label: "Fresh & Frozen Items", value: "fresh_frozen" },
+  //   { label: "Miscellaneous", value: "miscellaneous" },
+  //   { label: "Uncategorized", value: "uncategorized"},
+  // ];
 
   export const categoryOptions = [
     { label: "All", value: "all" },
-    { label: "Grocery", value: "grocery" },
+    { label: "Grocery", value: "grocery" }, // umbrella for food-related items
     { label: "African", value: "african" },
     { label: "Chinese", value: "chinese" },
-    { label: "Vegetables", value: "vegetables" },
-    { label: "Fruits", value: "fruits" },
-    { label: "Drinks", value: "drinks" },
-    { label: "Snacks", value: "snacks" },
-    { label: "Dairy", value: "dairy" },
-    { label: "Meat", value: "meat" },
+    { label: "Asian", value: "asian" },
     { label: "Household", value: "household" },
-    { label: "Bakery", value: "bakery" },
-    { label: "Beverages", value: "beverages" },
-    { label: "Grains & Flours", value: "grains_flours" },
-    { label: "Legumes & Pulses", value: "legumes_pulses" },
-    { label: "Whole Spices", value: "whole_spices" },
-    { label: "Powdered Spices", value: "powdered_spices" },
-    { label: "Oils", value: "oils" },
-    { label: "Fresh & Frozen Items", value: "fresh_frozen" },
-    { label: "Miscellaneous", value: "miscellaneous" },
-    { label: "Uncategorized", value: "uncategorized"},
+    { label: "Personal Care", value: "personal_care" },
+    { label: "Uncategorized", value: "uncategorized" },
   ];
 
   export const categoryLists = [
@@ -73,105 +84,111 @@ import { MaterialCommunityIcons, FontAwesome5, Ionicons, Entypo } from '@expo/ve
       color: "#F97316", // orange-500
     },
     {
-      label: "Vegetables",
-      IconName: "food-apple-outline",
+      label: "Asian",
+      IconName: "food-steak",
       IconPack: MaterialCommunityIcons,
       color: "#22C55E", // green-500
     },
-    {
-      label: "Fruits",
-      IconName: "fruit-cherries",
-      IconPack: MaterialCommunityIcons,
-      color: "#EF4444", // red-500
-    },
-    {
-      label: "Drinks",
-      IconName: "cup-water",
-      IconPack: MaterialCommunityIcons,
-      color: "#3B82F6", // blue-500
-    },
-    {
-      label: "Snacks",
-      IconName: "cookie",
-      IconPack: MaterialCommunityIcons,
-      color: "#F59E0B", // amber-500
-    },
-    {
-      label: "Dairy",
-      IconName: "cheese",
-      IconPack: FontAwesome5,
-      color: "#FBBF24", // yellow-400
-    },
-    {
-      label: "Meat",
-      IconName: "food-steak",
-      IconPack: MaterialCommunityIcons,
-      color: "#DC2626", // red-600
-    },
+    // {
+    //   label: "Vegetables",
+    //   IconName: "food-apple-outline",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#22C55E", // green-500
+    // },
+    // {
+    //   label: "Fruits",
+    //   IconName: "fruit-cherries",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#EF4444", // red-500
+    // },
+    // {
+    //   label: "Drinks",
+    //   IconName: "cup-water",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#3B82F6", // blue-500
+    // },
+    // {
+    //   label: "Snacks",
+    //   IconName: "cookie",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#F59E0B", // amber-500
+    // },
+    // {
+    //   label: "Dairy",
+    //   IconName: "cheese",
+    //   IconPack: FontAwesome5,
+    //   color: "#FBBF24", // yellow-400
+    // },
+    // {
+    //   label: "Meat",
+    //   IconName: "food-steak",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#DC2626", // red-600
+    // },
     {
       label: "Household",
       IconName: "broom",
       IconPack: MaterialCommunityIcons,
       color: "#6B7280", // gray-500
     },
+    // {
+    //   label: "Bakery",
+    //   IconName: "hamburger",
+    //   IconPack: Ionicons,
+    //   color: "#10B981", // emerald-500
+    // },
+    // {
+    //   label: "Beverages",
+    //   IconName: "tea",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#8B5CF6", // violet-500
+    // },
+    // {
+    //   label: "Grains & Flours",
+    //   IconName: "grain",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#F97316", // orange-500
+    // },
+    // {
+    //   label: "Legumes & Pulses",
+    //   IconName: "leaf",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#22C55E", // green-500
+    // },
+    // {
+    //   label: "Whole Spices",
+    //   IconName: "pepper-hot",
+    //   IconPack: FontAwesome5,
+    //   color: "#EF4444", // red-500
+    // },
+    // {
+    //   label: "Powdered Spices",
+    //   IconName: "grain",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#3B82F6", // blue-500
+    // },
+    // {
+    //   label: "Oils",
+    //   IconName: "oil",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#F59E0B", // amber-500
+    // },
+    // {
+    //   label: "Fresh & Frozen Items",
+    //   IconName: "fish",
+    //   IconPack: MaterialCommunityIcons,
+    //   color: "#FBBF24", // yellow-400
+    // },
     {
-      label: "Bakery",
-      IconName: "hamburger",
-      IconPack: Ionicons,
-      color: "#10B981", // emerald-500
-    },
-    {
-      label: "Beverages",
-      IconName: "tea",
-      IconPack: MaterialCommunityIcons,
-      color: "#8B5CF6", // violet-500
-    },
-    {
-      label: "Grains & Flours",
-      IconName: "grain",
-      IconPack: MaterialCommunityIcons,
-      color: "#F97316", // orange-500
-    },
-    {
-      label: "Legumes & Pulses",
-      IconName: "leaf",
-      IconPack: MaterialCommunityIcons,
-      color: "#22C55E", // green-500
-    },
-    {
-      label: "Whole Spices",
-      IconName: "pepper-hot",
-      IconPack: FontAwesome5,
-      color: "#EF4444", // red-500
-    },
-    {
-      label: "Powdered Spices",
-      IconName: "grain",
-      IconPack: MaterialCommunityIcons,
-      color: "#3B82F6", // blue-500
-    },
-    {
-      label: "Oils",
-      IconName: "oil",
-      IconPack: MaterialCommunityIcons,
-      color: "#F59E0B", // amber-500
-    },
-    {
-      label: "Fresh & Frozen Items",
-      IconName: "fish",
-      IconPack: MaterialCommunityIcons,
-      color: "#FBBF24", // yellow-400
-    },
-    {
-      label: "Miscellaneous",
-      IconName: "food-steak",
+      label: "Personal Care",
+      IconName: "bag-personal-outline",
       IconPack: MaterialCommunityIcons,
       color: "#DC2626", // red-600
     },
     {
       label: "Uncategorized",
       IconName: "category",
-      IconPack: MaterialCommunityIcons,
+      IconPack: MaterialIcons,
       color: "#6B7280", // gray-500
     },
   ];
